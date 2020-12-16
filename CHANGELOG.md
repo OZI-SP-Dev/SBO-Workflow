@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.0.1] 2020-12-16
+### Added
+- Page Header and placeholder routes
+
 ### Types of changes
 - Added for new features.
 - Changed for changes in existing functionality.
