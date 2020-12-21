@@ -1,0 +1,32 @@
+#mainnav {
+    background-color: #337ab7;
+    text-align: center;
+}
+
+#mainnav span {
+    color: #fff;
+    top: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: 1000;
+    max-width: fit-content;
+    cursor: pointer;
+    height: 3rem;
+}
+
+#mainnav,
+#mainnav a {
+    color: #fff;
+    font-weight: 600;
+    height: 3rem;
+}
+
+.bordered {
+    border-style: solid;
+    border-color: #dbdbdb;
+    border-width: 0 1px 0 1px;
+}
+
+#mainnav span:hover,#mainnav a:hover {
+    background-color: #2b8cff;
+}
