@@ -45,6 +45,12 @@ export const Processes: FunctionComponent = () => {
         });
     }
 
+    const deleteProcess = () => {
+        if (processes.length > 0) {
+            api.deleteProcess(processes[0].Id);
+        }
+    }
+
     useEffect(() => {
         api.fetchProcesses().then(p => setProcesses(p));
     }, []);
@@ -52,6 +58,7 @@ export const Processes: FunctionComponent = () => {
     return (
         <>
             <Button onClick={submitProcess}>Create Process</Button>
+            <Button variant="danger" onClick={deleteProcess}>Delete Process</Button>
         </>
     );
 }

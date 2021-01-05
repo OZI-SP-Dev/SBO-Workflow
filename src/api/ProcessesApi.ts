@@ -11,7 +11,7 @@ declare var _spPageContextInfo: any;
 export interface IProcessesApi {
     fetchProcesses(): Promise<IProcess[]>,
     submitProcess(process: IProcess): Promise<IProcess>,
-    deleteProcess(process: IProcess): Promise<void>
+    deleteProcess(processId: number): Promise<void>
 }
 
 export default class ProcessesApi implements IProcessesApi {
@@ -21,15 +21,24 @@ export default class ProcessesApi implements IProcessesApi {
     ispContentTypeId: string | undefined;
 
     async fetchProcesses(): Promise<IProcess[]> {
-        const processes: SPProcess[] = await this.processesList.items.select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "BuyerReviewStartDate", "BuyerReviewEndDate", "COInitialReviewStartDate", "COInitialReviewEndDate", "SBPReviewStartDate", "SBPReviewEndDate", "SBAPCRReviewStartDate", "SBAPCRReviewEndDate", "COFinalReviewStartDate", "COFinalReviewEndDate").expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR").get();
+        const processes: SPProcess[] = await this.processesList.items.select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "BuyerReviewStartDate", "BuyerReviewEndDate", "COInitialReviewStartDate", "COInitialReviewEndDate", "SBPReviewStartDate", "SBPReviewEndDate", "SBAPCRReviewStartDate", "SBAPCRReviewEndDate", "COFinalReviewStartDate", "COFinalReviewEndDate").expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR").filter("IsDeleted ne 1 and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')").get();
         return processes.map(p => this.spProcessToIProcess(p));
     }
 
     async submitProcess(process: IProcess): Promise<IProcess> {
+        return process.Id < 0 ? this.submitNewProcess(process) : this.updateProcess(process);
+    }
+
+    async deleteProcess(processId: number): Promise<void> {
+        await this.processesList.items.getById(processId).update({ IsDeleted: true });
+    }
+
+    private async submitNewProcess(process: IProcess): Promise<IProcess> {
         if (!this.dd2579ContentTypeId || !this.ispContentTypeId) {
             await this.getContentTypes();
         }
 
+        // TODO: This overwrites a folder if one already exists with the same name
         const newFolder = await sp.web.rootFolder.folders.getByName("Processes").folders.add(process.SolicitationNumber);
         const folderFields = await newFolder.folder.listItemAllFields();
 
@@ -39,13 +48,18 @@ export default class ProcessesApi implements IProcessesApi {
         })).data["odata.etag"];
 
         const fileName = process.ProcessType === ProcessTypes.DD2579 ? "dd2579.pdf" : "Draft_ISP_Checklist.docx";
-        await sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`).copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, true, false);
+        await sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`).copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, false, true);
 
-        return {...process, Id: folderFields.Id, "odata.etag": etag};
+        return { ...process, Id: folderFields.Id, "odata.etag": etag };
     }
 
-    deleteProcess(process: IProcess): Promise<void> {
-        throw new Error("Method not implemented.");
+    private async updateProcess(process: IProcess): Promise<IProcess> {
+        return {
+            ...process,
+            "odata.etag": (
+                await this.processesList.items.getById(process.Id)
+                    .update(this.processToSubmitProcess(process), process["odata.etag"])).data["odata.etag"]
+        }
     }
 
     private async getContentTypes(): Promise<void> {
