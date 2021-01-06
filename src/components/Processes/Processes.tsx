@@ -11,8 +11,8 @@ export const Processes: FunctionComponent = () => {
 
     let api = new ProcessesApi();
 
-    const submitProcess = () => {
-        api.submitProcess({
+    const submitProcess = async () => {
+        console.log(await api.submitProcess({
             Id: -1,
             ProcessType: ProcessTypes.DD2579,
             SolicitationNumber: "test1",
@@ -42,7 +42,7 @@ export const Processes: FunctionComponent = () => {
             COFinalReviewStartDate: DateTime.local(),
             COFinalReviewEndDate: DateTime.local(),
             "odata.etag": ""
-        });
+        }));
     }
 
     const deleteProcess = () => {
