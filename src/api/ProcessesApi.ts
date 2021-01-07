@@ -44,28 +44,23 @@ export default class ProcessesApi implements IProcessesApi {
         }
 
         // Must check if there is already a folder with that name because the add folder function will overwrite it
-        if ((await this.processesList.items.select("SolicitationNumber").filter(`SolicitationNumber eq '${process.SolicitationNumber}'`).get()).length === 0) {
-            let etag: string = "";
-            let processId = process.Id;
-            let batch = sp.createBatch();
-
-            batch.addResolveBatchDependency(sp.web.rootFolder.folders.getByName("Processes").folders.add(process.SolicitationNumber)
-                .then(newFolder => newFolder.folder.listItemAllFields().then(folderFields => {
-                    processId = folderFields.Id;
-                    return this.processesList.items.getById(folderFields.Id).update({
-                        ContentTypeId: process.ProcessType === ProcessTypes.DD2579 ? this.dd2579ContentTypeId : this.ispContentTypeId,
-                        ...this.processToSubmitProcess(process)
-                    }).then(res => 
-                        etag = res.data["odata.etag"]);
-                }))
-            );
-
+        if ((await this.processesList.items.select("SolicitationNumber").filter(`SolicitationNumber eq '${process.SolicitationNumber}' and IsDeleted ne 1`).get()).length === 0) {
             const fileName = process.ProcessType === ProcessTypes.DD2579 ? "dd2579.pdf" : "Draft_ISP_Checklist.docx";
-            sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`).inBatch(batch).copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, false, true);
 
-            await batch.execute();
+            let newFolder = await sp.web.rootFolder.folders.getByName("Processes").folders.add(process.SolicitationNumber);
 
-            return { ...process, Id: processId, "odata.etag": etag };
+            let fileCopyPromise = sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`)
+                .copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, true, false);
+
+            let folderFields = newFolder.folder.listItemAllFields();
+            let updatePromise = this.processesList.items.getById((await folderFields).Id).update({
+                ContentTypeId: process.ProcessType === ProcessTypes.DD2579 ? this.dd2579ContentTypeId : this.ispContentTypeId,
+                ...this.processToSubmitProcess(process)
+            });
+
+            await fileCopyPromise;
+
+            return { ...process, Id: (await folderFields).Id, "odata.etag": (await updatePromise).data["odata.etag"] };
         } else {
             throw new DuplicateEntryError("A Process has already been created with this Solicitation Number!");
         }
