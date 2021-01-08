@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { IProcess, ParentOrgs, ProcessTypes, SetAsideRecommendations, Stages } from "../../api/DomainObjects";
+import NotesApi from "../../api/NotesApi";
 import ProcessesApi from "../../api/ProcessesApi";
 import { UserApiConfig } from "../../api/UserApi";
 
@@ -12,6 +13,7 @@ export const Processes: FunctionComponent = () => {
 
     let api = new ProcessesApi();
     let userApi = UserApiConfig.getApi();
+    let notesApi = new NotesApi();
 
     const submitProcess = async () => {
         console.log(await api.submitProcess({
@@ -53,14 +55,27 @@ export const Processes: FunctionComponent = () => {
         }
     }
 
+    const submitNote = () => {
+        if (processes.length > 0) {
+            notesApi.submitNote("Super note", processes[0]);
+        }
+    }
+
     useEffect(() => {
         api.fetchProcesses().then(p => setProcesses(p));
     }, []);
+
+    useEffect(() => {
+        if (processes.length > 0) {
+            notesApi.fetchNotesForProcess(processes[0]).then(notes => console.log(notes));
+        }
+    })
 
     return (
         <>
             <Button onClick={submitProcess}>Create Process</Button>
             <Button variant="danger" onClick={deleteProcess}>Delete Process</Button>
+            <Button variant="warning" onClick={submitNote}>Create Note</Button>
         </>
     );
 }
