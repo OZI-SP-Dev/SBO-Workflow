@@ -3,6 +3,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { IProcess, ParentOrgs, ProcessTypes, SetAsideRecommendations, Stages } from "../../api/DomainObjects";
 import ProcessesApi from "../../api/ProcessesApi";
+import { UserApiConfig } from "../../api/UserApi";
 
 
 export const Processes: FunctionComponent = () => {
@@ -10,18 +11,19 @@ export const Processes: FunctionComponent = () => {
     const [processes, setProcesses] = useState<IProcess[]>([]);
 
     let api = new ProcessesApi();
+    let userApi = UserApiConfig.getApi();
 
-    const submitProcess = () => {
-        api.submitProcess({
+    const submitProcess = async () => {
+        console.log(await api.submitProcess({
             Id: -1,
             ProcessType: ProcessTypes.DD2579,
             SolicitationNumber: "test1",
             ProgramName: "test1",
             ParentOrg: ParentOrgs.AFIMSC,
             Org: "test1",
-            Buyer: { Id: 11, Title: "Jeremy", EMail: "me@woo.com" },
-            ContractingOfficer: { Id: 11, Title: "Jeremy", EMail: "me@woo.com" },
-            SmallBusinessProfessional: { Id: 11, Title: "Jeremy", EMail: "me@woo.com" },
+            Buyer: await userApi.getCurrentUser(),
+            ContractingOfficer: await userApi.getCurrentUser(),
+            SmallBusinessProfessional: await userApi.getCurrentUser(),
             SboDuration: 2,
             ContractValueDollars: 3,
             SetAsideRecommendation: SetAsideRecommendations.EDWOSB,
@@ -29,8 +31,8 @@ export const Processes: FunctionComponent = () => {
             Created: DateTime.local(),
             Modified: DateTime.local(),
             CurrentStage: Stages.BUYER_REVIEW,
-            CurrentAssignee: { Id: 11, Title: "Jeremy", EMail: "me@woo.com" },
-            SBAPCR: { Id: 11, Title: "Jeremy", EMail: "me@woo.com" },
+            CurrentAssignee: await userApi.getCurrentUser(),
+            SBAPCR: await userApi.getCurrentUser(),
             BuyerReviewStartDate: DateTime.local(),
             BuyerReviewEndDate: DateTime.local(),
             COInitialReviewStartDate: DateTime.local(),
@@ -42,7 +44,7 @@ export const Processes: FunctionComponent = () => {
             COFinalReviewStartDate: DateTime.local(),
             COFinalReviewEndDate: DateTime.local(),
             "odata.etag": ""
-        });
+        }));
     }
 
     const deleteProcess = () => {

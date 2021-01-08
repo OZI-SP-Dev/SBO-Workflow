@@ -5,6 +5,7 @@ import "@pnp/sp/files/folder";
 import { DateTime } from "luxon";
 import "@pnp/sp/content-types/list";
 import { sp } from "@pnp/sp";
+import { DuplicateEntryError } from "./InternalErrors";
 
 declare var _spPageContextInfo: any;
 
@@ -21,7 +22,11 @@ export default class ProcessesApi implements IProcessesApi {
     ispContentTypeId: string | undefined;
 
     async fetchProcesses(): Promise<IProcess[]> {
-        const processes: SPProcess[] = await this.processesList.items.select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "BuyerReviewStartDate", "BuyerReviewEndDate", "COInitialReviewStartDate", "COInitialReviewEndDate", "SBPReviewStartDate", "SBPReviewEndDate", "SBAPCRReviewStartDate", "SBAPCRReviewEndDate", "COFinalReviewStartDate", "COFinalReviewEndDate").expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR").filter("IsDeleted ne 1 and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')").get();
+        const processes: SPProcess[] = await this.processesList.items
+            .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "BuyerReviewStartDate", "BuyerReviewEndDate", "COInitialReviewStartDate", "COInitialReviewEndDate", "SBPReviewStartDate", "SBPReviewEndDate", "SBAPCRReviewStartDate", "SBAPCRReviewEndDate", "COFinalReviewStartDate", "COFinalReviewEndDate")
+            .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR")
+            .filter("IsDeleted ne 1 and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')")
+            .get();
         return processes.map(p => this.spProcessToIProcess(p));
     }
 
@@ -38,19 +43,27 @@ export default class ProcessesApi implements IProcessesApi {
             await this.getContentTypes();
         }
 
-        // TODO: This overwrites a folder if one already exists with the same name
-        const newFolder = await sp.web.rootFolder.folders.getByName("Processes").folders.add(process.SolicitationNumber);
-        const folderFields = await newFolder.folder.listItemAllFields();
+        // Must check if there is already a folder with that name because the add folder function will overwrite it
+        if ((await this.processesList.items.select("SolicitationNumber").filter(`SolicitationNumber eq '${process.SolicitationNumber}' and IsDeleted ne 1`).get()).length === 0) {
+            const fileName = process.ProcessType === ProcessTypes.DD2579 ? "dd2579.pdf" : "Draft_ISP_Checklist.docx";
 
-        const etag = (await this.processesList.items.getById(folderFields.Id).update({
-            ContentTypeId: process.ProcessType === ProcessTypes.DD2579 ? this.dd2579ContentTypeId : this.ispContentTypeId,
-            ...this.processToSubmitProcess(process)
-        })).data["odata.etag"];
+            let newFolder = await sp.web.rootFolder.folders.getByName("Processes").folders.add(process.SolicitationNumber);
 
-        const fileName = process.ProcessType === ProcessTypes.DD2579 ? "dd2579.pdf" : "Draft_ISP_Checklist.docx";
-        await sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`).copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, false, true);
+            let fileCopyPromise = sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`)
+                .copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, true, false);
 
-        return { ...process, Id: folderFields.Id, "odata.etag": etag };
+            let folderFields = newFolder.folder.listItemAllFields();
+            let updatePromise = this.processesList.items.getById((await folderFields).Id).update({
+                ContentTypeId: process.ProcessType === ProcessTypes.DD2579 ? this.dd2579ContentTypeId : this.ispContentTypeId,
+                ...this.processToSubmitProcess(process)
+            });
+
+            await fileCopyPromise;
+
+            return { ...process, Id: (await folderFields).Id, "odata.etag": (await updatePromise).data["odata.etag"] };
+        } else {
+            throw new DuplicateEntryError("A Process has already been created with this Solicitation Number!");
+        }
     }
 
     private async updateProcess(process: IProcess): Promise<IProcess> {
