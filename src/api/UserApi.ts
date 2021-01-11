@@ -40,9 +40,9 @@ export class UserApi implements IUserApi {
             if (e instanceof Error) {
                 throw new ApiError(e, `Error occurred while trying to fetch the current user: ${e.message}`);
             } else if (typeof (e) === "string") {
-                throw new ApiError(new Error(`Error occurred while trying to fetch the current user: ${e}`));
+                throw new ApiError(`Error occurred while trying to fetch the current user: ${e}`);
             } else {
-                throw new ApiError(undefined, "Unknown error occurred while trying to fetch the current user");
+                throw new ApiError("Unknown error occurred while trying to fetch the current user");
             }
         }
     };
