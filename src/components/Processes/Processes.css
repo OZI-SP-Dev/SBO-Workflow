@@ -1,0 +1,5 @@
+tbody tr:hover {
+    color: #ffffff;
+    background-color: #2b8cff!important;
+    background-image: none,linear-gradient(to bottom,rgba(255,255,255,.4) 0,rgba(255,255,255,0) 100%);
+}

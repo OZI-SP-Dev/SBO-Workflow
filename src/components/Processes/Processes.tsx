@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from "react";
 import { Col, Table } from "react-bootstrap";
 import { usePagedProcesses } from "../../hooks/usePagedProcesses";
+import "./Processes.css"
 
 
 export const Processes: FunctionComponent = () => {
@@ -9,7 +10,7 @@ export const Processes: FunctionComponent = () => {
 
     return (
         <Col xl="10" className="m-auto">
-            <Table striped bordered hover size="sm">
+            <Table striped bordered size="sm">
                 <thead>
                     <tr>
                         <th>Solicitation/Contract #</th>
