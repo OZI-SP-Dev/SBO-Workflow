@@ -1,7 +1,5 @@
-import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { DateTime } from 'luxon';
-import '@pnp/sp/files'
-import { IFiles } from '@pnp/sp/files';
+import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 
 export interface IPerson extends IPersonaProps {
     Id: number,
@@ -99,17 +97,8 @@ export interface IProcess {
     Created: DateTime,
     Modified: DateTime,
     CurrentStage: Stages,
-    CurrentAssignee: IPerson, // not sure if we need this since we could probably just extrapolate who is currently assigned based on the status
+    CurrentAssignee: IPerson,
     SBAPCR: IPerson,
-    BuyerReviewStartDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    BuyerReviewEndDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    COInitialReviewStartDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    COInitialReviewEndDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    SBPReviewStartDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    SBPReviewEndDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    SBAPCRReviewStartDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    SBAPCRReviewEndDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    COFinalReviewStartDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
-    COFinalReviewEndDate: DateTime, // not sure if needed, it is not ever shown to the user, it may only be used in the reports page
+    CurrentStageStartDate: DateTime, 
     "odata.etag": string
 }
