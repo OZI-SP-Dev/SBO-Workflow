@@ -54,9 +54,9 @@ export const Processes: FunctionComponent = () => {
                     <tr className="paging-row">
                         <td colSpan={8} className="p-0">
                             <Pagination className="m-0" size="sm">
-                                <Pagination.Prev disabled={pagedProcesses.page === 1} onClick={pagedProcesses.decrementPage} />
+                                <Pagination.Prev disabled={pagedProcesses.page === 1} onClick={pagedProcesses.decrementPage}>{'\<'} Prev</Pagination.Prev>
                                 <Pagination.Item disabled>{pagedProcesses.page}</Pagination.Item>
-                                <Pagination.Next disabled={!pagedProcesses.hasNext} onClick={pagedProcesses.incrementPage} />
+                                <Pagination.Next disabled={!pagedProcesses.hasNext} onClick={pagedProcesses.incrementPage}>Next {'\>'}</Pagination.Next>
                             </Pagination>
                         </td>
                     </tr>
