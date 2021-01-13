@@ -2,18 +2,42 @@ import { sp } from "@pnp/sp";
 import "@pnp/sp/content-types/list";
 import "@pnp/sp/files/folder";
 import "@pnp/sp/folders";
+import { PagedItemCollection } from "@pnp/sp/items";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
 import { IPerson, IProcess, ParentOrgs, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
 import { ApiError, DuplicateEntryError, InternalError } from "./InternalErrors";
+import ProcessesApiDev from "./ProcessesApiDev";
 
 declare var _spPageContextInfo: any;
 
+export interface IProcessesPage {
+    results: IProcess[],
+    hasNext: boolean,
+    getNext(): Promise<IProcessesPage>
+}
+
+class SPProcessesPage implements IProcessesPage {
+    private spProcessesPage: PagedItemCollection<SPProcess[]>;
+    results: IProcess[];
+    hasNext: boolean;
+
+    constructor(processesPage: PagedItemCollection<SPProcess[]>) {
+        this.spProcessesPage = processesPage;
+        this.results = processesPage.results.map(p => spProcessToIProcess(p));
+        this.hasNext = processesPage.hasNext;
+    }
+
+    async getNext() {
+        return new SPProcessesPage(await this.spProcessesPage.getNext());
+    }
+}
+
 export interface IProcessesApi {
     /**
-     * Gets all of the Processes contained in the system and returns them as IProcess objects.
+     * Get's a page of Processes and returns them as IProcesses
      */
-    fetchProcesses(): Promise<IProcess[]>,
+    fetchFirstPageOfProcesses(): Promise<IProcessesPage>,
 
     /**
      * Submit/save a Process for future use/reference.
@@ -36,14 +60,14 @@ export default class ProcessesApi implements IProcessesApi {
     private dd2579ContentTypeId: string | undefined;
     private ispContentTypeId: string | undefined;
 
-    async fetchProcesses(): Promise<IProcess[]> {
+    async fetchFirstPageOfProcesses(): Promise<IProcessesPage> {
         try {
-            const processes: SPProcess[] = await this.processesList.items
-                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "BuyerReviewStartDate", "BuyerReviewEndDate", "COInitialReviewStartDate", "COInitialReviewEndDate", "SBPReviewStartDate", "SBPReviewEndDate", "SBAPCRReviewStartDate", "SBAPCRReviewEndDate", "COFinalReviewStartDate", "COFinalReviewEndDate")
+            const processesPage = await this.processesList.items
+                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
                 .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR")
                 .filter("IsDeleted ne 1 and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')")
-                .get();
-            return processes.map(p => this.spProcessToIProcess(p));
+                .top(10).getPaged<SPProcess[]>();
+            return new SPProcessesPage(processesPage);
         } catch (e) {
             console.error("Error occurred while trying to fetch the Processes");
             console.error(e);
@@ -95,7 +119,7 @@ export default class ProcessesApi implements IProcessesApi {
                 let folderFields = newFolder.folder.listItemAllFields();
                 let updatePromise = this.processesList.items.getById((await folderFields).Id).update({
                     ContentTypeId: process.ProcessType === ProcessTypes.DD2579 ? this.dd2579ContentTypeId : this.ispContentTypeId,
-                    ...this.processToSubmitProcess(process)
+                    ...processToSubmitProcess(process)
                 });
 
                 await fileCopyPromise;
@@ -125,7 +149,7 @@ export default class ProcessesApi implements IProcessesApi {
                 ...process,
                 "odata.etag": (
                     await this.processesList.items.getById(process.Id)
-                        .update(this.processToSubmitProcess(process), process["odata.etag"])).data["odata.etag"]
+                        .update(processToSubmitProcess(process), process["odata.etag"])).data["odata.etag"]
             }
         } catch (e) {
             console.error(`Error occurred while trying to update a Process ${process.SolicitationNumber}`);
@@ -149,81 +173,6 @@ export default class ProcessesApi implements IProcessesApi {
                 this.ispContentTypeId = ct.StringId;
             }
         })
-    }
-
-    /**
-     * Map a SPProcess to an IProcess.
-     * 
-     * @param process SPProcess to be mapped.
-     */
-    private spProcessToIProcess(process: SPProcess): IProcess {
-        return {
-            Id: process.Id,
-            ProcessType: process.ProcessType,
-            SolicitationNumber: process.SolicitationNumber,
-            ProgramName: process.ProgramName,
-            ParentOrg: process.ParentOrg,
-            Org: process.Org,
-            Buyer: process.Buyer,
-            ContractingOfficer: process.ContractingOfficer,
-            SmallBusinessProfessional: process.SmallBusinessProfessional,
-            SboDuration: process.SboDuration,
-            ContractValueDollars: process.ContractValueDollars,
-            SetAsideRecommendation: process.SetAsideRecommendation,
-            MultipleAward: process.MultipleAward,
-            Created: DateTime.fromISO(process.Created),
-            Modified: DateTime.fromISO(process.Modified),
-            CurrentStage: process.CurrentStage,
-            CurrentAssignee: process.CurrentAssignee,
-            SBAPCR: process.SBAPCR,
-            BuyerReviewStartDate: DateTime.fromISO(process.BuyerReviewStartDate),
-            BuyerReviewEndDate: DateTime.fromISO(process.BuyerReviewEndDate),
-            COInitialReviewStartDate: DateTime.fromISO(process.COInitialReviewStartDate),
-            COInitialReviewEndDate: DateTime.fromISO(process.COInitialReviewEndDate),
-            SBPReviewStartDate: DateTime.fromISO(process.SBPReviewStartDate),
-            SBPReviewEndDate: DateTime.fromISO(process.SBPReviewEndDate),
-            SBAPCRReviewStartDate: DateTime.fromISO(process.SBAPCRReviewStartDate),
-            SBAPCRReviewEndDate: DateTime.fromISO(process.SBAPCRReviewEndDate),
-            COFinalReviewStartDate: DateTime.fromISO(process.COFinalReviewStartDate),
-            COFinalReviewEndDate: DateTime.fromISO(process.COFinalReviewEndDate),
-            "odata.etag": process.__metadata.etag
-        }
-    }
-
-    /**
-     * Map an IProcess to a SubmitProcess for the data to be submitted to SharePoint.
-     * 
-     * @param process IProcess to be mapped.
-     */
-    private processToSubmitProcess(process: IProcess): ISubmitProcess {
-        return {
-            ProcessType: process.ProcessType,
-            SolicitationNumber: process.SolicitationNumber,
-            ProgramName: process.ProgramName,
-            ParentOrg: process.ParentOrg,
-            Org: process.Org,
-            BuyerId: process.Buyer.Id,
-            ContractingOfficerId: process.ContractingOfficer.Id,
-            SmallBusinessProfessionalId: process.SmallBusinessProfessional.Id,
-            SboDuration: process.SboDuration,
-            ContractValueDollars: process.ContractValueDollars,
-            SetAsideRecommendation: process.SetAsideRecommendation,
-            MultipleAward: process.MultipleAward,
-            CurrentStage: process.CurrentStage,
-            CurrentAssigneeId: process.CurrentAssignee.Id,
-            SBAPCRId: process.SBAPCR.Id,
-            BuyerReviewStartDate: process.BuyerReviewStartDate.toISO(),
-            BuyerReviewEndDate: process.BuyerReviewEndDate.toISO(),
-            COInitialReviewStartDate: process.COInitialReviewStartDate.toISO(),
-            COInitialReviewEndDate: process.COInitialReviewEndDate.toISO(),
-            SBPReviewStartDate: process.SBPReviewStartDate.toISO(),
-            SBPReviewEndDate: process.SBPReviewEndDate.toISO(),
-            SBAPCRReviewStartDate: process.SBAPCRReviewStartDate.toISO(),
-            SBAPCRReviewEndDate: process.SBAPCRReviewEndDate.toISO(),
-            COFinalReviewStartDate: process.COFinalReviewStartDate.toISO(),
-            COFinalReviewEndDate: process.COFinalReviewEndDate.toISO(),
-            IsDeleted: false
-        }
     }
 }
 
@@ -249,16 +198,7 @@ interface ISubmitProcess {
     CurrentStage: Stages,
     CurrentAssigneeId: number,
     SBAPCRId: number,
-    BuyerReviewStartDate: string,
-    BuyerReviewEndDate: string,
-    COInitialReviewStartDate: string,
-    COInitialReviewEndDate: string,
-    SBPReviewStartDate: string,
-    SBPReviewEndDate: string,
-    SBAPCRReviewStartDate: string,
-    SBAPCRReviewEndDate: string,
-    COFinalReviewStartDate: string,
-    COFinalReviewEndDate: string,
+    CurrentStageStartDate: string,
     IsDeleted?: boolean,
     __metadata?: {
         etag: string
@@ -287,17 +227,77 @@ interface SPProcess {
     CurrentStage: Stages,
     CurrentAssignee: IPerson,
     SBAPCR: IPerson,
-    BuyerReviewStartDate: string,
-    BuyerReviewEndDate: string,
-    COInitialReviewStartDate: string,
-    COInitialReviewEndDate: string,
-    SBPReviewStartDate: string,
-    SBPReviewEndDate: string,
-    SBAPCRReviewStartDate: string,
-    SBAPCRReviewEndDate: string,
-    COFinalReviewStartDate: string,
-    COFinalReviewEndDate: string,
+    CurrentStageStartDate: string,
     __metadata: {
         etag: string
+    }
+}
+
+/**
+ * Map a SPProcess to an IProcess.
+ * 
+ * @param process SPProcess to be mapped.
+ */
+const spProcessToIProcess = (process: SPProcess): IProcess => {
+    return {
+        Id: process.Id,
+        ProcessType: process.ProcessType,
+        SolicitationNumber: process.SolicitationNumber,
+        ProgramName: process.ProgramName,
+        ParentOrg: process.ParentOrg,
+        Org: process.Org,
+        Buyer: process.Buyer,
+        ContractingOfficer: process.ContractingOfficer,
+        SmallBusinessProfessional: process.SmallBusinessProfessional,
+        SboDuration: process.SboDuration,
+        ContractValueDollars: process.ContractValueDollars,
+        SetAsideRecommendation: process.SetAsideRecommendation,
+        MultipleAward: process.MultipleAward,
+        Created: DateTime.fromISO(process.Created),
+        Modified: DateTime.fromISO(process.Modified),
+        CurrentStage: process.CurrentStage,
+        CurrentAssignee: process.CurrentAssignee,
+        SBAPCR: process.SBAPCR,
+        CurrentStageStartDate: DateTime.fromISO(process.CurrentStageStartDate),
+        "odata.etag": process.__metadata.etag
+    }
+}
+
+/**
+ * Map an IProcess to a SubmitProcess for the data to be submitted to SharePoint.
+ * 
+ * @param process IProcess to be mapped.
+ */
+const processToSubmitProcess = (process: IProcess): ISubmitProcess => {
+    return {
+        ProcessType: process.ProcessType,
+        SolicitationNumber: process.SolicitationNumber,
+        ProgramName: process.ProgramName,
+        ParentOrg: process.ParentOrg,
+        Org: process.Org,
+        BuyerId: process.Buyer.Id,
+        ContractingOfficerId: process.ContractingOfficer.Id,
+        SmallBusinessProfessionalId: process.SmallBusinessProfessional.Id,
+        SboDuration: process.SboDuration,
+        ContractValueDollars: process.ContractValueDollars,
+        SetAsideRecommendation: process.SetAsideRecommendation,
+        MultipleAward: process.MultipleAward,
+        CurrentStage: process.CurrentStage,
+        CurrentAssigneeId: process.CurrentAssignee.Id,
+        SBAPCRId: process.SBAPCR.Id,
+        CurrentStageStartDate: process.CurrentStageStartDate.toISO(),
+        IsDeleted: false
+    }
+}
+
+export class ProcessesApiConfig {
+    private static processesApi: IProcessesApi
+
+    // optionally supply the api used to set up test data in the dev version
+    static getApi(): IProcessesApi {
+        if (!this.processesApi) {
+            this.processesApi = process.env.NODE_ENV === 'development' ? new ProcessesApiDev() : new ProcessesApi();
+        }
+        return this.processesApi;
     }
 }

@@ -1,81 +1,68 @@
-import { DateTime } from "luxon";
-import { FunctionComponent, useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
-import { IProcess, ParentOrgs, ProcessTypes, SetAsideRecommendations, Stages } from "../../api/DomainObjects";
-import NotesApi from "../../api/NotesApi";
-import ProcessesApi from "../../api/ProcessesApi";
-import { UserApiConfig } from "../../api/UserApi";
+import { Icon } from "@fluentui/react";
+import React, { FunctionComponent } from "react";
+import { Button, Card, Col, Pagination, Row, Table } from "react-bootstrap";
+import { usePagedProcesses } from "../../hooks/usePagedProcesses";
+import SBOSpinner from "../SBOSpinner/SBOSpinner";
+import "./Processes.css"
 
 
 export const Processes: FunctionComponent = () => {
 
-    const [processes, setProcesses] = useState<IProcess[]>([]);
-
-    let api = new ProcessesApi();
-    let userApi = UserApiConfig.getApi();
-    let notesApi = new NotesApi();
-
-    const submitProcess = async () => {
-        console.log(await api.submitProcess({
-            Id: -1,
-            ProcessType: ProcessTypes.DD2579,
-            SolicitationNumber: "test1",
-            ProgramName: "test1",
-            ParentOrg: ParentOrgs.AFIMSC,
-            Org: "test1",
-            Buyer: await userApi.getCurrentUser(),
-            ContractingOfficer: await userApi.getCurrentUser(),
-            SmallBusinessProfessional: await userApi.getCurrentUser(),
-            SboDuration: 2,
-            ContractValueDollars: 3,
-            SetAsideRecommendation: SetAsideRecommendations.EDWOSB,
-            MultipleAward: true,
-            Created: DateTime.local(),
-            Modified: DateTime.local(),
-            CurrentStage: Stages.BUYER_REVIEW,
-            CurrentAssignee: await userApi.getCurrentUser(),
-            SBAPCR: await userApi.getCurrentUser(),
-            BuyerReviewStartDate: DateTime.local(),
-            BuyerReviewEndDate: DateTime.local(),
-            COInitialReviewStartDate: DateTime.local(),
-            COInitialReviewEndDate: DateTime.local(),
-            SBPReviewStartDate: DateTime.local(),
-            SBPReviewEndDate: DateTime.local(),
-            SBAPCRReviewStartDate: DateTime.local(),
-            SBAPCRReviewEndDate: DateTime.local(),
-            COFinalReviewStartDate: DateTime.local(),
-            COFinalReviewEndDate: DateTime.local(),
-            "odata.etag": ""
-        }));
-    }
-
-    const deleteProcess = () => {
-        if (processes.length > 0) {
-            api.deleteProcess(processes[0].Id);
-        }
-    }
-
-    const submitNote = () => {
-        if (processes.length > 0) {
-            notesApi.submitNote("Super note", processes[0]);
-        }
-    }
-
-    useEffect(() => {
-        api.fetchProcesses().then(p => setProcesses(p));
-    }, []);
-
-    useEffect(() => {
-        if (processes.length > 0) {
-            notesApi.fetchNotesForProcess(processes[0]).then(notes => console.log(notes));
-        }
-    })
+    const pagedProcesses = usePagedProcesses();
 
     return (
-        <>
-            <Button onClick={submitProcess}>Create Process</Button>
-            <Button variant="danger" onClick={deleteProcess}>Delete Process</Button>
-            <Button variant="warning" onClick={submitNote}>Create Note</Button>
-        </>
+        <Col xl="11" className="m-auto">
+            <Card className="sbo-gray-gradiant mt-3 mb-3">
+                <Row className="m-3 sbo-create-form-row">
+                    <Button className="mr-3">
+                        <Icon iconName="FabricOpenFolderHorizontal" /><br />
+                        Create DD2579
+                    </Button>
+                    <Button>
+                        <Icon iconName="FabricOpenFolderHorizontal" /><br />
+                        Create ISP
+                    </Button>
+                </Row>
+            </Card>
+            <h3>Small Business Processes</h3>
+            <Table striped bordered size="sm">
+                <thead>
+                    <tr>
+                        <th>Solicitation/Contract #</th>
+                        <th>Process</th>
+                        <th>Buyer</th>
+                        <th>Buyer's Org</th>
+                        <th>Current Stage</th>
+                        <th>Current Assignee</th>
+                        <th>Stage Start</th>
+                        <th>Process Start</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {pagedProcesses.processes.map(process =>
+                        <tr key={process.Id}>
+                            <td>{process.SolicitationNumber}</td>
+                            <td>{process.ProcessType}</td>
+                            <td>{process.Buyer.Title}</td>
+                            <td>{process.Org}</td>
+                            <td>{process.CurrentStage}</td>
+                            <td>{process.CurrentAssignee.Title}</td>
+                            <td>{process.CurrentStageStartDate.toFormat("DD")}</td>
+                            <td>{process.Created.toFormat("DD")}</td>
+                        </tr>
+                    )}
+                    <tr className="paging-row">
+                        <td colSpan={8} className="p-0">
+                            <Pagination className="m-0" size="sm">
+                                <Pagination.Prev disabled={pagedProcesses.page === 1} onClick={pagedProcesses.decrementPage}>{'\<'} Prev</Pagination.Prev>
+                                <Pagination.Item disabled>{pagedProcesses.page}</Pagination.Item>
+                                <Pagination.Next disabled={!pagedProcesses.hasNext} onClick={pagedProcesses.incrementPage}>Next {'\>'}</Pagination.Next>
+                            </Pagination>
+                        </td>
+                    </tr>
+                </tbody>
+            </Table>
+            <SBOSpinner show={pagedProcesses.loading} displayText="Loading Processes..." />
+        </Col>
     );
 }
