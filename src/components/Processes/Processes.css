@@ -4,6 +4,10 @@ tbody tr:hover {
     background-image: none,linear-gradient(to bottom,rgba(255,255,255,.4) 0,rgba(255,255,255,0) 100%);
 }
 
+.paging-row, .paging-row:hover {
+    background-color: #ffffff!important;
+}
+
 .sbo-create-form-row button {
     color: #787878;
     border-color: #dbdbdb;

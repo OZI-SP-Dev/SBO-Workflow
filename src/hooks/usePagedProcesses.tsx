@@ -19,6 +19,7 @@ interface IProcessesFilters {
 export interface IPagedProcesses {
     processes: IProcess[],
     page: number,
+    hasNext: boolean,
     loading: boolean,
     incrementPage(): void,
     decrementPage(): void,
@@ -54,12 +55,13 @@ export function usePagedProcesses(): IPagedProcesses {
 
     // TODO: Implement logic to handle other filter changes
     useEffect(() => {
-        fetchProcessesPage();
+        fetchProcessesPage(); // eslint-disable-next-line
     }, [filters.page]);
 
     return {
         processes: processes.length >= filters.page ? processes[filters.page - 1].results : [],
         page: filters.page,
+        hasNext: processes.length >= filters.page ? processes[filters.page - 1].hasNext : false,
         loading,
         incrementPage: () => setFilters({ ...filters, page: filters.page + 1 }),
         decrementPage: () => setFilters({ ...filters, page: filters.page - 1 }),

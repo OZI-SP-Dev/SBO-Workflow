@@ -1,7 +1,8 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent } from "react";
-import { Button, Card, Col, Row, Table } from "react-bootstrap";
+import { Button, Card, Col, Pagination, Row, Table } from "react-bootstrap";
 import { usePagedProcesses } from "../../hooks/usePagedProcesses";
+import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import "./Processes.css"
 
 
@@ -14,11 +15,11 @@ export const Processes: FunctionComponent = () => {
             <Card className="sbo-gray-gradiant mt-3 mb-3">
                 <Row className="m-3 sbo-create-form-row">
                     <Button className="mr-3">
-                        <Icon iconName="FabricOpenFolderHorizontal"/><br/>
+                        <Icon iconName="FabricOpenFolderHorizontal" /><br />
                         Create DD2579
                     </Button>
                     <Button>
-                        <Icon iconName="FabricOpenFolderHorizontal"/><br/>
+                        <Icon iconName="FabricOpenFolderHorizontal" /><br />
                         Create ISP
                     </Button>
                 </Row>
@@ -50,8 +51,18 @@ export const Processes: FunctionComponent = () => {
                             <td>{process.Created.toFormat("DD")}</td>
                         </tr>
                     )}
+                    <tr className="paging-row">
+                        <td colSpan={8} className="p-0">
+                            <Pagination className="m-0" size="sm">
+                                <Pagination.Prev disabled={pagedProcesses.page === 1} onClick={pagedProcesses.decrementPage} />
+                                <Pagination.Item disabled>{pagedProcesses.page}</Pagination.Item>
+                                <Pagination.Next disabled={!pagedProcesses.hasNext} onClick={pagedProcesses.incrementPage} />
+                            </Pagination>
+                        </td>
+                    </tr>
                 </tbody>
             </Table>
+            <SBOSpinner show={pagedProcesses.loading} displayText="Loading Processes..." />
         </Col>
     );
 }
