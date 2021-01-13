@@ -1,5 +1,6 @@
+import { Icon } from "@fluentui/react";
 import React, { FunctionComponent } from "react";
-import { Col, Table } from "react-bootstrap";
+import { Button, Card, Col, Row, Table } from "react-bootstrap";
 import { usePagedProcesses } from "../../hooks/usePagedProcesses";
 import "./Processes.css"
 
@@ -9,7 +10,20 @@ export const Processes: FunctionComponent = () => {
     const pagedProcesses = usePagedProcesses();
 
     return (
-        <Col xl="10" className="m-auto">
+        <Col xl="11" className="m-auto">
+            <Card className="sbo-gray-gradiant mt-3 mb-3">
+                <Row className="m-3 sbo-create-form-row">
+                    <Button className="mr-3">
+                        <Icon iconName="FabricOpenFolderHorizontal"/><br/>
+                        Create DD2579
+                    </Button>
+                    <Button>
+                        <Icon iconName="FabricOpenFolderHorizontal"/><br/>
+                        Create ISP
+                    </Button>
+                </Row>
+            </Card>
+            <h3>Small Business Processes</h3>
             <Table striped bordered size="sm">
                 <thead>
                     <tr>
@@ -25,7 +39,7 @@ export const Processes: FunctionComponent = () => {
                 </thead>
                 <tbody>
                     {pagedProcesses.processes.map(process =>
-                        <tr>
+                        <tr key={process.Id}>
                             <td>{process.SolicitationNumber}</td>
                             <td>{process.ProcessType}</td>
                             <td>{process.Buyer.Title}</td>
