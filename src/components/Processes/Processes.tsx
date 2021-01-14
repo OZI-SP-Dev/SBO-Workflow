@@ -1,7 +1,9 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useState } from "react";
 import { Button, Card, Col, Pagination, Row, Table } from "react-bootstrap";
+import { ProcessTypes } from "../../api/DomainObjects";
 import { usePagedProcesses } from "../../hooks/usePagedProcesses";
+import { ProcessForm } from "../ProcessForm/ProcessForm";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import "./Processes.css"
@@ -10,25 +12,36 @@ import "./Processes.css"
 export const Processes: FunctionComponent = () => {
 
     const pagedProcesses = usePagedProcesses();
-    const [showModal, setShowModal] = useState<boolean>(false);
+    const [showDD2579Modal, setShowDD2579Modal] = useState<boolean>(false);
+    const [showISPModal, setShowISPModal] = useState<boolean>(false);
 
     return (
         <Col xl="11" className="m-auto">
             <SubmittableModal
-                modalTitle="Test Modal"
-                show={showModal}
-                handleClose={() => setShowModal(false)}
+                modalTitle="Initiate Small Business Coordination Process
+                (DD2579)"
+                show={showDD2579Modal}
+                handleClose={() => setShowDD2579Modal(false)}
                 submit={async () => null}
             >
-                Test Modal
+                <ProcessForm processType={ProcessTypes.DD2579} />
+            </SubmittableModal>
+            <SubmittableModal
+                modalTitle="Initiate Individual Subcontracting Plan Process
+                (ISP)"
+                show={showISPModal}
+                handleClose={() => setShowISPModal(false)}
+                submit={async () => null}
+            >
+                <ProcessForm processType={ProcessTypes.ISP} />
             </SubmittableModal>
             <Card className="sbo-gray-gradiant mt-3 mb-3">
                 <Row className="m-3 sbo-create-form-row">
-                    <Button className="mr-3" onClick={() => setShowModal(true)}>
+                    <Button className="mr-3" onClick={() => setShowDD2579Modal(true)}>
                         <Icon iconName="FabricOpenFolderHorizontal" /><br />
                         Create DD2579
                     </Button>
-                    <Button onClick={() => setShowModal(true)}>
+                    <Button onClick={() => setShowISPModal(true)}>
                         <Icon iconName="FabricOpenFolderHorizontal" /><br />
                         Create ISP
                     </Button>

@@ -92,13 +92,38 @@ export interface IProcess {
     SmallBusinessProfessional: IPerson,
     SboDuration: number,
     ContractValueDollars: number,
-    SetAsideRecommendation: SetAsideRecommendations, 
-    MultipleAward: boolean,
+    SetAsideRecommendation?: SetAsideRecommendations,
+    MultipleAward?: boolean,
     Created: DateTime,
     Modified: DateTime,
     CurrentStage: Stages,
     CurrentAssignee: IPerson,
     SBAPCR: IPerson,
-    CurrentStageStartDate: DateTime, 
+    CurrentStageStartDate: DateTime,
     "odata.etag": string
+}
+
+export function getBlankProcess(type: ProcessTypes): IProcess {
+    return {
+        Id: -1,
+        ProcessType: type,
+        SolicitationNumber: "",
+        ProgramName: "",
+        ParentOrg: ParentOrgs.AFLCMC,
+        Org: "",
+        Buyer: new Person(),
+        ContractingOfficer: new Person(),
+        SmallBusinessProfessional: new Person(),
+        SboDuration: 0,
+        ContractValueDollars: 0,
+        SetAsideRecommendation: undefined,
+        MultipleAward: undefined,
+        Created: DateTime.local(),
+        Modified: DateTime.local(),
+        CurrentStage: Stages.BUYER_REVIEW,
+        CurrentAssignee: new Person(),
+        SBAPCR: new Person(),
+        CurrentStageStartDate: DateTime.local(),
+        "odata.etag": ""
+    }
 }
