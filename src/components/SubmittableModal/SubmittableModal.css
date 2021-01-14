@@ -1,0 +1,7 @@
+.modal-error {
+    width: 100%
+}
+
+.modal-error div {
+    width: inherit
+}
