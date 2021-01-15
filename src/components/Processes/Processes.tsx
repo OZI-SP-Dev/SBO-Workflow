@@ -1,47 +1,51 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useState } from "react";
 import { Button, Card, Col, Pagination, Row, Table } from "react-bootstrap";
-import { ProcessTypes } from "../../api/DomainObjects";
+import { IPerson, IProcess, Person, ProcessTypes } from "../../api/DomainObjects";
+import { UserApiConfig } from "../../api/UserApi";
 import { usePagedProcesses } from "../../hooks/usePagedProcesses";
 import { ProcessForm } from "../ProcessForm/ProcessForm";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
-import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
-import "./Processes.css"
+import "./Processes.css";
 
 
 export const Processes: FunctionComponent = () => {
 
+    const userApi = UserApiConfig.getApi();
+
     const pagedProcesses = usePagedProcesses();
-    const [showDD2579Modal, setShowDD2579Modal] = useState<boolean>(false);
-    const [showISPModal, setShowISPModal] = useState<boolean>(false);
+    const [showDD2579Form, setShowDD2579Form] = useState<boolean>(false);
+    const [showISPForm, setShowISPForm] = useState<boolean>(false);
+
+    const getPerson = async (person: IPerson): Promise<IPerson> => {
+        return new Person({ Id: await userApi.getUserId(person.EMail), Title: person.Title, EMail: person.EMail });
+    }
+
+    const submitProcess = async (process: IProcess): Promise<IProcess> => {
+        process.ContractingOfficer = await getPerson(process.ContractingOfficer);
+        process.SmallBusinessProfessional = await getPerson(process.SmallBusinessProfessional);
+        process.Buyer = await getPerson(process.Buyer);
+        process.CurrentAssignee = await getPerson(process.Buyer);
+        return pagedProcesses.submitProcess(process);
+    }
 
     return (
         <Col xl="11" className="m-auto">
-            <SubmittableModal
-                modalTitle="Initiate Small Business Coordination Process
-                (DD2579)"
-                show={showDD2579Modal}
-                handleClose={() => setShowDD2579Modal(false)}
-                submit={async () => null}
-            >
-                <ProcessForm processType={ProcessTypes.DD2579} />
-            </SubmittableModal>
-            <SubmittableModal
-                modalTitle="Initiate Individual Subcontracting Plan Process
-                (ISP)"
-                show={showISPModal}
-                handleClose={() => setShowISPModal(false)}
-                submit={async () => null}
-            >
-                <ProcessForm processType={ProcessTypes.ISP} />
-            </SubmittableModal>
+            <ProcessForm processType={ProcessTypes.DD2579}
+                showModal={showDD2579Form}
+                handleClose={() => setShowDD2579Form(false)}
+                submit={submitProcess} />
+            <ProcessForm processType={ProcessTypes.ISP}
+                showModal={showISPForm}
+                handleClose={() => setShowISPForm(false)}
+                submit={submitProcess} />
             <Card className="sbo-gray-gradiant mt-3 mb-3">
                 <Row className="m-3 sbo-create-form-row">
-                    <Button className="mr-3" onClick={() => setShowDD2579Modal(true)}>
+                    <Button className="mr-3" onClick={() => setShowDD2579Form(true)}>
                         <Icon iconName="FabricOpenFolderHorizontal" /><br />
                         Create DD2579
                     </Button>
-                    <Button onClick={() => setShowISPModal(true)}>
+                    <Button onClick={() => setShowISPForm(true)}>
                         <Icon iconName="FabricOpenFolderHorizontal" /><br />
                         Create ISP
                     </Button>

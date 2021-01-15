@@ -2,6 +2,7 @@ import { sp } from "@pnp/sp";
 import "@pnp/sp/content-types/list";
 import "@pnp/sp/files/folder";
 import "@pnp/sp/folders";
+import "@pnp/sp/files/web";
 import { PagedItemCollection } from "@pnp/sp/items";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
@@ -60,7 +61,7 @@ export default class ProcessesApi implements IProcessesApi {
     private dd2579ContentTypeId: string | undefined;
     private ispContentTypeId: string | undefined;
 
-    async fetchFirstPageOfProcesses(): Promise<IProcessesPage> {
+    fetchFirstPageOfProcesses = async (): Promise<IProcessesPage> => {
         try {
             const processesPage = await this.processesList.items
                 .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
@@ -81,11 +82,11 @@ export default class ProcessesApi implements IProcessesApi {
         }
     }
 
-    async submitProcess(process: IProcess): Promise<IProcess> {
+    submitProcess = async (process: IProcess): Promise<IProcess> => {
         return process.Id < 0 ? this.submitNewProcess(process) : this.updateProcess(process);
     }
 
-    async deleteProcess(processId: number): Promise<void> {
+    deleteProcess = async (processId: number): Promise<void> => {
         try {
             await this.processesList.items.getById(processId).update({ IsDeleted: true });
         } catch (e) {
@@ -101,7 +102,7 @@ export default class ProcessesApi implements IProcessesApi {
         }
     }
 
-    private async submitNewProcess(process: IProcess): Promise<IProcess> {
+    private submitNewProcess = async (process: IProcess): Promise<IProcess> => {
         try {
             if (!this.dd2579ContentTypeId || !this.ispContentTypeId) {
                 await this.getContentTypes();
@@ -143,7 +144,7 @@ export default class ProcessesApi implements IProcessesApi {
         }
     }
 
-    private async updateProcess(process: IProcess): Promise<IProcess> {
+    private updateProcess = async (process: IProcess): Promise<IProcess> => {
         try {
             return {
                 ...process,
@@ -164,7 +165,7 @@ export default class ProcessesApi implements IProcessesApi {
         }
     }
 
-    private async getContentTypes(): Promise<void> {
+    private getContentTypes = async (): Promise<void> => {
         const contentTypes = await this.processesList.contentTypes();
         contentTypes.forEach(ct => {
             if (ct.Name === "SBODD2579") {
@@ -190,14 +191,14 @@ interface ISubmitProcess {
     ContractingOfficerId: number,
     SmallBusinessProfessionalId: number,
     SboDuration: number,
-    ContractValueDollars: number,
+    ContractValueDollars: string,
     SetAsideRecommendation?: SetAsideRecommendations,
     MultipleAward?: boolean,
     Created?: string,
     Modified?: string,
     CurrentStage: Stages,
     CurrentAssigneeId: number,
-    SBAPCRId: number,
+    SBAPCRId?: number,
     CurrentStageStartDate: string,
     IsDeleted?: boolean,
     __metadata?: {
@@ -219,14 +220,14 @@ interface SPProcess {
     ContractingOfficer: IPerson,
     SmallBusinessProfessional: IPerson,
     SboDuration: number,
-    ContractValueDollars: number,
+    ContractValueDollars: string,
     SetAsideRecommendation?: SetAsideRecommendations,
     MultipleAward?: boolean,
     Created: string,
     Modified: string,
     CurrentStage: Stages,
     CurrentAssignee: IPerson,
-    SBAPCR: IPerson,
+    SBAPCR?: IPerson,
     CurrentStageStartDate: string,
     __metadata: {
         etag: string
@@ -284,7 +285,7 @@ const processToSubmitProcess = (process: IProcess): ISubmitProcess => {
         MultipleAward: process.MultipleAward,
         CurrentStage: process.CurrentStage,
         CurrentAssigneeId: process.CurrentAssignee.Id,
-        SBAPCRId: process.SBAPCR.Id,
+        SBAPCRId: process.SBAPCR ? process.SBAPCR.Id : undefined,
         CurrentStageStartDate: process.CurrentStageStartDate.toISO(),
         IsDeleted: false
     }

@@ -91,14 +91,14 @@ export interface IProcess {
     ContractingOfficer: IPerson,
     SmallBusinessProfessional: IPerson,
     SboDuration: number,
-    ContractValueDollars: number,
+    ContractValueDollars: string,
     SetAsideRecommendation?: SetAsideRecommendations,
     MultipleAward?: boolean,
     Created: DateTime,
     Modified: DateTime,
     CurrentStage: Stages,
     CurrentAssignee: IPerson,
-    SBAPCR: IPerson,
+    SBAPCR?: IPerson,
     CurrentStageStartDate: DateTime,
     "odata.etag": string
 }
@@ -115,14 +115,13 @@ export function getBlankProcess(type: ProcessTypes): IProcess {
         ContractingOfficer: new Person(),
         SmallBusinessProfessional: new Person(),
         SboDuration: 0,
-        ContractValueDollars: 0,
+        ContractValueDollars: '',
         SetAsideRecommendation: undefined,
         MultipleAward: undefined,
         Created: DateTime.local(),
         Modified: DateTime.local(),
         CurrentStage: Stages.BUYER_REVIEW,
         CurrentAssignee: new Person(),
-        SBAPCR: new Person(),
         CurrentStageStartDate: DateTime.local(),
         "odata.etag": ""
     }
