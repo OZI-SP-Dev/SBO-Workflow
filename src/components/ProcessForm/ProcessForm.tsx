@@ -1,6 +1,7 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { Col, Form } from "react-bootstrap";
 import { getBlankProcess, IPerson, IProcess, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations } from "../../api/DomainObjects";
+import { IProcessValidation, ProcessValidation } from "../../utils/ProcessValidation";
 import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
@@ -16,26 +17,47 @@ export interface IProcessFormProps {
 export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
 
     const [process, setProcess] = useState<IProcess>(getBlankProcess(props.processType));
+    const [validation, setValidation] = useState<IProcessValidation>();
+
+    useEffect(() => {
+        // Update validation whenever a field changes after a submission attempt
+        if (validation) {
+            setValidation(ProcessValidation.validateProcess(process, ["OZI", "OZJ", "OZA"]));
+        } // eslint-disable-next-line
+    }, [process]);
 
     const getNumbersOnly = (input: string): string => {
         return input.replaceAll(new RegExp("[^0-9]", 'g'), "");
     }
 
-    const getCurrency = (input: string): string => {
+    const updateTotalContractValue = (input: string): void => {
         let currency: string = getNumbersOnly(input);
-        if (currency.length > 3) {
-            let commaIndex: number = currency.length - 3;
-            while (commaIndex > 0) {
-                currency = currency.substring(0, commaIndex) + ',' + currency.substring(commaIndex);
-                commaIndex -= 3;
+        if (currency.length <= 13) {
+            if (currency.length > 3) {
+                let commaIndex: number = currency.length - 3;
+                while (commaIndex > 0) {
+                    currency = currency.substring(0, commaIndex) + ',' + currency.substring(commaIndex);
+                    commaIndex -= 3;
+                }
             }
+            setProcess({ ...process, ContractValueDollars: ('$' + currency) });
         }
-        return '$' + currency;
+    }
+
+    const submitForm = async () => {
+        const processValidation = ProcessValidation.validateProcess(process, ["OZI", "OZJ", "OZA"]);
+        if (processValidation.IsErrored) {
+            setValidation(processValidation);
+        } else {
+            await props.submit(process);
+            closeForm();
+        }
     }
 
     const closeForm = () => {
-        props.handleClose();
+        setValidation(undefined);
         setProcess(getBlankProcess(props.processType));
+        props.handleClose();
     }
 
     return (
@@ -44,7 +66,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
             show={props.showModal}
             size="lg"
             handleClose={closeForm}
-            submit={() => props.submit(process).then(closeForm)}
+            submit={submitForm}
         >
             <Form className="process-form">
                 <Form.Row>
@@ -57,7 +79,11 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             type="text"
                             value={process.SolicitationNumber}
                             onChange={e => setProcess({ ...process, SolicitationNumber: e.target.value })}
+                            isInvalid={validation && validation.SolicitationNumberError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.SolicitationNumberError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>Program Name or Item Being Acquired</strong></Form.Label>
@@ -68,7 +94,11 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             type="text"
                             value={process.ProgramName}
                             onChange={e => setProcess({ ...process, ProgramName: e.target.value })}
+                            isInvalid={validation && validation.ProgramNameError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.ProgramNameError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>Small Business Office</strong></Form.Label>
@@ -90,10 +120,14 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             as="select"
                             value={process.Org}
                             onChange={e => setProcess({ ...process, Org: e.target.value })}
+                            isInvalid={validation && validation.OrgError !== ""}
                         >
                             <option value=''>--</option>
                             {["OZI", "OZJ", "OZA"].map(type => <option key={type}>{type}</option>)}
                         </Form.Control>
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.OrgError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>Buyer</strong></Form.Label>
@@ -106,7 +140,11 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                                 setProcess({ ...process, Buyer: persona ? new Person(persona) : new Person() });
                             }}
                             required
+                            isInvalid={validation && validation.BuyerError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.BuyerError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>Contracting Officer</strong></Form.Label>
@@ -119,7 +157,11 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                                 setProcess({ ...process, ContractingOfficer: persona ? new Person(persona) : new Person() });
                             }}
                             required
+                            isInvalid={validation && validation.ContractingOfficerError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.ContractingOfficerError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>Small Business Professional</strong></Form.Label>
@@ -132,7 +174,11 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                                 setProcess({ ...process, SmallBusinessProfessional: persona ? new Person(persona) : new Person() });
                             }}
                             required
+                            isInvalid={validation && validation.SmallBusinessProfessionalError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.SmallBusinessProfessionalError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>PoP (months, including options)</strong></Form.Label>
@@ -143,7 +189,11 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             type="number"
                             value={process.SboDuration ? process.SboDuration : undefined}
                             onChange={e => setProcess({ ...process, SboDuration: parseInt(getNumbersOnly(e.target.value)) })}
+                            isInvalid={validation && validation.SboDurationError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.SboDurationError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>Total Contract Value (Including Option)</strong></Form.Label>
@@ -154,8 +204,12 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             <Form.Control
                                 type="text"
                                 value={process.ContractValueDollars}
-                                onChange={e => setProcess({ ...process, ContractValueDollars: getCurrency(e.target.value) })}
+                                onChange={e => updateTotalContractValue(e.target.value)}
+                                isInvalid={validation && validation.ContractValueDollarsError !== ""}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {validation ? validation.ContractValueDollarsError : ""}
+                            </Form.Control.Feedback>
                         </Form.Group>
                     </Col>
                     {props.processType === ProcessTypes.DD2579 && <>
@@ -168,10 +222,14 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                                 as="select"
                                 value={process.SetAsideRecommendation}
                                 onChange={e => setProcess({ ...process, SetAsideRecommendation: Object.values(SetAsideRecommendations).find(s => s === e.target.value) })}
+                                isInvalid={validation && validation.SetAsideRecommendationError !== ""}
                             >
                                 <option value=''>--</option>
                                 {Object.values(SetAsideRecommendations).map(type => <option key={type}>{type}</option>)}
                             </Form.Control>
+                            <Form.Control.Feedback type="invalid">
+                                {validation ? validation.SetAsideRecommendationError : ""}
+                            </Form.Control.Feedback>
                         </Col>
                         <Col xl="6">
                             <Form.Label className="required"><strong>Muliple-Award</strong></Form.Label>
