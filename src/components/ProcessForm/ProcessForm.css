@@ -6,3 +6,8 @@
     margin-bottom: 0!important;
     vertical-align: middle!important;
 }
+
+.required::after {
+    content: " *";
+    color: red;
+}

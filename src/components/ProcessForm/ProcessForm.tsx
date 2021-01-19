@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useState } from "react";
 import { Col, Form } from "react-bootstrap";
 import { getBlankProcess, IPerson, IProcess, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations } from "../../api/DomainObjects";
+import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import "./ProcessForm.css"
@@ -48,7 +49,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
             <Form className="process-form">
                 <Form.Row>
                     <Col xl="6">
-                        <Form.Label><strong>Solicitation/Contract Number</strong></Form.Label>
+                        <Form.Label className="required"><strong>Solicitation/Contract Number</strong></Form.Label>
+                        <InfoTooltip id="solicitation">From Block 2 or 4 on DD2579</InfoTooltip>
                     </Col>
                     <Col xl="6">
                         <Form.Control
@@ -58,7 +60,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                         />
                     </Col>
                     <Col xl="6">
-                        <Form.Label><strong>Program Name or Item Being Acquired</strong></Form.Label>
+                        <Form.Label className="required"><strong>Program Name or Item Being Acquired</strong></Form.Label>
+                        <InfoTooltip id="program-name">Short Description of Block 7a. on DD2579</InfoTooltip>
                     </Col>
                     <Col xl="6">
                         <Form.Control
@@ -68,7 +71,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                         />
                     </Col>
                     <Col xl="6">
-                        <Form.Label><strong>Small Business Office</strong></Form.Label>
+                        <Form.Label className="required"><strong>Small Business Office</strong></Form.Label>
+                        <InfoTooltip id="office">Center of your Small Business Specialist</InfoTooltip>
                     </Col>
                     <Col xl="6">
                         {Object.values(ParentOrgs).map(org =>
@@ -79,7 +83,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                         }
                     </Col>
                     <Col xl="6">
-                        <Form.Label><strong>Buyer's Organization</strong></Form.Label>
+                        <Form.Label className="required"><strong>Buyer's Organization</strong></Form.Label>
                     </Col>
                     <Col xl="6">
                         <Form.Control
@@ -132,6 +136,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>PoP (months, including options)</strong></Form.Label>
+                        <InfoTooltip id="pop">Agrees with DD2579 Block 8</InfoTooltip>
                     </Col>
                     <Col xl="6">
                         <Form.Control
@@ -142,6 +147,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>Total Contract Value (Including Option)</strong></Form.Label>
+                        <InfoTooltip id="contract-value">Agrees with DD2579 Block 3</InfoTooltip>
                     </Col>
                     <Col xl="6">
                         <Form.Group>
@@ -154,7 +160,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                     </Col>
                     {props.processType === ProcessTypes.DD2579 && <>
                         <Col xl="6">
-                            <Form.Label><strong>Set-Aside Recommendation</strong></Form.Label>
+                            <Form.Label className="required"><strong>Set-Aside Recommendation</strong></Form.Label>
+                            <InfoTooltip id="set-aside">Agrees with DD2579 Block 10</InfoTooltip>
                         </Col>
                         <Col xl="6">
                             <Form.Control
@@ -167,7 +174,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             </Form.Control>
                         </Col>
                         <Col xl="6">
-                            <Form.Label className="mr-3 required"><strong>Muliple-Award</strong></Form.Label>
+                            <Form.Label className="required"><strong>Muliple-Award</strong></Form.Label>
                         </Col>
                         <Col xl="6">
                             <Form.Check inline type="radio">
