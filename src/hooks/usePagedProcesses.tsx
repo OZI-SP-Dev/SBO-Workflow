@@ -53,6 +53,22 @@ export function usePagedProcesses(): IPagedProcesses {
         setLoading(false);
     }
 
+    const submitProcess = async (process: IProcess) => {
+        let submittedProcess = await processesApi.submitProcess(process);
+        let pages = processes;
+        pages[0].results.unshift(submittedProcess);
+        setProcesses(pages);
+        return submittedProcess;
+    }
+
+    const deleteProcess = async (processId: number) => {
+        await processesApi.deleteProcess(processId);
+        let pages = processes;
+        for (let page of pages) {
+            page.results.filter(process => process.Id !== processId);
+        }
+    }
+
     // TODO: Implement logic to handle other filter changes
     useEffect(() => {
         fetchProcessesPage(); // eslint-disable-next-line
@@ -65,7 +81,7 @@ export function usePagedProcesses(): IPagedProcesses {
         loading,
         incrementPage: () => setFilters({ ...filters, page: filters.page + 1 }),
         decrementPage: () => setFilters({ ...filters, page: filters.page - 1 }),
-        submitProcess: processesApi.submitProcess,
-        deleteProcess: processesApi.deleteProcess
+        submitProcess,
+        deleteProcess
     }
 }

@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useState } from "react";
 import { Alert, Button, Modal, Row, Spinner } from "react-bootstrap";
+import { InternalError } from "../../api/InternalErrors";
 import "./SubmittableModal.css"
 
 export interface ISubmittableModalProps {
@@ -22,7 +23,7 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
             setSubmitting(true);
             await props.submit();
         } catch (e) {
-            if (e instanceof Error) {
+            if (e instanceof InternalError) {
                 setError(e.message);
             } else if (typeof (e) === "string") {
                 setError(e);
