@@ -1,11 +1,13 @@
 import React, { FunctionComponent, useState } from "react";
 import { Alert, Button, Modal, Row, Spinner } from "react-bootstrap";
+import { InternalError } from "../../api/InternalErrors";
 import "./SubmittableModal.css"
 
 export interface ISubmittableModalProps {
     modalTitle: string,
     show: boolean,
     variant?: "primary" | "danger",
+    size?: "sm" | "lg" | "xl",
     closeOnClickOutside?: boolean,
     handleClose: () => void,
     submit: () => Promise<any>
@@ -21,7 +23,7 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
             setSubmitting(true);
             await props.submit();
         } catch (e) {
-            if (e instanceof Error) {
+            if (e instanceof InternalError) {
                 setError(e.message);
             } else if (typeof (e) === "string") {
                 setError(e);
@@ -34,7 +36,7 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
     }
 
     return (
-        <Modal show={props.show} onHide={props.handleClose} backdrop={props.closeOnClickOutside ? undefined : "static"}>
+        <Modal show={props.show} size={props.size} onHide={props.handleClose} backdrop={props.closeOnClickOutside ? undefined : "static"}>
             <Modal.Header closeButton>
                 <Modal.Title>{props.modalTitle}</Modal.Title>
             </Modal.Header>
@@ -48,7 +50,7 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
                     </Button>
                     <Button variant={props.variant} onClick={submit}>
                         {submitting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                        {' '}{"Save Note"}
+                        {' '}{"Submit"}
                     </Button>
                 </Row>
                 {error &&
