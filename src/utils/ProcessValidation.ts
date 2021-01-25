@@ -1,4 +1,5 @@
 import { IProcess, ProcessTypes, SetAsideRecommendations } from "../api/DomainObjects";
+import { IOrg } from "../api/OrgsApi";
 
 export interface IProcessValidation {
     IsErrored?: boolean,
@@ -35,11 +36,11 @@ export class ProcessValidation {
         return "";
     }
 
-    static validateProcess(process: IProcess, orgs: string[]): IProcessValidation {
+    static validateProcess(process: IProcess, orgs: IOrg[]): IProcessValidation {
         let validation: IProcessValidation = {
             SolicitationNumberError: this.getSingleLineValidation(process.SolicitationNumber, 255),
             ProgramNameError: this.getSingleLineValidation(process.ProgramName, 255),
-            OrgError: orgs.includes(process.Org) ? "" : "Please select the Buyer's Organization from the given dropdown list!",
+            OrgError: orgs.includes({ Title: process.Org, ParentOrg: process.ParentOrg }) ? "" : "Please select the Buyer's Organization from the given dropdown list!",
             BuyerError: process.Buyer && process.Buyer.Title ? "" : `Please provide the Buyer for this ${process.ProcessType} Process!`,
             ContractingOfficerError: process.ContractingOfficer && process.ContractingOfficer.Title ? "" : `Please provide the Contracting Officer for this ${process.ProcessType} Process!`,
             SmallBusinessProfessionalError: process.SmallBusinessProfessional && process.SmallBusinessProfessional.Title ? "" : `Please provide the Small Business Professional for this ${process.ProcessType} Process!`,

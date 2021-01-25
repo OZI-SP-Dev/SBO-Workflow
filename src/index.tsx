@@ -5,11 +5,14 @@ import App from './App';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { initializeIcons } from '@uifabric/icons';
+import { OrgsProvider } from './providers/OrgsContext';
 
 initializeIcons();
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <OrgsProvider>
+      <App />
+    </OrgsProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
