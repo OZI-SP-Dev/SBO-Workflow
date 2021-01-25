@@ -1,9 +1,11 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useContext, useEffect, useState } from "react";
 import { Col, Form } from "react-bootstrap";
 import { getBlankProcess, IPerson, IProcess, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations } from "../../api/DomainObjects";
+import { OrgsContext } from "../../providers/OrgsContext";
 import { IProcessValidation, ProcessValidation } from "../../utils/ProcessValidation";
 import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
+import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import "./ProcessForm.css"
 
@@ -19,10 +21,12 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
     const [process, setProcess] = useState<IProcess>(getBlankProcess(props.processType));
     const [validation, setValidation] = useState<IProcessValidation>();
 
+    const { orgs, loading: orgsLoading } = useContext(OrgsContext);
+
     useEffect(() => {
         // Update validation whenever a field changes after a submission attempt
         if (validation) {
-            setValidation(ProcessValidation.validateProcess(process, ["OZI", "OZJ", "OZA"]));
+            setValidation(ProcessValidation.validateProcess(process, orgs ? orgs : []));
         } // eslint-disable-next-line
     }, [process]);
 
@@ -45,7 +49,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
     }
 
     const submitForm = async () => {
-        const processValidation = ProcessValidation.validateProcess(process, ["OZI", "OZJ", "OZA"]);
+        const processValidation = ProcessValidation.validateProcess(process, orgs ? orgs : []);
         if (processValidation.IsErrored) {
             setValidation(processValidation);
         } else {
@@ -123,7 +127,9 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             isInvalid={validation && validation.OrgError !== ""}
                         >
                             <option value=''>--</option>
-                            {["OZI", "OZJ", "OZA"].map(type => <option key={type}>{type}</option>)}
+                            {(orgs ? orgs : [])
+                                .filter(org => org.ParentOrg === process.ParentOrg)
+                                .map(org => <option key={org.Title}>{org.Title}</option>)}
                         </Form.Control>
                         <Form.Control.Feedback type="invalid">
                             {validation ? validation.OrgError : ""}
@@ -255,6 +261,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                     </>}
                 </Form.Row>
             </Form>
+            <SBOSpinner show={orgsLoading !== false} displayText="Loading Orgs..." />
         </SubmittableModal >
     );
 }
