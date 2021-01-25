@@ -35,8 +35,16 @@ class SPProcessesPage implements IProcessesPage {
 }
 
 export interface IProcessesApi {
+
     /**
-     * Get's a page of Processes and returns them as IProcesses
+     * Get's a single IProcess by ID.
+     * 
+     * @param processId The ID of the IProcess being requested.
+     */
+    fetchProcessById(processId: number): Promise<IProcess | undefined>,
+
+    /**
+     * Get's a page of Processes and returns them as IProcesses.
      */
     fetchFirstPageOfProcesses(): Promise<IProcessesPage>,
 
@@ -60,6 +68,25 @@ export default class ProcessesApi implements IProcessesApi {
     private processesList = spWebContext.lists.getByTitle("Processes");
     private dd2579ContentTypeId: string | undefined;
     private ispContentTypeId: string | undefined;
+
+    fetchProcessById = async (processId: number): Promise<IProcess | undefined> => {
+        try {
+            return spProcessToIProcess(await this.processesList.items.getById(processId)
+                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
+                .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR")
+                .get());
+        } catch (e) {
+            console.error(`Error occurred while trying to fetch the Process with ID ${processId}`);
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to fetch the Process with ID ${processId}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(`Error occurred while trying to fetch the Process with ID ${processId}: ${e}`);
+            } else {
+                throw new ApiError(`Unknown error occurred while trying to fetch the Process with ID ${processId}`);
+            }
+        }
+    }
 
     fetchFirstPageOfProcesses = async (): Promise<IProcessesPage> => {
         try {

@@ -5,6 +5,7 @@ import './App.css';
 import { AppHeader } from './components/AppHeader/AppHeader';
 import { Help } from './components/Help/Help';
 import { Processes } from './components/Processes/Processes';
+import { ProcessView } from './components/ProcessView/ProcessView';
 import { Reports } from './components/Reports/Reports';
 
 function App() {
@@ -17,6 +18,11 @@ function App() {
             <Route exact path="/(home)?">
               <Processes />
             </Route>
+            <Route
+              path="/Processes/View/:processId"
+              render={({ match }) =>
+                <ProcessView processId={Number(match.params.processId)} />}
+            />
             <Route path="/Help">
               <Help />
             </Route>

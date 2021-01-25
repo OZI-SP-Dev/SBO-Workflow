@@ -40,7 +40,7 @@ export class ProcessValidation {
         let validation: IProcessValidation = {
             SolicitationNumberError: this.getSingleLineValidation(process.SolicitationNumber, 255),
             ProgramNameError: this.getSingleLineValidation(process.ProgramName, 255),
-            OrgError: orgs.includes({ Title: process.Org, ParentOrg: process.ParentOrg }) ? "" : "Please select the Buyer's Organization from the given dropdown list!",
+            OrgError: orgs.find(org => org.Title === process.Org && org.ParentOrg === process.ParentOrg) ? "" : "Please select the Buyer's Organization from the given dropdown list!",
             BuyerError: process.Buyer && process.Buyer.Title ? "" : `Please provide the Buyer for this ${process.ProcessType} Process!`,
             ContractingOfficerError: process.ContractingOfficer && process.ContractingOfficer.Title ? "" : `Please provide the Contracting Officer for this ${process.ProcessType} Process!`,
             SmallBusinessProfessionalError: process.SmallBusinessProfessional && process.SmallBusinessProfessional.Title ? "" : `Please provide the Small Business Professional for this ${process.ProcessType} Process!`,
