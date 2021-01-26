@@ -1,0 +1,73 @@
+.status-workflow-card {
+    background-color: #f5f5f5;
+}
+
+.status-workflow li {
+    display: inline-block;
+    position: relative
+}
+
+ul.status-workflow li:before {
+    left: -2px;
+    border-color: transparent transparent transparent #fff;
+    z-index: 0
+}
+
+ul.status-workflow li {
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    margin: 5px 3px 0 0;
+    text-indent: 22px;
+    position: relative;
+}
+
+ul.status-workflow li div:after,
+ul.status-workflow li:before {
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    border-style: solid;
+    border-width: 15px 0 15px 15px
+}
+
+ul.status-workflow li:first-child:before {
+    border-color: transparent
+}
+
+ul.status-workflow li div:after {
+    right: -15px;
+    border-color: transparent transparent transparent #ccc;
+    z-index: 10;
+    padding-right: 1px
+}
+
+ul.status-workflow li.completed-status div {
+    background: #337ab7;
+    color: #fff;
+    z-index: 100
+}
+
+ul.status-workflow li.completed-status div:after {
+    border-left-color: #337ab7
+}
+
+ul.status-workflow li div {
+    display: block;
+    background: #ccc;
+    padding-right: 0.75rem;
+}
+
+ul.status-workflow li.active-status div {
+    background-color: orange;
+    color: #fff
+}
+
+ul.status-workflow li.active-status div:after {
+    border-color: transparent transparent transparent orange
+}
+
+.preserve-whitespace {
+    white-space: pre-wrap;
+}
