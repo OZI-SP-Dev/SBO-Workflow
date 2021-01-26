@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { IPerson, IProcess, Person, ProcessTypes } from "../../api/DomainObjects";
 import { UserApiConfig } from "../../api/UserApi";
 import { usePagedProcesses } from "../../hooks/usePagedProcesses";
+import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { ProcessForm } from "../ProcessForm/ProcessForm";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import "./Processes.css";
@@ -32,6 +33,7 @@ export const Processes: FunctionComponent = () => {
 
     return (
         <Col xl="11" className="m-auto">
+            <HeaderBreadcrumbs crumbs={[{ crumbName: "Home" }]} />
             <ProcessForm processType={ProcessTypes.DD2579}
                 showModal={showDD2579Form}
                 handleClose={() => setShowDD2579Form(false)}
