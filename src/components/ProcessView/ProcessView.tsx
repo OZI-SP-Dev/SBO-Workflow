@@ -5,6 +5,7 @@ import { useProcessDetails } from "../../hooks/useProcessDetails";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { ProcessDetails } from "../ProcessDetails/ProcessDetails";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
+import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
 
 export interface IProcessViewProps {
     processId: number
@@ -17,6 +18,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
     return (
         <Col xl="11" className="m-auto">
             <HeaderBreadcrumbs crumbs={[{ crumbName: "Home", href: "#/" }, { crumbName: processDetails.process ? processDetails.process.SolicitationNumber : '' }]} />
+            <StatusWorkflow className="mt-3" process={processDetails.process ? processDetails.process : getBlankProcess(ProcessTypes.DD2579)} />
             <Col xl="5" lg="5" md="5" sm="5" xs="5" className="mt-3">
                 <ProcessDetails
                     process={processDetails.process ? processDetails.process : getBlankProcess(ProcessTypes.DD2579)}
