@@ -1,6 +1,7 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useState } from "react";
 import { Button, Card, Col, Pagination, Row, Table } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { IPerson, IProcess, Person, ProcessTypes } from "../../api/DomainObjects";
 import { UserApiConfig } from "../../api/UserApi";
 import { usePagedProcesses } from "../../hooks/usePagedProcesses";
@@ -68,14 +69,20 @@ export const Processes: FunctionComponent = () => {
                 <tbody>
                     {pagedProcesses.processes.map(process =>
                         <tr key={process.Id}>
-                            <td>{process.SolicitationNumber}</td>
-                            <td>{process.ProcessType}</td>
-                            <td>{process.Buyer.Title}</td>
-                            <td>{process.Org}</td>
-                            <td>{process.CurrentStage}</td>
-                            <td>{process.CurrentAssignee.Title}</td>
-                            <td>{process.CurrentStageStartDate.toFormat("DD")}</td>
-                            <td>{process.Created.toFormat("DD")}</td>
+                            <td className="align-middle">
+                                <Link to={`/Processes/View/${process.Id}`}>
+                                    <Button variant="link">
+                                        {process.SolicitationNumber}
+                                    </Button>
+                                </Link>
+                            </td>
+                            <td className="align-middle">{process.ProcessType}</td>
+                            <td className="align-middle">{process.Buyer.Title}</td>
+                            <td className="align-middle">{process.Org}</td>
+                            <td className="align-middle">{process.CurrentStage}</td>
+                            <td className="align-middle">{process.CurrentAssignee.Title}</td>
+                            <td className="align-middle">{process.CurrentStageStartDate.toFormat("DD")}</td>
+                            <td className="align-middle">{process.Created.toFormat("DD")}</td>
                         </tr>
                     )}
                     <tr className="paging-row">
@@ -90,6 +97,6 @@ export const Processes: FunctionComponent = () => {
                 </tbody>
             </Table>
             <SBOSpinner show={pagedProcesses.loading} displayText="Loading Processes..." />
-        </Col>
+        </Col >
     );
 }

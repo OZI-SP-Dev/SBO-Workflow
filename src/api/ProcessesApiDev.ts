@@ -198,6 +198,17 @@ export default class ProcessesApiDev implements IProcessesApi {
         }]));
     }
 
+    fetchProcessById = async (processId: number): Promise<IProcess | undefined> => {
+        await sleep();
+        let page = this.processesPage;
+        let process = page.results.find(p => p.Id === processId);
+        while (!process && page.hasNext) {
+            page = await page.getNext();
+            process = page.results.find(p => p.Id === processId);
+        }
+        return process;
+    }
+
     fetchFirstPageOfProcesses = async (): Promise<IProcessesPage> => {
         await sleep();
         return this.processesPage;
