@@ -21,6 +21,8 @@ export interface IPagedProcesses {
     page: number,
     hasNext: boolean,
     loading: boolean,
+    fetchCachedProcess(processId: number): IProcess | undefined,
+    refreshPage(): void,
     incrementPage(): void,
     decrementPage(): void,
     submitProcess(process: IProcess): Promise<IProcess>,
@@ -40,9 +42,9 @@ export function usePagedProcesses(): IPagedProcesses {
         ascending: false
     });
 
-    const fetchProcessesPage = async () => {
+    const fetchProcessesPage = async (refreshCache?: boolean) => {
         setLoading(true);
-        let processesCopy = processes;
+        let processesCopy = refreshCache ? [] : processes;
         if (processesCopy.length === 0) {
             processesCopy.push(await processesApi.fetchFirstPageOfProcesses());
         }
@@ -51,6 +53,17 @@ export function usePagedProcesses(): IPagedProcesses {
         }
         setProcesses(processesCopy);
         setLoading(false);
+    }
+
+    const fetchCachedProcess = (processId: number): IProcess | undefined => {
+        const processesPages = processes;
+        for (const page of processesPages) {
+            let process = page.results.find(p => p.Id === processId);
+            if (process) {
+                return process;
+            }
+        }
+        return undefined;
     }
 
     const submitProcess = async (process: IProcess) => {
@@ -79,6 +92,8 @@ export function usePagedProcesses(): IPagedProcesses {
         page: filters.page,
         hasNext: processes.length >= filters.page ? processes[filters.page - 1].hasNext : false,
         loading,
+        fetchCachedProcess,
+        refreshPage : () => fetchProcessesPage(true),
         incrementPage: () => setFilters({ ...filters, page: filters.page + 1 }),
         decrementPage: () => setFilters({ ...filters, page: filters.page - 1 }),
         submitProcess,
