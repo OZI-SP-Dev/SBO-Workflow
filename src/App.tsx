@@ -4,11 +4,11 @@ import { HashRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
 import { AppHeader } from './components/AppHeader/AppHeader';
 import { Help } from './components/Help/Help';
-import { Processes } from './components/Processes/Processes';
-import { ProcessView } from './components/ProcessView/ProcessView';
+import { ProcessesRoute } from './components/ProcessesRoute/ProcessesRoute';
 import { Reports } from './components/Reports/Reports';
 
 function App() {
+
   return (
     <div className="App">
       <HashRouter>
@@ -16,12 +16,12 @@ function App() {
           <AppHeader />
           <Switch>
             <Route exact path="/(home)?">
-              <Processes />
+              <ProcessesRoute />
             </Route>
             <Route
               path="/Processes/View/:processId"
               render={({ match }) =>
-                <ProcessView processId={Number(match.params.processId)} />}
+                <ProcessesRoute processId={Number(match.params.processId)} />}
             />
             <Route path="/Help">
               <Help />

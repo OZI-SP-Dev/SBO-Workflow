@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { Card, Col, Row } from "react-bootstrap";
+import { Card, Col } from "react-bootstrap";
 import { IProcess, Stages } from "../../api/DomainObjects";
 import { StatusListItem } from "./StatusListItem";
 import './StatusWorkflow.css';

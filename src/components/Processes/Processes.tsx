@@ -4,18 +4,20 @@ import { Button, Card, Col, Pagination, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { IPerson, IProcess, Person, ProcessTypes } from "../../api/DomainObjects";
 import { UserApiConfig } from "../../api/UserApi";
-import { usePagedProcesses } from "../../hooks/usePagedProcesses";
+import { IPagedProcesses } from "../../hooks/usePagedProcesses";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { ProcessForm } from "../ProcessForm/ProcessForm";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import "./Processes.css";
 
+export interface IProcessesProps {
+    pagedProcesses: IPagedProcesses
+}
 
-export const Processes: FunctionComponent = () => {
+export const Processes: FunctionComponent<IProcessesProps> = (props) => {
 
     const userApi = UserApiConfig.getApi();
 
-    const pagedProcesses = usePagedProcesses();
     const [showDD2579Form, setShowDD2579Form] = useState<boolean>(false);
     const [showISPForm, setShowISPForm] = useState<boolean>(false);
 
@@ -28,7 +30,7 @@ export const Processes: FunctionComponent = () => {
         process.SmallBusinessProfessional = await getPerson(process.SmallBusinessProfessional);
         process.Buyer = await getPerson(process.Buyer);
         process.CurrentAssignee = await getPerson(process.Buyer);
-        return pagedProcesses.submitProcess(process);
+        return props.pagedProcesses.submitProcess(process);
     }
 
     return (
@@ -69,7 +71,7 @@ export const Processes: FunctionComponent = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {pagedProcesses.processes.map(process =>
+                    {props.pagedProcesses.processes.map(process =>
                         <tr key={process.Id}>
                             <td className="align-middle">
                                 <Link to={`/Processes/View/${process.Id}`}>
@@ -90,15 +92,15 @@ export const Processes: FunctionComponent = () => {
                     <tr className="paging-row">
                         <td colSpan={8} className="p-0">
                             <Pagination className="m-0" size="sm">
-                                <Pagination.Prev disabled={pagedProcesses.page === 1} onClick={pagedProcesses.decrementPage}>{'<'} Prev</Pagination.Prev>
-                                <Pagination.Item disabled>{pagedProcesses.page}</Pagination.Item>
-                                <Pagination.Next disabled={!pagedProcesses.hasNext} onClick={pagedProcesses.incrementPage}>Next {'>'}</Pagination.Next>
+                                <Pagination.Prev disabled={props.pagedProcesses.page === 1} onClick={props.pagedProcesses.decrementPage}>{'<'} Prev</Pagination.Prev>
+                                <Pagination.Item disabled>{props.pagedProcesses.page}</Pagination.Item>
+                                <Pagination.Next disabled={!props.pagedProcesses.hasNext} onClick={props.pagedProcesses.incrementPage}>Next {'>'}</Pagination.Next>
                             </Pagination>
                         </td>
                     </tr>
                 </tbody>
             </Table>
-            <SBOSpinner show={pagedProcesses.loading} displayText="Loading Processes..." />
+            <SBOSpinner show={props.pagedProcesses.loading} displayText="Loading Processes..." />
         </Col >
     );
 }
