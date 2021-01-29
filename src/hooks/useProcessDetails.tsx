@@ -7,7 +7,8 @@ import { ProcessesApiConfig } from "../api/ProcessesApi";
 export interface IProcessDetails {
     process?: IProcess,
     documents: IDocument[],
-    loading: boolean
+    loading: boolean,
+    submitDocument: (file: File) => Promise<IDocument | undefined>
 }
 
 export function useProcessDetails(processId: number): IProcessDetails {
@@ -29,9 +30,19 @@ export function useProcessDetails(processId: number): IProcessDetails {
         setLoading(false);
     }
 
+    const submitDocument = async (file: File) => {
+        if (process) {
+            let newDoc = await documentsApi.uploadDocument(process, file);
+            let docs = documents;
+            docs.unshift(newDoc)
+            setDocuments(docs);
+            return newDoc;
+        }
+    }
+
     useEffect(() => {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, loading }
+    return { process, documents, loading, submitDocument }
 }

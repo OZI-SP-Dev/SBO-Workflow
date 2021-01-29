@@ -7,24 +7,3 @@ tbody tr:hover {
 .paging-row, .paging-row:hover {
     background-color: #ffffff!important;
 }
-
-.sbo-create-form-row button {
-    color: #787878;
-    border-color: #dbdbdb;
-    background-color: #ffffff;
-    min-width: 10rem;
-}
-
-.sbo-create-form-row button:hover, .sbo-create-form-row button:focus {
-    background-color: #2b8cff!important;
-    background-image: none,linear-gradient(to bottom,rgba(255,255,255,.4) 0,rgba(255,255,255,0) 100%);
-}
-
-.sbo-create-form-row button i {
-    font-size: xx-large;
-    color: #09f;
-}
-
-.sbo-create-form-row button:hover i, .sbo-create-form-row button:focus i {
-    color: #ffffff;
-}

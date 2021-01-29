@@ -119,7 +119,7 @@ export class DocumentsApiDev implements IDocumentsApi {
 
     fetchDocumentsForProcess = async (process: IProcess): Promise<IDocument[]> => {
         await sleep();
-        return this.documents;
+        return [...this.documents];
     }
     uploadDocument = async (process: IProcess, file: File): Promise<IDocument> => {
         await sleep();

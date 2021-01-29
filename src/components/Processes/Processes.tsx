@@ -45,12 +45,12 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                 handleClose={() => setShowISPForm(false)}
                 submit={submitProcess} />
             <Card className="sbo-gray-gradiant mt-3 mb-3">
-                <Row className="m-3 sbo-create-form-row">
-                    <Button className="mr-3" onClick={() => setShowDD2579Form(true)}>
+                <Row className="m-3">
+                    <Button className="mr-3 sbo-button" onClick={() => setShowDD2579Form(true)}>
                         <Icon iconName="FabricOpenFolderHorizontal" /><br />
                         Create DD2579
                     </Button>
-                    <Button onClick={() => setShowISPForm(true)}>
+                    <Button className="sbo-button" onClick={() => setShowISPForm(true)}>
                         <Icon iconName="FabricOpenFolderHorizontal" /><br />
                         Create ISP
                     </Button>
