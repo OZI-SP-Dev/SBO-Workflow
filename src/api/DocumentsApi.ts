@@ -109,12 +109,12 @@ export class DocumentsApiDev implements IDocumentsApi {
         Name: "dd2579.pdf",
         ModifiedBy: new Person({ Id: 1, Title: "Jeremy Clark", EMail: "me@yahoo.com" }),
         Modified: DateTime.local(),
-        LinkUrl: "http://localhost:3000/dd2579.pdf"
+        LinkUrl: "/dd2579.pdf"
     }, {
         Name: "Draft_ISP_Checklist.docx",
         ModifiedBy: new Person({ Id: 1, Title: "Jeremy Clark", EMail: "me@yahoo.com" }),
         Modified: DateTime.local(),
-        LinkUrl: "http://localhost:3000/Draft_ISP_Checklist.docx"
+        LinkUrl: "/Draft_ISP_Checklist.docx"
     }]
 
     fetchDocumentsForProcess = async (process: IProcess): Promise<IDocument[]> => {
@@ -127,7 +127,7 @@ export class DocumentsApiDev implements IDocumentsApi {
             Name: file.name,
             ModifiedBy: new Person(await this.userApi.getCurrentUser()),
             Modified: DateTime.local(),
-            LinkUrl: "http://localhost:3000/" + file.name
+            LinkUrl: "/" + file.name
         }
         this.documents.push(newDoc);
         return newDoc;
