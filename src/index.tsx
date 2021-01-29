@@ -6,8 +6,10 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { initializeIcons } from '@uifabric/icons';
 import { OrgsProvider } from './providers/OrgsContext';
+import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 
 initializeIcons();
+initializeFileTypeIcons();
 ReactDOM.render(
   <React.StrictMode>
     <OrgsProvider>

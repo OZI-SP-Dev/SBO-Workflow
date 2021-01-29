@@ -1,7 +1,8 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { Col } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import { getBlankProcess, IProcess, ProcessTypes } from "../../api/DomainObjects";
 import { useProcessDetails } from "../../hooks/useProcessDetails";
+import { DocumentsView } from "../DocumentsView/DocumentsView";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { ProcessDetails } from "../ProcessDetails/ProcessDetails";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
@@ -28,11 +29,16 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
         <Col xl="11" className="m-auto">
             <HeaderBreadcrumbs crumbs={[{ crumbName: "Home", href: "#/" }, { crumbName: process ? process.SolicitationNumber : '' }]} />
             <StatusWorkflow className="mt-3" process={process ? process : getBlankProcess(ProcessTypes.DD2579)} />
-            <Col xl="5" lg="5" md="5" sm="5" xs="5" className="mt-3">
-                <ProcessDetails
-                    process={process ? process : getBlankProcess(ProcessTypes.DD2579)}
-                />
-            </Col>
+            <Row className="mt-3 ml-2">
+                <Col xl="5" lg="5" md="5" sm="5" xs="5">
+                    <ProcessDetails
+                        process={process ? process : getBlankProcess(ProcessTypes.DD2579)}
+                    />
+                </Col>
+                <Col>
+                    <DocumentsView documents={processDetails.documents} />
+                </Col>
+            </Row>
             <SBOSpinner show={processDetails.loading} displayText="Loading Process..." />
         </Col>
     );

@@ -12,7 +12,7 @@ export const HeaderBreadcrumbs: FunctionComponent<IHeaderBreadcrumbProps> = (pro
     return (
         <Card className="sbo-gray-gradiant mt-3">
             <Breadcrumb>
-                {props.crumbs.map(crumb => <Breadcrumb.Item href={crumb.href} active={crumb.href === undefined}>{crumb.crumbName}</Breadcrumb.Item>)}
+                {props.crumbs.map(crumb => <Breadcrumb.Item key={crumb.crumbName} href={crumb.href} active={crumb.href === undefined}>{crumb.crumbName}</Breadcrumb.Item>)}
             </Breadcrumb>
         </Card>
     );
