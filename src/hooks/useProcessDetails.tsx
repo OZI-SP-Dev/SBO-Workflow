@@ -34,7 +34,8 @@ export function useProcessDetails(processId: number): IProcessDetails {
         if (process) {
             let newDoc = await documentsApi.uploadDocument(process, file);
             let docs = documents;
-            docs.unshift(newDoc)
+            docs = docs.filter(doc => doc.LinkUrl !== newDoc.LinkUrl);
+            docs.unshift(newDoc);
             setDocuments(docs);
             return newDoc;
         }

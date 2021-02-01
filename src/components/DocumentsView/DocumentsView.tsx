@@ -1,74 +1,46 @@
 import { Icon } from "@fluentui/react";
-import React, { ChangeEvent, FunctionComponent, useEffect, useState } from "react";
+import React, { ChangeEvent, FunctionComponent, useState } from "react";
 import { Button, Col } from "react-bootstrap";
 import { IDocument } from "../../api/DocumentsApi";
-import { DocumentView } from "./DocumentView";
+import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import "./DocumentsView.css";
-import { UserApiConfig } from "../../api/UserApi";
-import { DateTime } from "luxon";
+import { DocumentView } from "./DocumentView";
 
 export interface IDocumentsViewProps {
     documents: IDocument[],
+    loading: boolean,
     submitDocument: (file: File) => Promise<IDocument | undefined>
 }
 
 export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => {
 
-    const [newFile, setNewFile] = useState<File>();
-    const [newDocument, setNewDocument] = useState<IDocument>();
-    const userApi = UserApiConfig.getApi();
-
-    const submitNewFile = async () => {
-        if (newFile) {
-            await props.submitDocument(newFile);
-            clearInput();
-        }
-    }
+    const [uploading, setUploading] = useState<boolean>(false);
 
     const fileInputOnClick = () => {
         document.getElementById("sbo-process-document-input")?.click();
     }
 
-    const fileInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const fileInputOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            setNewFile(e.target.files[0]);
+            setUploading(true);
+            await props.submitDocument(e.target.files[0]);
+            // reset file input so that a file with the same name can be used again
+            e.target.files = null;
+            e.target.value = '';
+            setUploading(false);
         }
     }
-
-    const clearInput = () => {
-        setNewFile(undefined);
-        setNewDocument(undefined);
-    }
-
-    const updateNewDocument = async () => {
-        if (newFile) {
-            setNewDocument({
-                Name: newFile.name,
-                ModifiedBy: await userApi.getCurrentUser(),
-                Modified: DateTime.local(),
-                LinkUrl: newFile.name
-            })
-        }
-    }
-
-    useEffect(() => {
-        updateNewDocument();
-    }, [newFile]);
 
     return (
         <>
             <h5 className="ml-3 mb-3">Documents</h5>
             <input id="sbo-process-document-input" type="file" className="hidden" onChange={fileInputOnChange} />
-            <Button className="ml-3 mb-3 sbo-button sbo-upload-document-button" onClick={fileInputOnClick}>
-                <Icon iconName="Upload" /><br />
-                Upload
-            </Button>
-            {newDocument && <Col className="mb-3 pr-0">
-                <p>To Be Uploaded</p>
-                <DocumentView document={newDocument} newDocumentUpload={submitNewFile} cancelOnClick={clearInput} />
-                <p className="mt-3">Uploaded</p>
-            </Col>}
+            {!props.loading &&
+                <Button className="ml-3 mb-3 sbo-button sbo-upload-document-button" onClick={fileInputOnClick}>
+                    <Icon iconName="Upload" /><br />Upload
+                </Button>}
             { props.documents.map(doc => <Col key={doc.Name} className="mb-3 pr-0"><DocumentView document={doc} /></Col>)}
+            <SBOSpinner show={uploading} displayText="Uploading Document..." />
         </>
     );
 }
