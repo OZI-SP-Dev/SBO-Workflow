@@ -8,7 +8,8 @@ export interface IProcessDetails {
     process?: IProcess,
     documents: IDocument[],
     loading: boolean,
-    submitDocument: (file: File) => Promise<IDocument | undefined>
+    submitDocument: (file: File) => Promise<IDocument | undefined>,
+    deleteDocument: (fileName: string) => Promise<void>
 }
 
 export function useProcessDetails(processId: number): IProcessDetails {
@@ -41,9 +42,16 @@ export function useProcessDetails(processId: number): IProcessDetails {
         }
     }
 
+    const deleteDocument = async (fileName: string): Promise<void> => {
+        if (process) {
+            await documentsApi.deleteDocument(process, fileName);
+            setDocuments(documents.filter(doc => doc.Name !== fileName));
+        }
+    }
+
     useEffect(() => {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, loading, submitDocument }
+    return { process, documents, loading, submitDocument, deleteDocument }
 }

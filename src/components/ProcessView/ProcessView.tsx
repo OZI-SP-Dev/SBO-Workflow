@@ -36,7 +36,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                     />
                 </Col>
                 <Col>
-                    <DocumentsView documents={processDetails.documents} loading={processDetails.loading} submitDocument={processDetails.submitDocument} />
+                    <DocumentsView documents={processDetails.documents} loading={processDetails.loading} submitDocument={processDetails.submitDocument} deleteDocument={processDetails.deleteDocument} />
                 </Col>
             </Row>
             <SBOSpinner show={processDetails.loading} displayText="Loading Process..." />
