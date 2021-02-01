@@ -1,8 +1,7 @@
 import { Icon } from "@fluentui/react";
 import React, { ChangeEvent, FunctionComponent, useState } from "react";
-import { Button, Col } from "react-bootstrap";
+import { Button, Col, Spinner } from "react-bootstrap";
 import { IDocument } from "../../api/DocumentsApi";
-import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import "./DocumentsView.css";
 import { DocumentView } from "./DocumentView";
 
@@ -36,11 +35,11 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => 
             <h5 className="ml-3 mb-3">Documents</h5>
             <input id="sbo-process-document-input" type="file" className="hidden" onChange={fileInputOnChange} />
             {!props.loading &&
-                <Button className="ml-3 mb-3 sbo-button sbo-upload-document-button" onClick={fileInputOnClick}>
-                    <Icon iconName="Upload" /><br />Upload
+                <Button className="ml-3 mb-3 sbo-button" disabled={uploading} onClick={fileInputOnClick}>
+                    <Icon iconName="Upload" /><br />
+                    {uploading && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}{' '}{uploading ? "Uploading" : "Upload"}
                 </Button>}
             { props.documents.map(doc => <Col key={doc.Name} className="mb-3 pr-0"><DocumentView document={doc} /></Col>)}
-            <SBOSpinner show={uploading} displayText="Uploading Document..." />
         </>
     );
 }
