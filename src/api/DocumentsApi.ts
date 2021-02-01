@@ -119,8 +119,9 @@ export class DocumentsApiDev implements IDocumentsApi {
 
     fetchDocumentsForProcess = async (process: IProcess): Promise<IDocument[]> => {
         await sleep();
-        return this.documents;
+        return [...this.documents];
     }
+
     uploadDocument = async (process: IProcess, file: File): Promise<IDocument> => {
         await sleep();
         let newDoc = {
@@ -132,6 +133,7 @@ export class DocumentsApiDev implements IDocumentsApi {
         this.documents.push(newDoc);
         return newDoc;
     }
+
     deleteDocument = async (process: IProcess, fileName: string): Promise<void> => {
         await sleep();
         this.documents = this.documents.filter(doc => doc.Name !== fileName);

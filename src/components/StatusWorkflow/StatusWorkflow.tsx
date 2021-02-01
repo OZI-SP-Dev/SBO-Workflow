@@ -33,7 +33,7 @@ export const StatusWorkflow: FunctionComponent<IStatusWorkflowProps> = (props) =
         <Card className={"sbo-gray-gradiant " + props.className}>
             <Col className="m-3">
                 <h4>{props.process.ProcessType} Process: {props.process.SolicitationNumber}</h4>
-                <p>
+                <p className="mb-0">
                     <strong>Current SBO Stage: </strong>{props.process.CurrentStage}<br />
                     <strong>Next SBO Stage: </strong>{nextStageText()}
                 </p>
