@@ -8,7 +8,8 @@ import { DocumentView } from "./DocumentView";
 export interface IDocumentsViewProps {
     documents: IDocument[],
     loading: boolean,
-    submitDocument: (file: File) => Promise<IDocument | undefined>
+    submitDocument: (file: File) => Promise<IDocument | undefined>,
+    deleteDocument: (fileName: string) => Promise<void>
 }
 
 export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => {
@@ -39,7 +40,7 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => 
                     <Icon iconName="Upload" /><br />
                     {uploading && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}{' '}{uploading ? "Uploading" : "Upload"}
                 </Button>}
-            { props.documents.map(doc => <Col key={doc.Name} className="mb-3 pr-0"><DocumentView document={doc} /></Col>)}
+            { props.documents.map(doc => <Col key={doc.Name} className="mb-3 pr-0"><DocumentView document={doc} deleteDocument={props.deleteDocument} /></Col>)}
         </>
     );
 }
