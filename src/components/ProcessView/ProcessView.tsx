@@ -4,6 +4,7 @@ import { getBlankProcess, IProcess, ProcessTypes } from "../../api/DomainObjects
 import { useProcessDetails } from "../../hooks/useProcessDetails";
 import { DocumentsView } from "../DocumentsView/DocumentsView";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
+import { NotesView } from "../NotesView/NotesView";
 import { ProcessDetails } from "../ProcessDetails/ProcessDetails";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
@@ -34,6 +35,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                     <ProcessDetails
                         process={process ? process : getBlankProcess(ProcessTypes.DD2579)}
                     />
+                    <NotesView className="mt-5" notes={processDetails.notes} />
                 </Col>
                 <Col>
                     <DocumentsView documents={processDetails.documents} loading={processDetails.loading} submitDocument={processDetails.submitDocument} deleteDocument={processDetails.deleteDocument} />

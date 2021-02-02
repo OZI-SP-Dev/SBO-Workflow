@@ -1,0 +1,27 @@
+.note {
+    background-color: #ffffcc;
+    box-shadow: 5px 5px 5px #888888;
+    border-radius: 0;
+    border-color: transparent;
+}
+
+.note p {
+    text-align: left;
+}
+
+.preserve-whitespace {
+    white-space: pre-wrap;
+}
+
+.note-timestamp {
+    font-size: small;
+}
+
+.notes-button-icon {
+    font-size: x-large;
+    padding-left: 1px;
+}
+
+.add-note-text {
+    align-self: center;
+}

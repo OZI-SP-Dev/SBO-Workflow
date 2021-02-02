@@ -1,7 +1,8 @@
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
-import { INote, IPerson, IProcess } from "./DomainObjects";
+import { INote, IPerson, IProcess, Person } from "./DomainObjects";
 import { ApiError } from "./InternalErrors";
+import { sleep } from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
 
 export interface INotesApi {
@@ -21,12 +22,34 @@ export interface INotesApi {
     submitNote(text: string, process: IProcess): Promise<INote>
 }
 
+/**
+ * The interface that represents how a Note is formed when it is submitted and returned from submission.
+ */
+interface ISubmitNote {
+    Id?: number,
+    ProcessId: number,
+    Text: string,
+    AuthorId?: number,
+    Modified?: string
+}
+
+/**
+ * The interface that represents how a Note is formed when it is returned from the SP GET endpoint.
+ */
+interface SPNote {
+    Id: number,
+    Process: { Id: number },
+    Text: string,
+    Author: IPerson,
+    Modified: string
+}
+
 export default class NotesApi implements INotesApi {
 
     private notesList = spWebContext.lists.getByTitle("Notes");
     private userApi = UserApiConfig.getApi();
 
-    async fetchNotesForProcess(process: IProcess): Promise<INote[]> {
+    fetchNotesForProcess = async (process: IProcess): Promise<INote[]> => {
         try {
             return (await this.notesList.items
                 .select("Id", "Process/Id", "Text", "Author/Id", "Author/Title", "Author/EMail", "Modified")
@@ -53,7 +76,7 @@ export default class NotesApi implements INotesApi {
         }
     }
 
-    async submitNote(text: string, process: IProcess): Promise<INote> {
+    submitNote = async (text: string, process: IProcess): Promise<INote> => {
         try {
             let submitNote: ISubmitNote = {
                 ProcessId: process.Id,
@@ -81,24 +104,81 @@ export default class NotesApi implements INotesApi {
     }
 }
 
-/**
- * The interface that represents how a Note is formed when it is submitted and returned from submission.
- */
-interface ISubmitNote {
-    Id?: number,
-    ProcessId: number,
-    Text: string,
-    AuthorId?: number,
-    Modified?: string
+export class NotesApiDev implements INotesApi {
+
+    userApi = UserApiConfig.getApi();
+
+    maxId = 4;
+
+    notes: INote[] = [{
+        Id: 1,
+        ProcessId: 1,
+        Text: "This is a note!",
+        Author: new Person({
+            Id: 1,
+            Title: "Default User",
+            EMail: "me@example.com"
+        }),
+        Modified: DateTime.local()
+    }, {
+        Id: 2,
+        ProcessId: 2,
+        Text: "This is a note!",
+        Author: new Person({
+            Id: 1,
+            Title: "Default User",
+            EMail: "me@example.com"
+        }),
+        Modified: DateTime.local()
+    }, {
+        Id: 3,
+        ProcessId: 3,
+        Text: "This is a note!",
+        Author: new Person({
+            Id: 1,
+            Title: "Default User",
+            EMail: "me@example.com"
+        }),
+        Modified: DateTime.local()
+    }, {
+        Id: 4,
+        ProcessId: 4,
+        Text: "This is a note!",
+        Author: new Person({
+            Id: 1,
+            Title: "Default User",
+            EMail: "me@example.com"
+        }),
+        Modified: DateTime.local()
+    }]
+
+    fetchNotesForProcess = async (process: IProcess): Promise<INote[]> => {
+        await sleep();
+        return this.notes.filter(note => note.ProcessId === process.Id);
+    }
+
+    submitNote = async (text: string, process: IProcess): Promise<INote> => {
+        await sleep();
+        let note = {
+            Id: ++this.maxId,
+            ProcessId: process.Id,
+            Text: text,
+            Author: await this.userApi.getCurrentUser(),
+            Modified: DateTime.local()
+        };
+        this.notes.push(note);
+        return note;
+    }
 }
 
-/**
- * The interface that represents how a Note is formed when it is returned from the SP GET endpoint.
- */
-interface SPNote {
-    Id: number,
-    Process: { Id: number },
-    Text: string,
-    Author: IPerson,
-    Modified: string
+export class NotesApiConfig {
+    private static notesApi: INotesApi
+
+    // optionally supply the api used to set up test data in the dev version
+    static getApi(): INotesApi {
+        if (!this.notesApi) {
+            this.notesApi = process.env.NODE_ENV === 'development' ? new NotesApiDev() : new NotesApi();
+        }
+        return this.notesApi;
+    }
 }
