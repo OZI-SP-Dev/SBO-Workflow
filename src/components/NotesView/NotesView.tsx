@@ -40,6 +40,8 @@ export const NotesView: FunctionComponent<INotesViewProps> = (props) => {
                             init={{
                                 height: '20rem',
                                 menubar: false,
+                                auto_focus: true,
+                                //statusbar: false, //Have to show this as part of the license agreement if we don't attribute elsewhere
                                 plugins: [
                                     'advlist autolink lists link charmap anchor',
                                     'searchreplace visualblocks',
@@ -55,7 +57,7 @@ export const NotesView: FunctionComponent<INotesViewProps> = (props) => {
                         <Button variant="primary" onClick={submitNote}>{submitting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}{' '}Save Note</Button>
                     </Row>
                 </>}
-            {props.notes.map(note => <Col className="mb-3 p-0"><NoteView note={note} /></Col>)}
+            {props.notes.map(note => <Col key={"note"+note.Id} className="mb-3 p-0"><NoteView note={note} /></Col>)}
         </div>
     );
 }

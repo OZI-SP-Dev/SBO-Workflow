@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { initializeIcons } from '@uifabric/icons';
 import { OrgsProvider } from './providers/OrgsContext';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
-import tinymce from 'tinymce/tinymce';
+import 'tinymce/tinymce';
 import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
 import 'tinymce/plugins/paste';
@@ -29,11 +29,6 @@ import 'tinymce/skins/content/default/content.min.css'
 
 initializeIcons();
 initializeFileTypeIcons();
-
-tinymce.init({
-  selector: '#tiny',
-  plugins: ['paste', 'link', 'advlist', 'autolink', 'lists', 'charmap', 'anchor', 'searchreplace', 'visualblocks', 'insertdatetime', 'paste', 'wordcount']
-});
 
 ReactDOM.render(
   <React.StrictMode>
