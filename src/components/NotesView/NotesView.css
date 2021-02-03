@@ -9,10 +9,6 @@
     text-align: left;
 }
 
-.preserve-whitespace {
-    white-space: pre-wrap;
-}
-
 .note-timestamp {
     font-size: small;
 }

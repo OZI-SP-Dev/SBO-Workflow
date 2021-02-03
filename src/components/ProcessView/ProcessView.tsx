@@ -35,7 +35,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                     <ProcessDetails
                         process={process ? process : getBlankProcess(ProcessTypes.DD2579)}
                     />
-                    <NotesView className="mt-5" notes={processDetails.notes} />
+                    <NotesView className="mt-5" notes={processDetails.notes} submitNote={processDetails.submitNote} />
                 </Col>
                 <Col>
                     <DocumentsView documents={processDetails.documents} loading={processDetails.loading} submitDocument={processDetails.submitDocument} deleteDocument={processDetails.deleteDocument} />

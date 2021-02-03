@@ -53,6 +53,7 @@ export default class NotesApi implements INotesApi {
         try {
             return (await this.notesList.items
                 .select("Id", "Process/Id", "Text", "Author/Id", "Author/Title", "Author/EMail", "Modified")
+                .orderBy("Modified", false)
                 .expand("Process", "Author")
                 .filter(`ProcessId eq ${process.Id}`).get()).map((n: SPNote) => {
                     return {

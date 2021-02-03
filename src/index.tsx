@@ -7,9 +7,34 @@ import reportWebVitals from './reportWebVitals';
 import { initializeIcons } from '@uifabric/icons';
 import { OrgsProvider } from './providers/OrgsContext';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
+import tinymce from 'tinymce/tinymce';
+import 'tinymce/icons/default';
+import 'tinymce/themes/silver';
+import 'tinymce/plugins/paste';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/advlist';
+import 'tinymce/plugins/autolink';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/charmap';
+import 'tinymce/plugins/anchor';
+import 'tinymce/plugins/searchreplace';
+import 'tinymce/plugins/visualblocks';
+import 'tinymce/plugins/insertdatetime';
+import 'tinymce/plugins/paste';
+import 'tinymce/plugins/wordcount';
+// Skins
+import 'tinymce/skins/ui/oxide/skin.min.css'
+import 'tinymce/skins/ui/oxide/content.min.css'
+import 'tinymce/skins/content/default/content.min.css'
 
 initializeIcons();
 initializeFileTypeIcons();
+
+tinymce.init({
+  selector: '#tiny',
+  plugins: ['paste', 'link', 'advlist', 'autolink', 'lists', 'charmap', 'anchor', 'searchreplace', 'visualblocks', 'insertdatetime', 'paste', 'wordcount']
+});
+
 ReactDOM.render(
   <React.StrictMode>
     <OrgsProvider>
