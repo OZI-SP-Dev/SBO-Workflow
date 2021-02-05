@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from "react";
 import { Alert, Button, Modal, Row, Spinner } from "react-bootstrap";
 import { InternalError } from "../../api/InternalErrors";
-import "./SubmittableModal.css"
+import "./SubmittableModal.css";
 
 export interface ISubmittableModalProps {
     modalTitle: string,

@@ -1,6 +1,5 @@
 import { DateTime } from "luxon";
 import { IProcess, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
-import { ApiError, InternalError } from "./InternalErrors";
 import { IProcessesApi, IProcessesPage } from "./ProcessesApi";
 
 export function sleep() {

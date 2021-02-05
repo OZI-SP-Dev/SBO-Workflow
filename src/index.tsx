@@ -26,15 +26,18 @@ import 'tinymce/plugins/wordcount';
 import 'tinymce/skins/ui/oxide/skin.min.css'
 import 'tinymce/skins/ui/oxide/content.min.css'
 import 'tinymce/skins/content/default/content.min.css'
+import { ErrorsProvider } from './providers/ErrorsContext';
 
 initializeIcons();
 initializeFileTypeIcons();
 
 ReactDOM.render(
   <React.StrictMode>
-    <OrgsProvider>
-      <App />
-    </OrgsProvider>
+    <ErrorsProvider>
+      <OrgsProvider>
+        <App />
+      </OrgsProvider>
+    </ErrorsProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

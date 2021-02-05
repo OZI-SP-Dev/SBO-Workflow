@@ -11,8 +11,7 @@ import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
 
 export interface IProcessViewProps {
     processId: number,
-    process?: IProcess,
-    reportError(error: string): void
+    process?: IProcess
 }
 
 export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
@@ -26,12 +25,6 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
             setProcess(processDetails.process);
         } // eslint-disable-next-line
     }, [processDetails.loading]);
-
-    useEffect(() => {
-        if (processDetails.error) {
-            props.reportError(processDetails.error);
-        }
-    }, [processDetails.error]);
 
     return (
         <Col xl="11" className="m-auto">

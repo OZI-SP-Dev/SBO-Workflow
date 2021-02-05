@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { IProcess } from "../api/DomainObjects";
-import { InternalError } from "../api/InternalErrors";
 import { IProcessesPage, ProcessesApiConfig } from "../api/ProcessesApi";
+import { ErrorsContext } from "../providers/ErrorsContext";
 
 interface IProcessesFilters {
     page: number,
@@ -19,7 +19,6 @@ interface IProcessesFilters {
 
 export interface IPagedProcesses {
     processes: IProcess[],
-    error: string,
     page: number,
     hasNext: boolean,
     loading: boolean,
@@ -33,10 +32,11 @@ export interface IPagedProcesses {
 
 export function usePagedProcesses(): IPagedProcesses {
 
+    const errorsContext = useContext(ErrorsContext);
+
     const processesApi = ProcessesApiConfig.getApi();
 
     const [processes, setProcesses] = useState<IProcessesPage[]>([]);
-    const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState<IProcessesFilters>({
         page: 1,
@@ -57,7 +57,9 @@ export function usePagedProcesses(): IPagedProcesses {
             }
             setProcesses(processesCopy);
         } catch (e) {
-            setError(e.message);
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
         } finally {
             setLoading(false);
         }
@@ -82,7 +84,9 @@ export function usePagedProcesses(): IPagedProcesses {
             setProcesses(pages);
             return submittedProcess;
         } catch (e) {
-            setError(e.message);
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
             throw e;
         }
     }
@@ -95,7 +99,9 @@ export function usePagedProcesses(): IPagedProcesses {
                 page.results.filter(process => process.Id !== processId);
             }
         } catch (e) {
-            setError(e.message);
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
             throw e;
         }
     }
@@ -107,7 +113,6 @@ export function usePagedProcesses(): IPagedProcesses {
 
     return {
         processes: processes.length >= filters.page ? processes[filters.page - 1].results : [],
-        error,
         page: filters.page,
         hasNext: processes.length >= filters.page ? processes[filters.page - 1].hasNext : false,
         loading,

@@ -4,8 +4,7 @@ import { Processes } from "../Processes/Processes";
 import { ProcessView } from "../ProcessView/ProcessView";
 
 export interface IProcessesRouteProps {
-    processId?: number,
-    reportError(error: string): void
+    processId?: number
 }
 
 export const ProcessesRoute: FunctionComponent<IProcessesRouteProps> = (props) => {
@@ -19,15 +18,9 @@ export const ProcessesRoute: FunctionComponent<IProcessesRouteProps> = (props) =
         } // eslint-disable-next-line
     }, [props.processId]);
 
-    useEffect(() => {
-        if (pagedProcesses.error) {
-            props.reportError(pagedProcesses.error);
-        }
-    }, [pagedProcesses.error]);
-
     return (
         props.processId !== undefined ?
-            <ProcessView processId={props.processId} process={pagedProcesses.fetchCachedProcess(props.processId)} reportError={props.reportError} /> :
+            <ProcessView processId={props.processId} process={pagedProcesses.fetchCachedProcess(props.processId)} /> :
             <Processes pagedProcesses={pagedProcesses} />
     );
 }

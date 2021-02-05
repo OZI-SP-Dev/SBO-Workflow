@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DocumentsApiConfig, IDocument } from "../api/DocumentsApi";
 import { INote, IProcess } from "../api/DomainObjects";
-import { InternalError } from "../api/InternalErrors";
 import { NotesApiConfig } from "../api/NotesApi";
 import { ProcessesApiConfig } from "../api/ProcessesApi";
+import { ErrorsContext } from "../providers/ErrorsContext";
 
 
 export interface IProcessDetails {
@@ -11,13 +11,14 @@ export interface IProcessDetails {
     documents: IDocument[],
     notes: INote[],
     loading: boolean,
-    error: string,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
     deleteDocument: (fileName: string) => Promise<void>,
     submitNote: (text: string) => Promise<INote | undefined>
 }
 
 export function useProcessDetails(processId: number): IProcessDetails {
+
+    const errorsContext = useContext(ErrorsContext);
 
     const processApi = ProcessesApiConfig.getApi();
     const documentsApi = DocumentsApiConfig.getApi();
@@ -26,7 +27,6 @@ export function useProcessDetails(processId: number): IProcessDetails {
     const [documents, setDocuments] = useState<IDocument[]>([]);
     const [notes, setNotes] = useState<INote[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string>('');
 
     const fetchProcessDetails = async () => {
         try {
@@ -40,7 +40,9 @@ export function useProcessDetails(processId: number): IProcessDetails {
                 setNotes(await notes);
             }
         } catch (e) {
-            setError(e.message);
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
         } finally {
             setLoading(false);
         }
@@ -57,7 +59,9 @@ export function useProcessDetails(processId: number): IProcessDetails {
                 return newDoc;
             }
         } catch (e) {
-            setError(e.message);
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
             throw e;
         }
     }
@@ -69,7 +73,9 @@ export function useProcessDetails(processId: number): IProcessDetails {
                 setDocuments(documents.filter(doc => doc.Name !== fileName));
             }
         } catch (e) {
-            setError(e.message);
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
             throw e;
         }
     }
@@ -85,7 +91,9 @@ export function useProcessDetails(processId: number): IProcessDetails {
                 return newNote;
             }
         } catch (e) {
-            setError(e.message);
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
             throw e;
         }
     }
@@ -94,5 +102,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, error, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, submitDocument, deleteDocument, submitNote }
 }
