@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { IProcess } from "../api/DomainObjects";
+import { InternalError } from "../api/InternalErrors";
 import { IProcessesPage, ProcessesApiConfig } from "../api/ProcessesApi";
 
 interface IProcessesFilters {
@@ -18,6 +19,7 @@ interface IProcessesFilters {
 
 export interface IPagedProcesses {
     processes: IProcess[],
+    error: string,
     page: number,
     hasNext: boolean,
     loading: boolean,
@@ -34,6 +36,7 @@ export function usePagedProcesses(): IPagedProcesses {
     const processesApi = ProcessesApiConfig.getApi();
 
     const [processes, setProcesses] = useState<IProcessesPage[]>([]);
+    const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState<IProcessesFilters>({
         page: 1,
@@ -43,16 +46,21 @@ export function usePagedProcesses(): IPagedProcesses {
     });
 
     const fetchProcessesPage = async (refreshCache?: boolean) => {
-        setLoading(true);
-        let processesCopy = refreshCache ? [] : processes;
-        if (processesCopy.length === 0) {
-            processesCopy.push(await processesApi.fetchFirstPageOfProcesses());
+        try {
+            setLoading(true);
+            let processesCopy = refreshCache ? [] : processes;
+            if (processesCopy.length === 0) {
+                processesCopy.push(await processesApi.fetchFirstPageOfProcesses());
+            }
+            while (processesCopy.length < filters.page && processesCopy[processesCopy.length - 1].hasNext) {
+                processesCopy.push(await processesCopy[processesCopy.length - 1].getNext());
+            }
+            setProcesses(processesCopy);
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
         }
-        while (processesCopy.length < filters.page && processesCopy[processesCopy.length - 1].hasNext) {
-            processesCopy.push(await processesCopy[processesCopy.length - 1].getNext());
-        }
-        setProcesses(processesCopy);
-        setLoading(false);
     }
 
     const fetchCachedProcess = (processId: number): IProcess | undefined => {
@@ -67,18 +75,28 @@ export function usePagedProcesses(): IPagedProcesses {
     }
 
     const submitProcess = async (process: IProcess) => {
-        let submittedProcess = await processesApi.submitProcess(process);
-        let pages = processes;
-        pages[0].results.unshift(submittedProcess);
-        setProcesses(pages);
-        return submittedProcess;
+        try {
+            let submittedProcess = await processesApi.submitProcess(process);
+            let pages = processes;
+            pages[0].results.unshift(submittedProcess);
+            setProcesses(pages);
+            return submittedProcess;
+        } catch (e) {
+            setError(e.message);
+            throw e;
+        }
     }
 
     const deleteProcess = async (processId: number) => {
-        await processesApi.deleteProcess(processId);
-        let pages = processes;
-        for (let page of pages) {
-            page.results.filter(process => process.Id !== processId);
+        try {
+            await processesApi.deleteProcess(processId);
+            let pages = processes;
+            for (let page of pages) {
+                page.results.filter(process => process.Id !== processId);
+            }
+        } catch (e) {
+            setError(e.message);
+            throw e;
         }
     }
 
@@ -89,11 +107,12 @@ export function usePagedProcesses(): IPagedProcesses {
 
     return {
         processes: processes.length >= filters.page ? processes[filters.page - 1].results : [],
+        error,
         page: filters.page,
         hasNext: processes.length >= filters.page ? processes[filters.page - 1].hasNext : false,
         loading,
         fetchCachedProcess,
-        refreshPage : () => fetchProcessesPage(true),
+        refreshPage: () => fetchProcessesPage(true),
         incrementPage: () => setFilters({ ...filters, page: filters.page + 1 }),
         decrementPage: () => setFilters({ ...filters, page: filters.page - 1 }),
         submitProcess,

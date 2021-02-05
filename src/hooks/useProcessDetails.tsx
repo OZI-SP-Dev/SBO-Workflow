@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DocumentsApiConfig, IDocument } from "../api/DocumentsApi";
 import { INote, IProcess } from "../api/DomainObjects";
+import { InternalError } from "../api/InternalErrors";
 import { NotesApiConfig } from "../api/NotesApi";
 import { ProcessesApiConfig } from "../api/ProcessesApi";
 
@@ -10,6 +11,7 @@ export interface IProcessDetails {
     documents: IDocument[],
     notes: INote[],
     loading: boolean,
+    error: string,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
     deleteDocument: (fileName: string) => Promise<void>,
     submitNote: (text: string) => Promise<INote | undefined>
@@ -24,46 +26,67 @@ export function useProcessDetails(processId: number): IProcessDetails {
     const [documents, setDocuments] = useState<IDocument[]>([]);
     const [notes, setNotes] = useState<INote[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string>('');
 
     const fetchProcessDetails = async () => {
-        setLoading(true);
-        let process = await processApi.fetchProcessById(processId);
-        if (process) {
-            let documents = documentsApi.fetchDocumentsForProcess(process);
-            let notes = notesApi.fetchNotesForProcess(process);
-            setProcess(process);
-            setDocuments(await documents);
-            setNotes(await notes);
+        try {
+            setLoading(true);
+            let process = await processApi.fetchProcessById(processId);
+            if (process) {
+                let documents = documentsApi.fetchDocumentsForProcess(process);
+                let notes = notesApi.fetchNotesForProcess(process);
+                setProcess(process);
+                setDocuments(await documents);
+                setNotes(await notes);
+            }
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }
 
     const submitDocument = async (file: File) => {
-        if (process) {
-            let newDoc = await documentsApi.uploadDocument(process, file);
-            let docs = documents;
-            docs = docs.filter(doc => doc.LinkUrl !== newDoc.LinkUrl);
-            docs.unshift(newDoc);
-            setDocuments(docs);
-            return newDoc;
+        try {
+            if (process) {
+                let newDoc = await documentsApi.uploadDocument(process, file);
+                let docs = documents;
+                docs = docs.filter(doc => doc.LinkUrl !== newDoc.LinkUrl);
+                docs.unshift(newDoc);
+                setDocuments(docs);
+                return newDoc;
+            }
+        } catch (e) {
+            setError(e.message);
+            throw e;
         }
     }
 
     const deleteDocument = async (fileName: string): Promise<void> => {
-        if (process) {
-            await documentsApi.deleteDocument(process, fileName);
-            setDocuments(documents.filter(doc => doc.Name !== fileName));
+        try {
+            if (process) {
+                await documentsApi.deleteDocument(process, fileName);
+                setDocuments(documents.filter(doc => doc.Name !== fileName));
+            }
+        } catch (e) {
+            setError(e.message);
+            throw e;
         }
     }
 
     const submitNote = async (text: string) => {
-        if (process) {
-            let newNote = await notesApi.submitNote(text, process);
-            let newNotes = notes;
-            newNotes = newNotes.filter(n => n.Id !== newNote.Id);
-            newNotes.unshift(newNote);
-            setNotes(newNotes);
-            return newNote;
+        try {
+            if (process) {
+                let newNote = await notesApi.submitNote(text, process);
+                let newNotes = notes;
+                newNotes = newNotes.filter(n => n.Id !== newNote.Id);
+                newNotes.unshift(newNote);
+                setNotes(newNotes);
+                return newNote;
+            }
+        } catch (e) {
+            setError(e.message);
+            throw e;
         }
     }
 
@@ -71,5 +94,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, error, submitDocument, deleteDocument, submitNote }
 }
