@@ -3,7 +3,7 @@ import { createContext, useState } from "react";
 export interface IErrorsContext {
     errors: string[],
     reportError(error: Error | string): void,
-    dismissError(error: string): void
+    dismissError(index: number): void
 }
 
 export const ErrorsContext = createContext<Partial<IErrorsContext>>({ errors: [] });
@@ -16,9 +16,10 @@ export const ErrorsProvider: React.FunctionComponent = ({ children }) => {
         setErrors(newErrors);
     }
 
-    const dismissError = (error: string) => {
-        let filteredErrors = errors;
-        setErrors(filteredErrors.filter(e => e !== error));
+    const dismissError = (index: number) => {
+        let filteredErrors = [...errors];
+        filteredErrors.splice(index, 1)
+        setErrors(filteredErrors);
     }
 
     const errorsContext: IErrorsContext = {
