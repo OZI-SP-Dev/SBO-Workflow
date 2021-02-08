@@ -19,11 +19,14 @@ export const NotesView: FunctionComponent<INotesViewProps> = (props) => {
     const [submitting, setSubmitting] = useState<boolean>(false);
 
     const submitNote = async () => {
-        setSubmitting(true);
-        await props.submitNote(editorContent);
-        setSubmitting(false);
-        setEditorContent('');
-        setShowNewNoteEditor(false);
+        try {
+            setSubmitting(true);
+            await props.submitNote(editorContent);
+        } finally {
+            setSubmitting(false);
+            setEditorContent('');
+            setShowNewNoteEditor(false);
+        }
     }
 
     return (
@@ -57,7 +60,7 @@ export const NotesView: FunctionComponent<INotesViewProps> = (props) => {
                         <Button variant="primary" onClick={submitNote}>{submitting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}{' '}Save Note</Button>
                     </Row>
                 </>}
-            {props.notes.map(note => <Col key={"note"+note.Id} className="mb-3 p-0"><NoteView note={note} /></Col>)}
+            {props.notes.map(note => <Col key={"note" + note.Id} className="mb-3 p-0"><NoteView note={note} /></Col>)}
         </div>
     );
 }
