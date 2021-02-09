@@ -1,5 +1,5 @@
 .sbo-errors {
-    position: absolute;
+    position: fixed;
     top: 2rem;
     left: 50%;
     transform: translate(-50%);
