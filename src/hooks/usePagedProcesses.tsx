@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { IProcess } from "../api/DomainObjects";
+import { IPerson, IProcess, Person } from "../api/DomainObjects";
 import { IProcessesPage, ProcessesApiConfig } from "../api/ProcessesApi";
+import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
 
 interface IProcessesFilters {
@@ -35,6 +36,7 @@ export function usePagedProcesses(): IPagedProcesses {
     const errorsContext = useContext(ErrorsContext);
 
     const processesApi = ProcessesApiConfig.getApi();
+    const userApi = UserApiConfig.getApi();
 
     const [processes, setProcesses] = useState<IProcessesPage[]>([]);
     const [loading, setLoading] = useState(true);
@@ -78,7 +80,12 @@ export function usePagedProcesses(): IPagedProcesses {
 
     const submitProcess = async (process: IProcess) => {
         try {
-            let submittedProcess = await processesApi.submitProcess(process);
+            let p = { ...process };
+            p.ContractingOfficer = await getPersonDetails(p.ContractingOfficer);
+            p.SmallBusinessProfessional = await getPersonDetails(p.SmallBusinessProfessional);
+            p.Buyer = await getPersonDetails(p.Buyer);
+            p.CurrentAssignee = await getPersonDetails(p.Buyer);
+            let submittedProcess = await processesApi.submitProcess(p);
             let pages = processes;
             pages[0].results.unshift(submittedProcess);
             setProcesses(pages);
@@ -104,6 +111,10 @@ export function usePagedProcesses(): IPagedProcesses {
             }
             throw e;
         }
+    }
+
+    const getPersonDetails = async (person: IPerson): Promise<IPerson> => {
+        return new Person({ Id: await userApi.getUserId(person.EMail), Title: person.Title, EMail: person.EMail });
     }
 
     // TODO: Implement logic to handle other filter changes

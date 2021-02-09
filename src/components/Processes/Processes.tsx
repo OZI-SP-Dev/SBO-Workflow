@@ -2,8 +2,7 @@ import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useState } from "react";
 import { Button, Card, Col, Pagination, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { IPerson, IProcess, Person, ProcessTypes } from "../../api/DomainObjects";
-import { UserApiConfig } from "../../api/UserApi";
+import { ProcessTypes } from "../../api/DomainObjects";
 import { IPagedProcesses } from "../../hooks/usePagedProcesses";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { ProcessForm } from "../ProcessForm/ProcessForm";
@@ -16,22 +15,8 @@ export interface IProcessesProps {
 
 export const Processes: FunctionComponent<IProcessesProps> = (props) => {
 
-    const userApi = UserApiConfig.getApi();
-
     const [showDD2579Form, setShowDD2579Form] = useState<boolean>(false);
     const [showISPForm, setShowISPForm] = useState<boolean>(false);
-
-    const getPerson = async (person: IPerson): Promise<IPerson> => {
-        return new Person({ Id: await userApi.getUserId(person.EMail), Title: person.Title, EMail: person.EMail });
-    }
-
-    const submitProcess = async (process: IProcess): Promise<IProcess> => {
-        process.ContractingOfficer = await getPerson(process.ContractingOfficer);
-        process.SmallBusinessProfessional = await getPerson(process.SmallBusinessProfessional);
-        process.Buyer = await getPerson(process.Buyer);
-        process.CurrentAssignee = await getPerson(process.Buyer);
-        return props.pagedProcesses.submitProcess(process);
-    }
 
     return (
         <Col xl="11" className="m-auto">
@@ -39,11 +24,11 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
             <ProcessForm processType={ProcessTypes.DD2579}
                 showModal={showDD2579Form}
                 handleClose={() => setShowDD2579Form(false)}
-                submit={submitProcess} />
+                submit={props.pagedProcesses.submitProcess} />
             <ProcessForm processType={ProcessTypes.ISP}
                 showModal={showISPForm}
                 handleClose={() => setShowISPForm(false)}
-                submit={submitProcess} />
+                submit={props.pagedProcesses.submitProcess} />
             <Card className="sbo-gray-gradiant mt-3 mb-3">
                 <Row className="m-3">
                     <Button className="mr-3 sbo-button" onClick={() => setShowDD2579Form(true)}>

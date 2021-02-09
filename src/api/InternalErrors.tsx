@@ -2,7 +2,7 @@
 export class InternalError implements Error {
     name: string = "InternalError";
     message: string;
-    stack?: string | undefined;
+    stack?: string;
 
     constructor(e?: Error | string, message?: string) {
         if (e && e instanceof Error) {

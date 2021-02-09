@@ -1,8 +1,9 @@
 import { createContext, useState } from "react";
+import { InternalError } from "../api/InternalErrors";
 
 export interface IErrorsContext {
     errors: string[],
-    reportError(error: Error | string): void,
+    reportError(error: InternalError): void,
     dismissError(index: number): void
 }
 
@@ -10,9 +11,9 @@ export const ErrorsContext = createContext<Partial<IErrorsContext>>({ errors: []
 export const ErrorsProvider: React.FunctionComponent = ({ children }) => {
     const [errors, setErrors] = useState<string[]>([]);
 
-    const reportError = (error: Error | string) => {
+    const reportError = (error: InternalError) => {
         let newErrors = [...errors];
-        newErrors.push(error instanceof Error ? error.message : error);
+        newErrors.push(error.message);
         setErrors(newErrors);
     }
 
