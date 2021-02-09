@@ -24,7 +24,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
         if (processDetails.process) {
             setProcess(processDetails.process);
         } // eslint-disable-next-line
-    }, [processDetails.loading])
+    }, [processDetails.loading]);
 
     return (
         <Col xl="11" className="m-auto">

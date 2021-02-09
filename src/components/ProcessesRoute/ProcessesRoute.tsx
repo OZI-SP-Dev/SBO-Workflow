@@ -19,6 +19,8 @@ export const ProcessesRoute: FunctionComponent<IProcessesRouteProps> = (props) =
     }, [props.processId]);
 
     return (
-        props.processId !== undefined ? <ProcessView processId={props.processId} process={pagedProcesses.fetchCachedProcess(props.processId)} /> : <Processes pagedProcesses={pagedProcesses} />
+        props.processId !== undefined ?
+            <ProcessView processId={props.processId} process={pagedProcesses.fetchCachedProcess(props.processId)} /> :
+            <Processes pagedProcesses={pagedProcesses} />
     );
 }

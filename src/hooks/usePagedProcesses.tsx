@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
-import { IProcess } from "../api/DomainObjects";
+import { useContext, useEffect, useState } from "react";
+import { IPerson, IProcess, Person } from "../api/DomainObjects";
 import { IProcessesPage, ProcessesApiConfig } from "../api/ProcessesApi";
+import { UserApiConfig } from "../api/UserApi";
+import { ErrorsContext } from "../providers/ErrorsContext";
 
 interface IProcessesFilters {
     page: number,
@@ -31,7 +33,10 @@ export interface IPagedProcesses {
 
 export function usePagedProcesses(): IPagedProcesses {
 
+    const errorsContext = useContext(ErrorsContext);
+
     const processesApi = ProcessesApiConfig.getApi();
+    const userApi = UserApiConfig.getApi();
 
     const [processes, setProcesses] = useState<IProcessesPage[]>([]);
     const [loading, setLoading] = useState(true);
@@ -43,16 +48,23 @@ export function usePagedProcesses(): IPagedProcesses {
     });
 
     const fetchProcessesPage = async (refreshCache?: boolean) => {
-        setLoading(true);
-        let processesCopy = refreshCache ? [] : processes;
-        if (processesCopy.length === 0) {
-            processesCopy.push(await processesApi.fetchFirstPageOfProcesses());
+        try {
+            setLoading(true);
+            let processesCopy = refreshCache ? [] : processes;
+            if (processesCopy.length === 0) {
+                processesCopy.push(await processesApi.fetchFirstPageOfProcesses());
+            }
+            while (processesCopy.length < filters.page && processesCopy[processesCopy.length - 1].hasNext) {
+                processesCopy.push(await processesCopy[processesCopy.length - 1].getNext());
+            }
+            setProcesses(processesCopy);
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        } finally {
+            setLoading(false);
         }
-        while (processesCopy.length < filters.page && processesCopy[processesCopy.length - 1].hasNext) {
-            processesCopy.push(await processesCopy[processesCopy.length - 1].getNext());
-        }
-        setProcesses(processesCopy);
-        setLoading(false);
     }
 
     const fetchCachedProcess = (processId: number): IProcess | undefined => {
@@ -67,19 +79,42 @@ export function usePagedProcesses(): IPagedProcesses {
     }
 
     const submitProcess = async (process: IProcess) => {
-        let submittedProcess = await processesApi.submitProcess(process);
-        let pages = processes;
-        pages[0].results.unshift(submittedProcess);
-        setProcesses(pages);
-        return submittedProcess;
+        try {
+            let p = { ...process };
+            p.ContractingOfficer = await getPersonDetails(p.ContractingOfficer);
+            p.SmallBusinessProfessional = await getPersonDetails(p.SmallBusinessProfessional);
+            p.Buyer = await getPersonDetails(p.Buyer);
+            p.CurrentAssignee = await getPersonDetails(p.Buyer);
+            let submittedProcess = await processesApi.submitProcess(p);
+            let pages = processes;
+            pages[0].results.unshift(submittedProcess);
+            setProcesses(pages);
+            return submittedProcess;
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+            throw e;
+        }
     }
 
     const deleteProcess = async (processId: number) => {
-        await processesApi.deleteProcess(processId);
-        let pages = processes;
-        for (let page of pages) {
-            page.results.filter(process => process.Id !== processId);
+        try {
+            await processesApi.deleteProcess(processId);
+            let pages = processes;
+            for (let page of pages) {
+                page.results.filter(process => process.Id !== processId);
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+            throw e;
         }
+    }
+
+    const getPersonDetails = async (person: IPerson): Promise<IPerson> => {
+        return new Person({ Id: await userApi.getUserId(person.EMail), Title: person.Title, EMail: person.EMail });
     }
 
     // TODO: Implement logic to handle other filter changes
@@ -93,7 +128,7 @@ export function usePagedProcesses(): IPagedProcesses {
         hasNext: processes.length >= filters.page ? processes[filters.page - 1].hasNext : false,
         loading,
         fetchCachedProcess,
-        refreshPage : () => fetchProcessesPage(true),
+        refreshPage: () => fetchProcessesPage(true),
         incrementPage: () => setFilters({ ...filters, page: filters.page + 1 }),
         decrementPage: () => setFilters({ ...filters, page: filters.page - 1 }),
         submitProcess,

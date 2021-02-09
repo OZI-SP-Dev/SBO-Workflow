@@ -22,12 +22,15 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => 
 
     const fileInputOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            setUploading(true);
-            await props.submitDocument(e.target.files[0]);
-            // reset file input so that a file with the same name can be used again
-            e.target.files = null;
-            e.target.value = '';
-            setUploading(false);
+            try {
+                setUploading(true);
+                await props.submitDocument(e.target.files[0]);
+            } finally {
+                // reset file input so that a file with the same name can be used again
+                e.target.files = null;
+                e.target.value = '';
+                setUploading(false);
+            }
         }
     }
 

@@ -1,19 +1,21 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { Container } from 'react-bootstrap';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
 import { AppHeader } from './components/AppHeader/AppHeader';
+import { ErrorList } from './components/ErrorList/ErrorList';
 import { Help } from './components/Help/Help';
 import { ProcessesRoute } from './components/ProcessesRoute/ProcessesRoute';
 import { Reports } from './components/Reports/Reports';
 
-function App() {
+export const App: FunctionComponent = () => {
 
   return (
     <div className="App">
       <HashRouter>
         <Container fluid className="p-0">
           <AppHeader />
+          <ErrorList />
           <Switch>
             <Route exact path="/(home)?">
               <ProcessesRoute />
@@ -44,5 +46,3 @@ function NoMatch() {
     <div><h1>Page not found.</h1></div>
   );
 }
-
-export default App;

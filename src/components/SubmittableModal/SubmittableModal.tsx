@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useState } from "react";
-import { Alert, Button, Modal, Row, Spinner } from "react-bootstrap";
-import { InternalError } from "../../api/InternalErrors";
-import "./SubmittableModal.css"
+import { Button, Modal, Row, Spinner } from "react-bootstrap";
+import "./SubmittableModal.css";
 
 export interface ISubmittableModalProps {
     modalTitle: string,
@@ -16,20 +15,11 @@ export interface ISubmittableModalProps {
 export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props => {
 
     const [submitting, setSubmitting] = useState<boolean>(false);
-    const [error, setError] = useState<string>("");
 
     const submit = async () => {
         try {
             setSubmitting(true);
             await props.submit();
-        } catch (e) {
-            if (e instanceof InternalError) {
-                setError(e.message);
-            } else if (typeof (e) === "string") {
-                setError(e);
-            } else {
-                setError("Something went wrong while submitting.");
-            }
         } finally {
             setSubmitting(false);
         }
@@ -53,13 +43,6 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
                         {' '}{"Submit"}
                     </Button>
                 </Row>
-                {error &&
-                    <Row className="modal-error">
-                        <Alert variant="danger" onClose={() => setError("")} dismissible>
-                            <Alert.Heading>Error Submitting!</Alert.Heading>
-                            <p>{error}</p>
-                        </Alert>
-                    </Row>}
             </Modal.Footer>
         </Modal >);
 }

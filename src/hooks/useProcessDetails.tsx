@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DocumentsApiConfig, IDocument } from "../api/DocumentsApi";
 import { INote, IProcess } from "../api/DomainObjects";
 import { NotesApiConfig } from "../api/NotesApi";
 import { ProcessesApiConfig } from "../api/ProcessesApi";
+import { ErrorsContext } from "../providers/ErrorsContext";
 
 
 export interface IProcessDetails {
@@ -17,6 +18,8 @@ export interface IProcessDetails {
 
 export function useProcessDetails(processId: number): IProcessDetails {
 
+    const errorsContext = useContext(ErrorsContext);
+
     const processApi = ProcessesApiConfig.getApi();
     const documentsApi = DocumentsApiConfig.getApi();
     const notesApi = NotesApiConfig.getApi();
@@ -26,44 +29,72 @@ export function useProcessDetails(processId: number): IProcessDetails {
     const [loading, setLoading] = useState<boolean>(true);
 
     const fetchProcessDetails = async () => {
-        setLoading(true);
-        let process = await processApi.fetchProcessById(processId);
-        if (process) {
-            let documents = documentsApi.fetchDocumentsForProcess(process);
-            let notes = notesApi.fetchNotesForProcess(process);
-            setProcess(process);
-            setDocuments(await documents);
-            setNotes(await notes);
+        try {
+            setLoading(true);
+            let process = await processApi.fetchProcessById(processId);
+            if (process) {
+                let documents = documentsApi.fetchDocumentsForProcess(process);
+                let notes = notesApi.fetchNotesForProcess(process);
+                setProcess(process);
+                setDocuments(await documents);
+                setNotes(await notes);
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }
 
     const submitDocument = async (file: File) => {
-        if (process) {
-            let newDoc = await documentsApi.uploadDocument(process, file);
-            let docs = documents;
-            docs = docs.filter(doc => doc.LinkUrl !== newDoc.LinkUrl);
-            docs.unshift(newDoc);
-            setDocuments(docs);
-            return newDoc;
+        try {
+            if (process) {
+                let newDoc = await documentsApi.uploadDocument(process, file);
+                let docs = documents;
+                docs = docs.filter(doc => doc.LinkUrl !== newDoc.LinkUrl);
+                docs.unshift(newDoc);
+                setDocuments(docs);
+                return newDoc;
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+            throw e;
         }
     }
 
     const deleteDocument = async (fileName: string): Promise<void> => {
-        if (process) {
-            await documentsApi.deleteDocument(process, fileName);
-            setDocuments(documents.filter(doc => doc.Name !== fileName));
+        try {
+            if (process) {
+                await documentsApi.deleteDocument(process, fileName);
+                setDocuments(documents.filter(doc => doc.Name !== fileName));
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+            throw e;
         }
     }
 
     const submitNote = async (text: string) => {
-        if (process) {
-            let newNote = await notesApi.submitNote(text, process);
-            let newNotes = notes;
-            newNotes = newNotes.filter(n => n.Id !== newNote.Id);
-            newNotes.unshift(newNote);
-            setNotes(newNotes);
-            return newNote;
+        try {
+            if (process) {
+                let newNote = await notesApi.submitNote(text, process);
+                let newNotes = notes;
+                newNotes = newNotes.filter(n => n.Id !== newNote.Id);
+                newNotes.unshift(newNote);
+                setNotes(newNotes);
+                return newNote;
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+            throw e;
         }
     }
 

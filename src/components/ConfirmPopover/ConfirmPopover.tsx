@@ -21,10 +21,13 @@ export const ConfirmPopover: FunctionComponent<ConfirmPopoverProps> = (props) =>
     useOutsideClickDetect(wrapperRef, props.handleClose);
 
     const handleSubmit = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        setSubmitting(true);
-        await props.onSubmit(e);
-        setSubmitting(false);
-        props.handleClose();
+        try {
+            setSubmitting(true);
+            await props.onSubmit(e);
+        } finally {
+            setSubmitting(false);
+            props.handleClose();
+        }
     }
 
     return (
