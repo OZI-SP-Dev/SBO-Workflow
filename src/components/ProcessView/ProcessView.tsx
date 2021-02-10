@@ -5,6 +5,7 @@ import { getBlankProcess, IProcess, ProcessTypes } from "../../api/DomainObjects
 import { useProcessDetails } from "../../hooks/useProcessDetails";
 import { DocumentsView } from "../DocumentsView/DocumentsView";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
+import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { NotesView } from "../NotesView/NotesView";
 import { ProcessDetails } from "../ProcessDetails/ProcessDetails";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
@@ -34,13 +35,13 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                 <Col xs="11" className="m-auto">
                     <HeaderBreadcrumbs crumbs={[{ crumbName: "Home", href: "#/" }, { crumbName: process ? process.SolicitationNumber : '' }]} />
                 </Col>
-                <Col xs="11" className="m-auto sbo-details-actions-col">
+                <Col xl='1' xs="11" className="m-auto sbo-details-actions-col">
                     <Card className="mt-3 p-2 sbo-gray-gradiant sbo-details-actions-card">
                         <Row className="m-0 mr-auto">
-                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'><Icon iconName="NavigateForward" className="sbo-details-icon" /></Col>
-                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'><Icon iconName="NavigateBack" className="sbo-details-icon" /></Col>
-                            <Col className="m-0 p-0 m-auto blue" xl='12' xs='2'><Icon iconName="Edit" className="sbo-details-icon" /></Col>
-                            <Col className="m-0 p-0 m-auto red" xl='12' xs='2'><Icon iconName="Delete" className="sbo-details-icon" /></Col>
+                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'><InfoTooltip id="sbo-send" trigger={<Icon iconName="NavigateForward" className="sbo-details-icon" />}>Send</InfoTooltip></Col>
+                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'><InfoTooltip id="sbo-rework" trigger={<Icon iconName="NavigateBack" className="sbo-details-icon" />}>Rework</InfoTooltip></Col>
+                            <Col className="m-0 p-0 m-auto blue" xl='12' xs='2'><InfoTooltip id="sbo-edit" trigger={<Icon iconName="Edit" className="sbo-details-icon" />}>Edit</InfoTooltip></Col>
+                            <Col className="m-0 p-0 m-auto red" xl='12' xs='2'><InfoTooltip id="sbo-delete" trigger={<Icon iconName="Delete" className="sbo-details-icon" />}>Delete</InfoTooltip></Col>
                         </Row>
                     </Card>
                 </Col>
