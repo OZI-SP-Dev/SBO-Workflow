@@ -42,7 +42,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                 </Row>
             </Card>
             <h3>Small Business Processes</h3>
-            <Table striped bordered size="sm">
+            <Table striped bordered size="sm" responsive="md">
                 <thead>
                     <tr>
                         <th>Solicitation/Contract #</th>

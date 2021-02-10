@@ -1,0 +1,56 @@
+.sbo-details-actions-col {
+    position: absolute;
+    height: 100%;
+    left: -10px;
+    width: 5rem;
+}
+
+.sbo-details-actions-card {
+    position: absolute;
+    height: 100%;
+    align-items: center;
+    font-size: small;
+    width: 3.75rem;
+}
+
+.sbo-details-actions-card .row, .sbo-details-actions-card .row div {
+    max-width: fit-content;
+}
+
+.sbo-details-actions-card .row div {
+    margin-bottom: 1.5rem!important;
+}
+
+.sbo-details-icon {
+    font-size: xx-large;
+    cursor: pointer;
+}
+
+.orange {
+    color: orange;
+}
+
+.blue {
+    color: #09f;
+}
+
+.red {
+    color: #C23F38;
+}
+
+@media (max-width: 1200px) {
+    .sbo-details-actions-col {
+        position: inherit;
+        left: 0px;
+    }
+    .sbo-details-actions-card {
+        position: inherit;
+        height: inherit;
+        width: 100%;
+    }
+    .sbo-details-actions-card .row div {
+        margin-bottom: 0!important;
+        margin-left: 1rem!important;
+        margin-right: 1.5rem!important;
+    }
+}
