@@ -1,7 +1,7 @@
 import { Icon } from "@fluentui/react";
-import React, { FunctionComponent, ReactElement, ReactNode } from "react";
+import React, { FunctionComponent, ReactElement } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import './InfoTooltip.css'
+import './InfoTooltip.css';
 
 export interface InfoTooltipProps {
     id: string,

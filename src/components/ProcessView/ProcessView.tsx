@@ -1,4 +1,4 @@
-import { Icon, IconButton } from "@fluentui/react";
+import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Card, Col, Row } from "react-bootstrap";
 import { getBlankProcess, IProcess, ProcessTypes } from "../../api/DomainObjects";
@@ -10,7 +10,7 @@ import { NotesView } from "../NotesView/NotesView";
 import { ProcessDetails } from "../ProcessDetails/ProcessDetails";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
-import "./ProcessView.css"
+import "./ProcessView.css";
 
 export interface IProcessViewProps {
     processId: number,
