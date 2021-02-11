@@ -152,7 +152,7 @@ export default class ProcessesApi implements IProcessesApi {
 
                 await fileCopyPromise;
 
-                return { ...process, Id: (await folderFields).Id, "odata.etag": (await updatePromise).data["odata.etag"] };
+                return { ...process, Id: (await folderFields).Id, Modified: DateTime.local(), Created: DateTime.local(), "odata.etag": (await updatePromise).data["odata.etag"] };
             } else {
                 throw new DuplicateEntryError("A Process has already been created with this Solicitation Number!");
             }
