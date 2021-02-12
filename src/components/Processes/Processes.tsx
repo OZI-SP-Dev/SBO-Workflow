@@ -1,8 +1,8 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useState } from "react";
 import { Button, Card, Col, Pagination, Row, Table } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { ProcessTypes } from "../../api/DomainObjects";
+import { Link, useHistory } from "react-router-dom";
+import { IProcess, ProcessTypes } from "../../api/DomainObjects";
 import { IPagedProcesses } from "../../hooks/usePagedProcesses";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { ProcessForm } from "../ProcessForm/ProcessForm";
@@ -15,8 +15,16 @@ export interface IProcessesProps {
 
 export const Processes: FunctionComponent<IProcessesProps> = (props) => {
 
+    const history = useHistory();
+
     const [showDD2579Form, setShowDD2579Form] = useState<boolean>(false);
     const [showISPForm, setShowISPForm] = useState<boolean>(false);
+
+    const submitProcess = async (process: IProcess) => {
+        let p = await props.pagedProcesses.submitProcess(process);
+        history.push(`/Processes/View/${p.Id}`);
+        return p;
+    }
 
     return (
         <Col xl="11" className="m-auto">
@@ -24,11 +32,11 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
             <ProcessForm processType={ProcessTypes.DD2579}
                 showModal={showDD2579Form}
                 handleClose={() => setShowDD2579Form(false)}
-                submit={props.pagedProcesses.submitProcess} />
+                submit={submitProcess} />
             <ProcessForm processType={ProcessTypes.ISP}
                 showModal={showISPForm}
                 handleClose={() => setShowISPForm(false)}
-                submit={props.pagedProcesses.submitProcess} />
+                submit={submitProcess} />
             <Card className="sbo-gray-gradiant mt-3 mb-3">
                 <Row className="m-3">
                     <Button className="mr-3 sbo-button" onClick={() => setShowDD2579Form(true)}>

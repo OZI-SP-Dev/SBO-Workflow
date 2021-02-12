@@ -3,6 +3,7 @@ import { IPerson, IProcess, Person } from "../api/DomainObjects";
 import { IProcessesPage, ProcessesApiConfig } from "../api/ProcessesApi";
 import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
+import { useEmail } from "./useEmail";
 
 interface IProcessesFilters {
     page: number,
@@ -34,6 +35,7 @@ export interface IPagedProcesses {
 export function usePagedProcesses(): IPagedProcesses {
 
     const errorsContext = useContext(ErrorsContext);
+    const email = useEmail();
 
     const processesApi = ProcessesApiConfig.getApi();
     const userApi = UserApiConfig.getApi();
@@ -81,12 +83,19 @@ export function usePagedProcesses(): IPagedProcesses {
     const submitProcess = async (process: IProcess) => {
         try {
             let p = { ...process };
-            p.ContractingOfficer = await getPersonDetails(p.ContractingOfficer);
-            p.SmallBusinessProfessional = await getPersonDetails(p.SmallBusinessProfessional);
-            p.Buyer = await getPersonDetails(p.Buyer);
-            p.CurrentAssignee = await getPersonDetails(p.Buyer);
+            // fetch the person details async to speed up the submit a little
+            let co = getPersonDetails(p.ContractingOfficer);
+            let sbp = getPersonDetails(p.SmallBusinessProfessional);
+            let buyer = getPersonDetails(p.Buyer);
+            p.ContractingOfficer = await co;
+            p.SmallBusinessProfessional = await sbp;
+            p.Buyer = await buyer;
+            p.CurrentAssignee = await buyer;
             let submittedProcess = await processesApi.submitProcess(p);
-            let pages = processes;
+            if (p.Buyer.Id !== (await userApi.getCurrentUser()).Id) {
+                email.sendSubmitEmail(p);
+            }
+            let pages = [...processes];
             pages[0].results.unshift(submittedProcess);
             setProcesses(pages);
             return submittedProcess;
