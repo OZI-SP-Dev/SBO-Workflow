@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { IProcess, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
-import { IProcessesApi, IProcessesPage } from "./ProcessesApi";
+import { IProcessesApi, IProcessesPage, ProcessFilter } from "./ProcessesApi";
 
 export function sleep() {
     return new Promise(r => setTimeout(r, 500));
@@ -209,7 +209,7 @@ export default class ProcessesApiDev implements IProcessesApi {
         return process;
     }
 
-    fetchFirstPageOfProcesses = async (): Promise<IProcessesPage> => {
+    fetchFirstPageOfProcesses = async (filters: ProcessFilter[], sortBy?: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created" | "Modified", ascending?: boolean): Promise<IProcessesPage> => {
         await sleep();
         return this.processesPage;
     }
