@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 import React, { FunctionComponent, useState } from "react";
 import { Card, Col, Row } from "react-bootstrap";
 import { IDocument } from "../../api/DocumentsApi";
-import { ConfirmPopover } from "../ConfirmPopover/ConfirmPopover";
+import { ConfirmPopover } from "../Popover/ConfirmPopover";
 
 export interface IDocumentViewProps {
     document: IDocument,

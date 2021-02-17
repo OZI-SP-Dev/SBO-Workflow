@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { IPerson, IProcess, Person, ProcessTypes, Stages } from "../api/DomainObjects";
-import { DateRange, IProcessesPage, ProcessesApiConfig, ProcessFilter } from "../api/ProcessesApi";
+import { DateRange, FilterField, FilterValue, IProcessesPage, ProcessesApiConfig, ProcessFilter } from "../api/ProcessesApi";
 import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
 import { useEmail } from "./useEmail";
@@ -9,7 +9,7 @@ interface IProcessesFilters {
     page: number,
     fieldFilters: ProcessFilter[],
     // Name of the field that the results should be sorted by
-    sortBy?: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created" | "Modified",
+    sortBy?: FilterField,
     // Whether the sortBy field is applied in ascending order or not
     ascending?: boolean
 }
@@ -21,8 +21,8 @@ export interface IPagedProcesses {
     loading: boolean,
     fetchCachedProcess(processId: number): IProcess | undefined,
     refreshPage(): void,
-    addFilter(fieldName: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created", filterValue: string | IPerson | DateRange | ProcessTypes | Stages, isStartsWith?: boolean): void,
-    clearFilter(fieldName: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created"): void,
+    addFilter(fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void,
+    clearFilter(fieldName: FilterField): void,
     clearAllFilters(): void,
     incrementPage(): void,
     decrementPage(): void,
@@ -78,7 +78,7 @@ export function usePagedProcesses(): IPagedProcesses {
         return undefined;
     }
 
-    const addFilter = (fieldName: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created", filterValue: string | IPerson | DateRange | ProcessTypes | Stages, isStartsWith?: boolean): void => {
+    const addFilter = (fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void => {
         let newFilters = [...filters.fieldFilters];
         let oldFilterIndex = newFilters.findIndex(filter => filter.fieldName === fieldName);
         if (oldFilterIndex >= 0) {
@@ -90,7 +90,7 @@ export function usePagedProcesses(): IPagedProcesses {
         setFilters({ ...filters, fieldFilters: newFilters });
     }
 
-    const clearFilter = (fieldName: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created"): void => {
+    const clearFilter = (fieldName: FilterField): void => {
         setFilters({ ...filters, fieldFilters: filters.fieldFilters.filter(filter => filter.fieldName !== fieldName) });
     }
 

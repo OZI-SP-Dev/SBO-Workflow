@@ -9,6 +9,7 @@ import { spWebContext } from "../providers/SPWebContext";
 import { IPerson, IProcess, isIPerson, ParentOrgs, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
 import { ApiError, DuplicateEntryError, InternalError } from "./InternalErrors";
 import ProcessesApiDev from "./ProcessesApiDev";
+import { UserApiConfig } from "./UserApi";
 
 declare var _spPageContextInfo: any;
 
@@ -27,11 +28,14 @@ function isDateRange(dateRange: any): dateRange is DateRange {
     return (dateRange as DateRange).start !== undefined && (dateRange as DateRange).end !== undefined
 }
 
+export type FilterField = "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created" | "Modified";
+export type FilterValue = string | IPerson | DateRange | ProcessTypes | Stages;
+
 export interface ProcessFilter {
     // Name of the field that the filter is being applied for
-    fieldName: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created",
+    fieldName: FilterField,
     // The value of the search for filtering
-    filterValue: string | IPerson | DateRange | ProcessTypes | Stages,
+    filterValue: FilterValue,
     // Used to determine if the field should start with or just contain the value. Only valid for string fields.
     isStartsWith?: boolean
 }
@@ -68,7 +72,7 @@ export interface IProcessesApi {
      * @param sortBy The field to sort the results by
      * @param ascending Whether the results should be in ascending order or not 
      */
-    fetchFirstPageOfProcesses(filters: ProcessFilter[], sortBy?: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created" | "Modified", ascending?: boolean): Promise<IProcessesPage>,
+    fetchFirstPageOfProcesses(filters: ProcessFilter[], sortBy?: FilterField, ascending?: boolean): Promise<IProcessesPage>,
 
     /**
      * Submit/save a Process for future use/reference.
@@ -87,6 +91,7 @@ export interface IProcessesApi {
 
 export default class ProcessesApi implements IProcessesApi {
 
+    private userApi = UserApiConfig.getApi();
     private processesList = spWebContext.lists.getByTitle("Processes");
     private dd2579ContentTypeId: string | undefined;
     private ispContentTypeId: string | undefined;
@@ -110,7 +115,7 @@ export default class ProcessesApi implements IProcessesApi {
         }
     }
 
-    fetchFirstPageOfProcesses = async (filters: ProcessFilter[], sortBy: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created" | "Modified" = "Modified", ascending: boolean = false): Promise<IProcessesPage> => {
+    fetchFirstPageOfProcesses = async (filters: ProcessFilter[], sortBy: FilterField = "Modified", ascending: boolean = false): Promise<IProcessesPage> => {
         try {
             let query = this.processesList.items
                 .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
@@ -125,9 +130,12 @@ export default class ProcessesApi implements IProcessesApi {
                         query = query.filter(` and ${filter.fieldName} Le ${filter.filterValue.end.plus({ days: 1 }).startOf('day').toISO()}`);
                     }
                 } else if (isIPerson(filter.filterValue)) {
-                    query = query.filter(` and ${filter.fieldName}Id Eq ${filter.filterValue.Id}`);
+                    query = query.filter(` and ${filter.fieldName}Id Eq ${await this.userApi.getUserId(filter.filterValue.EMail)}`);
                 } else if (filter.fieldName === "ProcessType" || filter.fieldName === "CurrentStage") {
                     query = query.filter(` and ${filter.fieldName} Eq ${filter.filterValue}`);
+                } else if (filter.fieldName === "Org") {
+                    // Allows the user to search on Orgs or ParentOrgs
+                    query = query.filter(` and (${filter.fieldName} Eq ${filter.filterValue} or ParentOrg Eq ${filter.filterValue})`);
                 } else if (typeof (filter.filterValue) === "string") {
                     query = query.filter(` and ${filter.isStartsWith ? 'startswith' : 'substringof'}(${filter.fieldName}, ${filter.filterValue})`);
                 }
