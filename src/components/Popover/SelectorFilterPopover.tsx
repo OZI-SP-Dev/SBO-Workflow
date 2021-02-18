@@ -20,8 +20,13 @@ export const SelectorFilterPopover: FunctionComponent<SelectorFilterPopoverProps
 
     const [selected, setSelected] = useState<string>('');
 
+    const onClear = () => {
+        setSelected('');
+        props.clearFilter();
+    }
+
     return (
-        <FilterPopover {...props} onSubmit={() => props.onSubmit(selected)}>
+        <FilterPopover {...props} onSubmit={() => props.onSubmit(selected)} clearFilter={onClear}>
             <Form>
                 <Form.Control as="select" value={selected} onChange={e => setSelected(e.target.value)}>
                     <option value=''>--</option>

@@ -27,8 +27,13 @@ export const PeoplePickerFilterPopover: FunctionComponent<PeoplePickerFilterPopo
         }
     }
 
+    const onClear = () => {
+        setPerson(undefined);
+        props.clearFilter();
+    }
+
     return (
-        <FilterPopover {...props} onSubmit={onSubmit}>
+        <FilterPopover {...props} onSubmit={onSubmit} clearFilter={onClear}>
             <Form>
                 <Form.Control
                     as={PeoplePicker}

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { IPerson, IProcess, Person, ProcessTypes, Stages } from "../api/DomainObjects";
-import { DateRange, FilterField, FilterValue, IProcessesPage, ProcessesApiConfig, ProcessFilter } from "../api/ProcessesApi";
+import { IPerson, IProcess, Person } from "../api/DomainObjects";
+import { FilterField, FilterValue, IProcessesPage, ProcessesApiConfig, ProcessFilter } from "../api/ProcessesApi";
 import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
 import { useEmail } from "./useEmail";
@@ -16,11 +16,13 @@ interface IProcessesFilters {
 
 export interface IPagedProcesses {
     processes: IProcess[],
+    activeFilters: FilterField[],
     page: number,
     hasNext: boolean,
     loading: boolean,
     fetchCachedProcess(processId: number): IProcess | undefined,
     refreshPage(): void,
+    sortBy(field?: FilterField, ascending?: boolean): void,
     addFilter(fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void,
     clearFilter(fieldName: FilterField): void,
     clearAllFilters(): void,
@@ -42,9 +44,7 @@ export function usePagedProcesses(): IPagedProcesses {
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState<IProcessesFilters>({
         page: 1,
-        fieldFilters: [],
-        sortBy: "Created",
-        ascending: false
+        fieldFilters: []
     });
 
     const fetchProcessesPage = async (refreshCache?: boolean) => {
@@ -144,18 +144,23 @@ export function usePagedProcesses(): IPagedProcesses {
         return new Person({ Id: await userApi.getUserId(person.EMail), Title: person.Title, EMail: person.EMail });
     }
 
-    // TODO: Implement logic to handle other filter changes
     useEffect(() => {
         fetchProcessesPage(); // eslint-disable-next-line
     }, [filters.page]);
 
+    useEffect(() => {
+        fetchProcessesPage(true); // eslint-disable-next-line
+    }, [filters.fieldFilters, filters.sortBy, filters.ascending]);
+
     return {
         processes: processes.length >= filters.page ? processes[filters.page - 1].results : [],
+        activeFilters: filters.fieldFilters.map(filter => filter.fieldName),
         page: filters.page,
         hasNext: processes.length >= filters.page ? processes[filters.page - 1].hasNext : false,
         loading,
         fetchCachedProcess,
         refreshPage: () => fetchProcessesPage(true),
+        sortBy: (field, ascending) => setFilters({ ...filters, sortBy: field, ascending }),
         addFilter,
         clearFilter,
         clearAllFilters,

@@ -34,20 +34,20 @@ export const FilterPopover: FunctionComponent<FilterPopoverProps> = (props) => {
             placement={props.placement}
             target={props.target}
         >
-            <Popover id={"confirm-popover"}>
+            <Popover id={"confirm-popover"} onClick={e => e.stopPropagation()}>
                 <div ref={wrapperRef}>
                     <Popover.Title as="h5">{props.titleText}</Popover.Title>
                     <Popover.Content>
                         {props.children}
                         <Button
-                            className="float-left mb-2"
+                            className="float-left mt-2 mb-2"
                             variant="secondary"
                             onClick={onClear}
                         >
                             Clear
                         </Button>
                         <Button
-                            className="float-right mb-2"
+                            className="float-right mt-2 mb-2"
                             variant="primary"
                             onClick={onSubmit}
                         >

@@ -12,7 +12,7 @@ export interface DatePickerFilterPopoverProps {
     target: any,
     titleText: string,
     placement?: Placement,
-    onSubmit: (filterValue: FilterValue, isStartsWith?: boolean) => void,
+    onSubmit: (filterValue: FilterValue) => void,
     clearFilter(): void,
     handleClose: () => void
 }
@@ -22,8 +22,14 @@ export const DatePickerFilterPopover: FunctionComponent<DatePickerFilterPopoverP
     const [startDate, setStartDate] = useState<DateTime | null>(null);
     const [endDate, setEndDate] = useState<DateTime | null>(null);
 
+    const onClear = () => {
+        setStartDate(null);
+        setEndDate(null);
+        props.clearFilter();
+    }
+
     return (
-        <FilterPopover {...props} onSubmit={() => props.onSubmit({ start: startDate, end: endDate })}>
+        <FilterPopover {...props} onSubmit={() => props.onSubmit({ start: startDate, end: endDate })} clearFilter={onClear}>
             <Form>
                 <CustomInputeDatePicker
                     headerText="Start Date:"
@@ -31,6 +37,7 @@ export const DatePickerFilterPopover: FunctionComponent<DatePickerFilterPopoverP
                     date={startDate}
                     maxDate={DateTime.local()}
                     onChange={date => setStartDate(date)}
+                    isClearable
                 />
                 <CustomInputeDatePicker
                     headerText="End Date:"
@@ -39,6 +46,7 @@ export const DatePickerFilterPopover: FunctionComponent<DatePickerFilterPopoverP
                     minDate={startDate ? startDate : undefined}
                     maxDate={DateTime.local()}
                     onChange={date => setEndDate(date)}
+                    isClearable
                 />
             </Form>
         </FilterPopover>

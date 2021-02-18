@@ -1,0 +1,10 @@
+.field-filter-button {
+    color: darkgray;
+    cursor: pointer;
+    font-size: smaller;
+    user-select: none;
+}
+
+.active-filter-icon {
+    color: #09f;
+}

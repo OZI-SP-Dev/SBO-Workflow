@@ -119,29 +119,29 @@ export default class ProcessesApi implements IProcessesApi {
         try {
             let query = this.processesList.items
                 .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
-                .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR")
-                .filter("IsDeleted ne 1 and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')");
+                .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR");
+            let queryString = "IsDeleted ne 1" + (filters.findIndex(f => f.fieldName === "ProcessType") < 0 ? " and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')" : "");
             for (let filter of filters) {
                 if (isDateRange(filter.filterValue)) {
                     if (filter.filterValue.start !== null) {
-                        query = query.filter(` and ${filter.fieldName} Ge ${filter.filterValue.start.startOf('day').toISO()}`);
+                        queryString += ` and ${filter.fieldName} ge ${filter.filterValue.start.startOf('day').toISO()}`;
                     }
                     if (filter.filterValue.end !== null) {
-                        query = query.filter(` and ${filter.fieldName} Le ${filter.filterValue.end.plus({ days: 1 }).startOf('day').toISO()}`);
+                        queryString += ` and ${filter.fieldName} le ${filter.filterValue.end.plus({ days: 1 }).startOf('day').toISO()}`;
                     }
                 } else if (isIPerson(filter.filterValue)) {
-                    query = query.filter(` and ${filter.fieldName}Id Eq ${await this.userApi.getUserId(filter.filterValue.EMail)}`);
+                    queryString += ` and ${filter.fieldName}Id eq ${await this.userApi.getUserId(filter.filterValue.EMail)}`;
                 } else if (filter.fieldName === "ProcessType" || filter.fieldName === "CurrentStage") {
-                    query = query.filter(` and ${filter.fieldName} Eq ${filter.filterValue}`);
+                    queryString += ` and ${filter.fieldName} eq '${filter.filterValue}'`;
                 } else if (filter.fieldName === "Org") {
                     // Allows the user to search on Orgs or ParentOrgs
-                    query = query.filter(` and (${filter.fieldName} Eq ${filter.filterValue} or ParentOrg Eq ${filter.filterValue})`);
+                    queryString += ` and (${filter.fieldName} eq '${filter.filterValue}' or ParentOrg eq '${filter.filterValue}')`;
                 } else if (typeof (filter.filterValue) === "string") {
-                    query = query.filter(` and ${filter.isStartsWith ? 'startswith' : 'substringof'}(${filter.fieldName}, ${filter.filterValue})`);
+                    queryString += ` and ${filter.isStartsWith ? 'startswith' : 'substringof'}('${filter.filterValue}',${filter.fieldName})`;
                 }
             }
 
-            let processesPage = await query.orderBy(sortBy, ascending).top(10).getPaged<SPProcess[]>();
+            let processesPage = await query.filter(queryString).orderBy(sortBy, ascending).top(10).getPaged<SPProcess[]>();
             return new SPProcessesPage(processesPage);
         } catch (e) {
             console.error("Error occurred while trying to fetch the Processes");
