@@ -4,6 +4,7 @@ import { FilterField, FilterValue } from "../../api/ProcessesApi";
 import { DatePickerFilterPopover } from "../Popover/DatePickerFilterPopover";
 
 export interface DatePickerFilterProps {
+    iconClassName?: string,
     active: boolean
     field: FilterField,
     title: string,
@@ -33,7 +34,7 @@ export const DatePickerFilter: FunctionComponent<DatePickerFilterProps> = (props
                 clearFilter={() => props.clearFilter(props.field)}
                 handleClose={() => setShow(false)}
             />
-            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""}`} onClick={iconOnClick} />
+            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""} ${props.iconClassName}`} onClick={iconOnClick} />
         </>
     );
 

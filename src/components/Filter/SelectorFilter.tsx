@@ -4,6 +4,7 @@ import { FilterField, FilterValue } from "../../api/ProcessesApi";
 import { SelectorFilterPopover } from "../Popover/SelectorFilterPopover";
 
 export interface SelectorFilterProps {
+    iconClassName?: string,
     active: boolean
     field: FilterField,
     title: string,
@@ -35,7 +36,7 @@ export const SelectorFilter: FunctionComponent<SelectorFilterProps> = (props) =>
                 clearFilter={() => props.clearFilter(props.field)}
                 handleClose={() => setShow(false)}
             />
-            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""}`} onClick={iconOnClick} />
+            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""} ${props.iconClassName}`} onClick={iconOnClick} />
         </>
     );
 

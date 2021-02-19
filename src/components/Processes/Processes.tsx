@@ -14,6 +14,7 @@ import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { ProcessForm } from "../ProcessForm/ProcessForm";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import "./Processes.css";
+import { SortIcon } from "./SortIcon";
 
 export interface IProcessesProps {
     pagedProcesses: IPagedProcesses
@@ -34,7 +35,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
         return p;
     }
 
-    const headerOnClick = (field: FilterField) => {
+    const sortIconOnClick = (field: FilterField) => {
         let newSort: { field: FilterField, ascending: boolean } | undefined = { field: field, ascending: true };
         if (sort?.field === field) {
             newSort = sort.ascending ? { field: field, ascending: false } : undefined;
@@ -67,106 +68,155 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                 </Row>
             </Card>
             <h3>Small Business Processes</h3>
-            <Table striped bordered size="sm" responsive="md">
+            <Table striped bordered size="sm" responsive>
                 <thead>
                     <tr>
-                        <th onClick={() => headerOnClick("SolicitationNumber")}>Solicitation/Contract #
-                            {sort?.field === "SolicitationNumber" && sort.ascending && <Icon iconName="TriangleSolidUp12" className="sort-icon" />}
-                            {sort?.field === "SolicitationNumber" && !sort.ascending && <Icon iconName="TriangleSolidDown12" className="sort-icon" />}
-                            <span className="float-right">
+                        <th>
+                            <Row className="m-0">
+                                <span>Solicitation/Contract #</span>
+                                <SortIcon
+                                    field="SolicitationNumber"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "SolicitationNumber"}
+                                    onClick={sortIconOnClick}
+                                />
                                 <KeywordFilter
+                                    iconClassName="ml-auto"
                                     field="SolicitationNumber"
                                     active={props.pagedProcesses.activeFilters.includes("SolicitationNumber")}
                                     title="Solicitation/Contract # Filter"
                                     addFilter={props.pagedProcesses.addFilter}
                                     clearFilter={props.pagedProcesses.clearFilter} />
-                            </span>
+                            </Row>
                         </th>
-                        <th onClick={() => headerOnClick("ProcessType")}>Process
-                            {sort?.field === "ProcessType" && sort.ascending && <Icon iconName="TriangleSolidUp12" className="sort-icon" />}
-                            {sort?.field === "ProcessType" && !sort.ascending && <Icon iconName="TriangleSolidDown12" className="sort-icon" />}
-                            <span className="float-right">
+                        <th>
+                            <Row className="m-0">
+                                <span>Process</span>
+                                <SortIcon
+                                    field="ProcessType"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "ProcessType"}
+                                    onClick={sortIconOnClick}
+                                />
                                 <SelectorFilter
+                                    iconClassName="ml-auto"
                                     field="ProcessType"
                                     active={props.pagedProcesses.activeFilters.includes("ProcessType")}
                                     title="Process Type Filter"
                                     values={Object.values(ProcessTypes)}
                                     addFilter={props.pagedProcesses.addFilter}
                                     clearFilter={props.pagedProcesses.clearFilter} />
-                            </span>
+                            </Row>
                         </th>
-                        <th onClick={() => headerOnClick("Buyer")}>Buyer
-                            {sort?.field === "Buyer" && sort.ascending && <Icon iconName="TriangleSolidUp12" className="sort-icon" />}
-                            {sort?.field === "Buyer" && !sort.ascending && <Icon iconName="TriangleSolidDown12" className="sort-icon" />}
-                            <span className="float-right">
+                        <th>
+                            <Row className="m-0">
+                                <span>Buyer</span>
+                                <SortIcon
+                                    field="Buyer"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "Buyer"}
+                                    onClick={sortIconOnClick}
+                                />
                                 <PeoplePickerFilter
+                                    iconClassName="ml-auto"
                                     field="Buyer"
                                     active={props.pagedProcesses.activeFilters.includes("Buyer")}
                                     title="Buyer Filter"
                                     addFilter={props.pagedProcesses.addFilter}
                                     clearFilter={props.pagedProcesses.clearFilter} />
-                            </span>
+                            </Row>
                         </th>
-                        <th onClick={() => headerOnClick("Org")}>Buyer's Org
-                            {sort?.field === "Org" && sort.ascending && <Icon iconName="TriangleSolidUp12" className="sort-icon" />}
-                            {sort?.field === "Org" && !sort.ascending && <Icon iconName="TriangleSolidDown12" className="sort-icon" />}
-                            <span className="float-right">
+                        <th>
+                            <Row className="m-0">
+                                <span>Buyer's Org</span>
+                                <SortIcon
+                                    field="Org"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "Org"}
+                                    onClick={sortIconOnClick}
+                                />
                                 <SelectorFilter
+                                    iconClassName="ml-auto"
                                     field="Org"
                                     active={props.pagedProcesses.activeFilters.includes("Org")}
                                     title="Buyer's Org Filter"
                                     values={orgs ? Object.values<string>(ParentOrgs).concat(orgs.map(org => org.Title)) : []}
                                     addFilter={props.pagedProcesses.addFilter}
                                     clearFilter={props.pagedProcesses.clearFilter} />
-                            </span>
+                            </Row>
                         </th>
-                        <th onClick={() => headerOnClick("CurrentStage")}>Current Stage
-                            {sort?.field === "CurrentStage" && sort.ascending && <Icon iconName="TriangleSolidUp12" className="sort-icon" />}
-                            {sort?.field === "CurrentStage" && !sort.ascending && <Icon iconName="TriangleSolidDown12" className="sort-icon" />}
-                            <span className="float-right">
+                        <th>
+                            <Row className="m-0">
+                                <span>Current Stage</span>
+                                <SortIcon
+                                    field="CurrentStage"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "CurrentStage"}
+                                    onClick={sortIconOnClick}
+                                />
                                 <SelectorFilter
+                                    iconClassName="ml-auto"
                                     field="CurrentStage"
                                     active={props.pagedProcesses.activeFilters.includes("CurrentStage")}
                                     title="Current Stage Filter"
                                     values={Object.values(Stages)}
                                     addFilter={props.pagedProcesses.addFilter}
                                     clearFilter={props.pagedProcesses.clearFilter} />
-                            </span>
+                            </Row>
                         </th>
-                        <th onClick={() => headerOnClick("CurrentAssignee")}>Current Assignee
-                            {sort?.field === "CurrentAssignee" && sort.ascending && <Icon iconName="TriangleSolidUp12" className="sort-icon" />}
-                            {sort?.field === "CurrentAssignee" && !sort.ascending && <Icon iconName="TriangleSolidDown12" className="sort-icon" />}
-                            <span className="float-right">
+                        <th>
+                            <Row className="m-0">
+                                <span>Current Assignee</span>
+                                <SortIcon
+                                    field="CurrentAssignee"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "CurrentAssignee"}
+                                    onClick={sortIconOnClick}
+                                />
                                 <PeoplePickerFilter
+                                    iconClassName="ml-auto"
                                     field="CurrentAssignee"
                                     active={props.pagedProcesses.activeFilters.includes("CurrentAssignee")}
                                     title="Current Assignee Filter"
                                     addFilter={props.pagedProcesses.addFilter}
                                     clearFilter={props.pagedProcesses.clearFilter} />
-                            </span>
+                            </Row>
                         </th>
-                        <th onClick={() => headerOnClick("CurrentStageStartDate")}>Stage Start
-                            {sort?.field === "CurrentStageStartDate" && sort.ascending && <Icon iconName="TriangleSolidUp12" className="sort-icon" />}
-                            {sort?.field === "CurrentStageStartDate" && !sort.ascending && <Icon iconName="TriangleSolidDown12" className="sort-icon" />}
-                            <span className="float-right">
+                        <th>
+                            <Row className="m-0">
+                                <span>Stage Start</span>
+                                <SortIcon
+                                    field="CurrentStageStartDate"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "CurrentStageStartDate"}
+                                    onClick={sortIconOnClick}
+                                />
                                 <DatePickerFilter
+                                    iconClassName="ml-auto"
                                     field="CurrentStageStartDate"
                                     active={props.pagedProcesses.activeFilters.includes("CurrentStageStartDate")}
                                     title="Stage Start Filter"
                                     addFilter={props.pagedProcesses.addFilter}
                                     clearFilter={props.pagedProcesses.clearFilter} />
-                            </span></th>
-                        <th onClick={() => headerOnClick("Created")}>Process Start
-                            {sort?.field === "Created" && sort.ascending && <Icon iconName="TriangleSolidUp12" className="sort-icon" />}
-                            {sort?.field === "Created" && !sort.ascending && <Icon iconName="TriangleSolidDown12" className="sort-icon" />}
-                            <span className="float-right">
+                            </Row>
+                        </th>
+                        <th>
+                            <Row className="m-0">
+                                <span>Process Start</span>
+                                <SortIcon
+                                    field="Created"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "Created"}
+                                    onClick={sortIconOnClick}
+                                />
                                 <DatePickerFilter
+                                    iconClassName="ml-auto"
                                     field="Created"
                                     active={props.pagedProcesses.activeFilters.includes("Created")}
                                     title="Process Start Filter"
                                     addFilter={props.pagedProcesses.addFilter}
                                     clearFilter={props.pagedProcesses.clearFilter} />
-                            </span>
+                            </Row>
                         </th>
                     </tr>
                 </thead>

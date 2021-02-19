@@ -78,20 +78,33 @@ export function usePagedProcesses(): IPagedProcesses {
         return undefined;
     }
 
+    const refreshPage = () => {
+        setFilters({
+            page: 1,
+            fieldFilters: []
+        });
+    }
+
     const addFilter = (fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void => {
-        let newFilters = [...filters.fieldFilters];
-        let oldFilterIndex = newFilters.findIndex(filter => filter.fieldName === fieldName);
-        if (oldFilterIndex >= 0) {
-            newFilters[oldFilterIndex].filterValue = filterValue;
-            newFilters[oldFilterIndex].isStartsWith = isStartsWith;
+        if (filterValue) {
+            let newFilters = [...filters.fieldFilters];
+            let oldFilterIndex = newFilters.findIndex(filter => filter.fieldName === fieldName);
+            if (oldFilterIndex >= 0) {
+                newFilters[oldFilterIndex].filterValue = filterValue;
+                newFilters[oldFilterIndex].isStartsWith = isStartsWith;
+            } else {
+                newFilters.push({ fieldName: fieldName, filterValue: filterValue, isStartsWith: isStartsWith });
+            }
+            setFilters({ ...filters, page: 1, fieldFilters: newFilters });
         } else {
-            newFilters.push({ fieldName: fieldName, filterValue: filterValue, isStartsWith: isStartsWith });
+            clearFilter(fieldName);
         }
-        setFilters({ ...filters, fieldFilters: newFilters });
     }
 
     const clearFilter = (fieldName: FilterField): void => {
-        setFilters({ ...filters, fieldFilters: filters.fieldFilters.filter(filter => filter.fieldName !== fieldName) });
+        if (filters.fieldFilters.some(filter => filter.fieldName === fieldName)) {
+            setFilters({ ...filters, page: 1, fieldFilters: filters.fieldFilters.filter(filter => filter.fieldName !== fieldName) });
+        }
     }
 
     const clearAllFilters = (): void => {
@@ -159,7 +172,7 @@ export function usePagedProcesses(): IPagedProcesses {
         hasNext: processes.length >= filters.page ? processes[filters.page - 1].hasNext : false,
         loading,
         fetchCachedProcess,
-        refreshPage: () => fetchProcessesPage(true),
+        refreshPage,
         sortBy: (field, ascending) => setFilters({ ...filters, sortBy: field, ascending }),
         addFilter,
         clearFilter,

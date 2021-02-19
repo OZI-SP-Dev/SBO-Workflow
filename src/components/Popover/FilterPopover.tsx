@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useRef, useState } from "react";
-import { Button, Overlay, Popover, Spinner } from "react-bootstrap";
+import React, { FunctionComponent, useRef } from "react";
+import { Button, Overlay, Popover } from "react-bootstrap";
 import { Placement } from "react-bootstrap/esm/Overlay";
 import { useOutsideClickDetect } from "../../hooks/useOutsideClickDetect";
 

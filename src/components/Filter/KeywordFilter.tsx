@@ -5,6 +5,7 @@ import { KeywordFilterPopover } from "../Popover/KeywordFilterPopover";
 import './Filter.css'
 
 export interface KeywordFilterProps {
+    iconClassName?: string,
     active: boolean
     field: FilterField,
     title: string,
@@ -34,7 +35,7 @@ export const KeywordFilter: FunctionComponent<KeywordFilterProps> = (props) => {
                 clearFilter={() => props.clearFilter(props.field)}
                 handleClose={() => setShow(false)}
             />
-            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""}`} onClick={iconOnClick} />
+            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""} ${props.iconClassName}`} onClick={iconOnClick} />
         </>
     );
 

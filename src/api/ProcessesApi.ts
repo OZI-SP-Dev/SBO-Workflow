@@ -124,10 +124,10 @@ export default class ProcessesApi implements IProcessesApi {
             for (let filter of filters) {
                 if (isDateRange(filter.filterValue)) {
                     if (filter.filterValue.start !== null) {
-                        queryString += ` and ${filter.fieldName} ge ${filter.filterValue.start.startOf('day').toISO()}`;
+                        queryString += ` and ${filter.fieldName} ge '${filter.filterValue.start.startOf('day').toISO()}'`;
                     }
                     if (filter.filterValue.end !== null) {
-                        queryString += ` and ${filter.fieldName} le ${filter.filterValue.end.plus({ days: 1 }).startOf('day').toISO()}`;
+                        queryString += ` and ${filter.fieldName} le '${filter.filterValue.end.plus({ days: 1 }).startOf('day').toISO()}'`;
                     }
                 } else if (isIPerson(filter.filterValue)) {
                     queryString += ` and ${filter.fieldName}Id eq ${await this.userApi.getUserId(filter.filterValue.EMail)}`;

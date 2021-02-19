@@ -1,8 +1,9 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useContext, useState } from "react";
 import { Form } from "react-bootstrap";
 import { Placement } from "react-bootstrap/esm/Overlay";
 import { IPerson, Person } from "../../api/DomainObjects";
 import { FilterValue } from "../../api/ProcessesApi";
+import { UserContext } from "../../providers/UserProvider";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { FilterPopover } from "./FilterPopover";
 
@@ -20,6 +21,7 @@ export interface PeoplePickerFilterPopoverProps {
 export const PeoplePickerFilterPopover: FunctionComponent<PeoplePickerFilterPopoverProps> = (props) => {
 
     const [person, setPerson] = useState<IPerson>();
+    const { user } = useContext(UserContext);
 
     const onSubmit = () => {
         if (person) {
@@ -32,17 +34,22 @@ export const PeoplePickerFilterPopover: FunctionComponent<PeoplePickerFilterPopo
         props.clearFilter();
     }
 
+    const setUser = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        e.preventDefault();
+        setPerson(user);
+        return false;
+    }
+
     return (
         <FilterPopover {...props} onSubmit={onSubmit} clearFilter={onClear}>
             <Form>
+                {user !== undefined &&
+                    <div className="mb-2"><a href="#" onClick={setUser}>Filter by Me</a></div>
+                }
                 <Form.Control
                     as={PeoplePicker}
-                    updatePeople={(p: IPerson[]) => {
-                        let persona = p[0];
-                        if (persona) {
-                            setPerson(new Person(persona));
-                        }
-                    }}
+                    defaultValue={person ? [person] : undefined}
+                    updatePeople={(p: IPerson[]) => setPerson(p.length > 0 ? new Person(p[0]) : undefined)}
                     required
                 />
             </Form>

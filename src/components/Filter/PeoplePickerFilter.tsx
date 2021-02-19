@@ -4,6 +4,7 @@ import { FilterField, FilterValue } from "../../api/ProcessesApi";
 import { PeoplePickerFilterPopover } from "../Popover/PeoplePickerFilterPopover";
 
 export interface PeoplePickerFilterProps {
+    iconClassName?: string,
     active: boolean
     field: FilterField,
     title: string,
@@ -33,7 +34,7 @@ export const PeoplePickerFilter: FunctionComponent<PeoplePickerFilterProps> = (p
                 clearFilter={() => props.clearFilter(props.field)}
                 handleClose={() => setShow(false)}
             />
-            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""}`} onClick={iconOnClick} />
+            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""} ${props.iconClassName}`} onClick={iconOnClick} />
         </>
     );
 

@@ -8,13 +8,24 @@ tbody tr:hover {
     background-color: #ffffff!important;
 }
 
-th {
-    cursor: pointer;
+th, th>.row {
+    white-space: nowrap;
+    flex-wrap: nowrap;
+}
+
+th>.row>span {
+    margin-right: 0.5rem;
 }
 
 .sort-icon {
     user-select: none;
     font-size: x-small;
-    margin-left: 0.25rem;
+    margin-right: 0.5rem;
+    margin-top: 4px;
     color: darkgray;
+    cursor: pointer;
+}
+
+.active-sort-icon {
+    color: #09f;
 }
