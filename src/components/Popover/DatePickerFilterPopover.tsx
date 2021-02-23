@@ -30,14 +30,13 @@ export const DatePickerFilterPopover: FunctionComponent<DatePickerFilterPopoverP
 
     return (
         <FilterPopover {...props} onSubmit={() => props.onSubmit({ start: startDate, end: endDate })} clearFilter={onClear}>
-            <Form>
+            <Form className="date-picker-filter">
                 <CustomInputeDatePicker
                     headerText="Start Date:"
                     readOnly={false}
                     date={startDate}
-                    maxDate={DateTime.local()}
+                    maxDate={endDate ? endDate : DateTime.local()}
                     onChange={date => setStartDate(date)}
-                    isClearable
                 />
                 <CustomInputeDatePicker
                     headerText="End Date:"
@@ -46,7 +45,6 @@ export const DatePickerFilterPopover: FunctionComponent<DatePickerFilterPopoverP
                     minDate={startDate ? startDate : undefined}
                     maxDate={DateTime.local()}
                     onChange={date => setEndDate(date)}
-                    isClearable
                 />
             </Form>
         </FilterPopover>

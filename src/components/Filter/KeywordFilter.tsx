@@ -31,7 +31,7 @@ export const KeywordFilter: FunctionComponent<KeywordFilterProps> = (props) => {
                 target={target}
                 titleText={props.title}
                 placement="bottom"
-                onSubmit={(filterValue: FilterValue) => props.addFilter(props.field, filterValue)}
+                onSubmit={(filterValue: FilterValue, isStartsWith?: boolean) => props.addFilter(props.field, filterValue, isStartsWith)}
                 clearFilter={() => props.clearFilter(props.field)}
                 handleClose={() => setShow(false)}
             />

@@ -34,7 +34,7 @@ export const PeoplePickerFilterPopover: FunctionComponent<PeoplePickerFilterPopo
         props.clearFilter();
     }
 
-    const setUser = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    const setUser = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
         setPerson(user);
         return false;
@@ -44,7 +44,7 @@ export const PeoplePickerFilterPopover: FunctionComponent<PeoplePickerFilterPopo
         <FilterPopover {...props} onSubmit={onSubmit} clearFilter={onClear}>
             <Form>
                 {user !== undefined &&
-                    <div className="mb-2"><a href="#" onClick={setUser}>Filter by Me</a></div>
+                    <div className="mb-2"><button className="link-button" onClick={setUser}>Filter by Me</button></div>
                 }
                 <Form.Control
                     as={PeoplePicker}

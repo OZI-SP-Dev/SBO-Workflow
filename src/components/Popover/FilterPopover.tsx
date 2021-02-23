@@ -2,6 +2,7 @@ import React, { FunctionComponent, useRef } from "react";
 import { Button, Overlay, Popover } from "react-bootstrap";
 import { Placement } from "react-bootstrap/esm/Overlay";
 import { useOutsideClickDetect } from "../../hooks/useOutsideClickDetect";
+import "./FilterPopover.css";
 
 export interface FilterPopoverProps {
     show: boolean,
@@ -18,7 +19,8 @@ export const FilterPopover: FunctionComponent<FilterPopoverProps> = (props) => {
     const wrapperRef = useRef(null);
     useOutsideClickDetect(wrapperRef, props.handleClose);
 
-    const onSubmit = () => {
+    const onSubmit = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        e.preventDefault();
         props.onSubmit();
         props.handleClose();
     }
@@ -40,7 +42,7 @@ export const FilterPopover: FunctionComponent<FilterPopoverProps> = (props) => {
                     <Popover.Content>
                         {props.children}
                         <Button
-                            className="float-left mt-2 mb-2"
+                            className="float-left mt-2 mb-2 mr-2"
                             variant="secondary"
                             onClick={onClear}
                         >

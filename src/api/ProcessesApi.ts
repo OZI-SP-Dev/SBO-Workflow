@@ -137,7 +137,7 @@ export default class ProcessesApi implements IProcessesApi {
                     // Allows the user to search on Orgs or ParentOrgs
                     queryString += ` and (${filter.fieldName} eq '${filter.filterValue}' or ParentOrg eq '${filter.filterValue}')`;
                 } else if (typeof (filter.filterValue) === "string") {
-                    queryString += ` and ${filter.isStartsWith ? 'startswith' : 'substringof'}('${filter.filterValue}',${filter.fieldName})`;
+                    queryString += ` and ${filter.isStartsWith ? `startswith(${filter.fieldName},'${filter.filterValue}')` : `substringof('${filter.filterValue}',${filter.fieldName})`}`;
                 }
             }
 

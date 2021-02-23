@@ -27,7 +27,7 @@ export const KeywordFilterPopover: FunctionComponent<KeywordFilterPopoverProps> 
     }
 
     return (
-        <FilterPopover {...props} onSubmit={() => props.onSubmit(keyword, isStartsWith)} clearFilter={onClear}>
+        <FilterPopover {...props} onSubmit={() => props.onSubmit(keyword.trim(), isStartsWith)} clearFilter={onClear}>
             <Form>
                 <Form.Check
                     type="radio"
