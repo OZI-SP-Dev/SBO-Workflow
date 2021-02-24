@@ -1,31 +1,31 @@
 import { useContext, useEffect, useState } from "react";
 import { IPerson, IProcess, Person } from "../api/DomainObjects";
-import { IProcessesPage, ProcessesApiConfig } from "../api/ProcessesApi";
+import { FilterField, FilterValue, IProcessesPage, ProcessesApiConfig, ProcessFilter } from "../api/ProcessesApi";
 import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
 import { useEmail } from "./useEmail";
 
 interface IProcessesFilters {
     page: number,
-    fieldFilters: {
-        // Name of the field that the filter is being applied for
-        fieldName: string,
-        // The value of the search for filtering
-        filterValue: string
-    }[],
+    fieldFilters: ProcessFilter[],
     // Name of the field that the results should be sorted by
-    sortBy: string,
+    sortBy?: FilterField,
     // Whether the sortBy field is applied in ascending order or not
-    ascending: boolean
+    ascending?: boolean
 }
 
 export interface IPagedProcesses {
     processes: IProcess[],
+    activeFilters: FilterField[],
     page: number,
     hasNext: boolean,
     loading: boolean,
     fetchCachedProcess(processId: number): IProcess | undefined,
     refreshPage(): void,
+    sortBy(field?: FilterField, ascending?: boolean): void,
+    addFilter(fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void,
+    clearFilter(fieldName: FilterField): void,
+    clearAllFilters(): void,
     incrementPage(): void,
     decrementPage(): void,
     submitProcess(process: IProcess): Promise<IProcess>,
@@ -44,9 +44,7 @@ export function usePagedProcesses(): IPagedProcesses {
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState<IProcessesFilters>({
         page: 1,
-        fieldFilters: [],
-        sortBy: "Created",
-        ascending: false
+        fieldFilters: []
     });
 
     const fetchProcessesPage = async (refreshCache?: boolean) => {
@@ -54,7 +52,7 @@ export function usePagedProcesses(): IPagedProcesses {
             setLoading(true);
             let processesCopy = refreshCache ? [] : processes;
             if (processesCopy.length === 0) {
-                processesCopy.push(await processesApi.fetchFirstPageOfProcesses());
+                processesCopy.push(await processesApi.fetchFirstPageOfProcesses(filters.fieldFilters, filters.sortBy, filters.ascending));
             }
             while (processesCopy.length < filters.page && processesCopy[processesCopy.length - 1].hasNext) {
                 processesCopy.push(await processesCopy[processesCopy.length - 1].getNext());
@@ -78,6 +76,39 @@ export function usePagedProcesses(): IPagedProcesses {
             }
         }
         return undefined;
+    }
+
+    const refreshPage = () => {
+        setFilters({
+            page: 1,
+            fieldFilters: []
+        });
+    }
+
+    const addFilter = (fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void => {
+        if (filterValue) {
+            let newFilters = [...filters.fieldFilters];
+            let oldFilterIndex = newFilters.findIndex(filter => filter.fieldName === fieldName);
+            if (oldFilterIndex >= 0) {
+                newFilters[oldFilterIndex].filterValue = filterValue;
+                newFilters[oldFilterIndex].isStartsWith = isStartsWith;
+            } else {
+                newFilters.push({ fieldName: fieldName, filterValue: filterValue, isStartsWith: isStartsWith });
+            }
+            setFilters({ ...filters, page: 1, fieldFilters: newFilters });
+        } else {
+            clearFilter(fieldName);
+        }
+    }
+
+    const clearFilter = (fieldName: FilterField): void => {
+        if (filters.fieldFilters.some(filter => filter.fieldName === fieldName)) {
+            setFilters({ ...filters, page: 1, fieldFilters: filters.fieldFilters.filter(filter => filter.fieldName !== fieldName) });
+        }
+    }
+
+    const clearAllFilters = (): void => {
+        setFilters({ ...filters, fieldFilters: [] });
     }
 
     const submitProcess = async (process: IProcess) => {
@@ -126,18 +157,26 @@ export function usePagedProcesses(): IPagedProcesses {
         return new Person({ Id: await userApi.getUserId(person.EMail), Title: person.Title, EMail: person.EMail });
     }
 
-    // TODO: Implement logic to handle other filter changes
     useEffect(() => {
         fetchProcessesPage(); // eslint-disable-next-line
     }, [filters.page]);
 
+    useEffect(() => {
+        fetchProcessesPage(true); // eslint-disable-next-line
+    }, [filters.fieldFilters, filters.sortBy, filters.ascending]);
+
     return {
         processes: processes.length >= filters.page ? processes[filters.page - 1].results : [],
+        activeFilters: filters.fieldFilters.map(filter => filter.fieldName),
         page: filters.page,
         hasNext: processes.length >= filters.page ? processes[filters.page - 1].hasNext : false,
         loading,
         fetchCachedProcess,
-        refreshPage: () => fetchProcessesPage(true),
+        refreshPage,
+        sortBy: (field, ascending) => setFilters({ ...filters, sortBy: field, ascending }),
+        addFilter,
+        clearFilter,
+        clearAllFilters,
         incrementPage: () => setFilters({ ...filters, page: filters.page + 1 }),
         decrementPage: () => setFilters({ ...filters, page: filters.page - 1 }),
         submitProcess,

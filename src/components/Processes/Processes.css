@@ -1,9 +1,31 @@
 tbody tr:hover {
     color: #ffffff;
     background-color: #2b8cff!important;
-    background-image: none,linear-gradient(to bottom,rgba(255,255,255,.4) 0,rgba(255,255,255,0) 100%);
+    background-image: none, linear-gradient(to bottom, rgba(255, 255, 255, .4) 0, rgba(255, 255, 255, 0) 100%);
 }
 
 .paging-row, .paging-row:hover {
     background-color: #ffffff!important;
+}
+
+th, th>.row {
+    white-space: nowrap;
+    flex-wrap: nowrap;
+}
+
+th>.row>span {
+    margin-right: 0.5rem;
+}
+
+.sort-icon {
+    user-select: none;
+    font-size: x-small;
+    margin-right: 0.5rem;
+    margin-top: 4px;
+    color: darkgray;
+    cursor: pointer;
+}
+
+.active-sort-icon {
+    color: #09f;
 }

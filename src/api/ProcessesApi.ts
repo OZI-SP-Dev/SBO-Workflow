@@ -1,14 +1,15 @@
 import { sp } from "@pnp/sp";
 import "@pnp/sp/content-types/list";
 import "@pnp/sp/files/folder";
-import "@pnp/sp/folders";
 import "@pnp/sp/files/web";
+import "@pnp/sp/folders";
 import { PagedItemCollection } from "@pnp/sp/items";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
-import { IPerson, IProcess, ParentOrgs, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
+import { IPerson, IProcess, isIPerson, ParentOrgs, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
 import { ApiError, DuplicateEntryError, InternalError } from "./InternalErrors";
 import ProcessesApiDev from "./ProcessesApiDev";
+import { UserApiConfig } from "./UserApi";
 
 declare var _spPageContextInfo: any;
 
@@ -16,6 +17,27 @@ export interface IProcessesPage {
     results: IProcess[],
     hasNext: boolean,
     getNext(): Promise<IProcessesPage>
+}
+
+export interface DateRange {
+    start: DateTime | null,
+    end: DateTime | null
+}
+
+function isDateRange(dateRange: any): dateRange is DateRange {
+    return (dateRange as DateRange).start !== undefined && (dateRange as DateRange).end !== undefined
+}
+
+export type FilterField = "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created" | "Modified";
+export type FilterValue = string | IPerson | DateRange | ProcessTypes | Stages;
+
+export interface ProcessFilter {
+    // Name of the field that the filter is being applied for
+    fieldName: FilterField,
+    // The value of the search for filtering
+    filterValue: FilterValue,
+    // Used to determine if the field should start with or just contain the value. Only valid for string fields.
+    isStartsWith?: boolean
 }
 
 class SPProcessesPage implements IProcessesPage {
@@ -45,8 +67,12 @@ export interface IProcessesApi {
 
     /**
      * Get's a page of Processes and returns them as IProcesses.
+     * 
+     * @param filters The filters to be applied to the Processes search, in the form of an array of ProcessFilter
+     * @param sortBy The field to sort the results by
+     * @param ascending Whether the results should be in ascending order or not 
      */
-    fetchFirstPageOfProcesses(): Promise<IProcessesPage>,
+    fetchFirstPageOfProcesses(filters: ProcessFilter[], sortBy?: FilterField, ascending?: boolean): Promise<IProcessesPage>,
 
     /**
      * Submit/save a Process for future use/reference.
@@ -65,6 +91,7 @@ export interface IProcessesApi {
 
 export default class ProcessesApi implements IProcessesApi {
 
+    private userApi = UserApiConfig.getApi();
     private processesList = spWebContext.lists.getByTitle("Processes");
     private dd2579ContentTypeId: string | undefined;
     private ispContentTypeId: string | undefined;
@@ -88,13 +115,33 @@ export default class ProcessesApi implements IProcessesApi {
         }
     }
 
-    fetchFirstPageOfProcesses = async (): Promise<IProcessesPage> => {
+    fetchFirstPageOfProcesses = async (filters: ProcessFilter[], sortBy: FilterField = "Modified", ascending: boolean = false): Promise<IProcessesPage> => {
         try {
-            const processesPage = await this.processesList.items
+            let query = this.processesList.items
                 .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
-                .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR")
-                .filter("IsDeleted ne 1 and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')")
-                .top(10).getPaged<SPProcess[]>();
+                .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR");
+            let queryString = "IsDeleted ne 1" + (filters.findIndex(f => f.fieldName === "ProcessType") < 0 ? " and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')" : "");
+            for (let filter of filters) {
+                if (isDateRange(filter.filterValue)) {
+                    if (filter.filterValue.start !== null) {
+                        queryString += ` and ${filter.fieldName} ge '${filter.filterValue.start.startOf('day').toISO()}'`;
+                    }
+                    if (filter.filterValue.end !== null) {
+                        queryString += ` and ${filter.fieldName} le '${filter.filterValue.end.plus({ days: 1 }).startOf('day').toISO()}'`;
+                    }
+                } else if (isIPerson(filter.filterValue)) {
+                    queryString += ` and ${filter.fieldName}Id eq ${await this.userApi.getUserId(filter.filterValue.EMail)}`;
+                } else if (filter.fieldName === "ProcessType" || filter.fieldName === "CurrentStage") {
+                    queryString += ` and ${filter.fieldName} eq '${filter.filterValue}'`;
+                } else if (filter.fieldName === "Org") {
+                    // Allows the user to search on Orgs or ParentOrgs
+                    queryString += ` and (${filter.fieldName} eq '${filter.filterValue}' or ParentOrg eq '${filter.filterValue}')`;
+                } else if (typeof (filter.filterValue) === "string") {
+                    queryString += ` and ${filter.isStartsWith ? `startswith(${filter.fieldName},'${filter.filterValue}')` : `substringof('${filter.filterValue}',${filter.fieldName})`}`;
+                }
+            }
+
+            let processesPage = await query.filter(queryString).orderBy(sortBy, ascending).top(10).getPaged<SPProcess[]>();
             return new SPProcessesPage(processesPage);
         } catch (e) {
             console.error("Error occurred while trying to fetch the Processes");

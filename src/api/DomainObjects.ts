@@ -7,6 +7,12 @@ export interface IPerson extends IPersonaProps {
     EMail: string,
 }
 
+export function isIPerson(person: any): person is IPerson {
+    return (person as IPerson).Id !== undefined
+        && (person as IPerson).Title !== undefined
+        && (person as IPerson).EMail !== undefined
+}
+
 /**
  * This class represents a User of this application. 
  * It also supports interfacing with the PeoplePicker library.
