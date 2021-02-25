@@ -37,3 +37,11 @@ export class DuplicateEntryError extends InternalError {
         super(e ? e : "You cannot submit a duplicate entry!", message);
     }
 }
+
+export class PrematureActionError extends InternalError {
+    name: string = "PrematureActionError";
+
+    constructor(e?: Error | string, message?: string) {
+        super(e ? e : "You cannot take this action before we're done loading the data!", message);
+    }
+}

@@ -9,6 +9,7 @@ import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { NotesView } from "../NotesView/NotesView";
 import { ProcessDetails } from "../ProcessDetails/ProcessDetails";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
+import { SendFormModal } from "../SendFormModal/SendFormModal";
 import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
 import "./ProcessView.css";
 
@@ -22,15 +23,22 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
     const processDetails = useProcessDetails(props.processId);
 
     const [process, setProcess] = useState<IProcess | undefined>(props.process);
+    const [showSendModal, setShowSendModal] = useState<boolean>(false);
 
     useEffect(() => {
         if (processDetails.process) {
             setProcess(processDetails.process);
         } // eslint-disable-next-line
-    }, [processDetails.loading]);
+    }, [processDetails.process]);
 
     return (
         <>
+            {process && <SendFormModal
+                process={process}
+                showModal={showSendModal}
+                handleClose={() => setShowSendModal(false)}
+                submit={processDetails.sendProcess}
+            />}
             <Row className="m-0">
                 <Col xs="11" className="m-auto">
                     <HeaderBreadcrumbs crumbs={[{ crumbName: "Home", href: "#/" }, { crumbName: process ? process.SolicitationNumber : '' }]} />
@@ -38,10 +46,38 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                 <Col xl='1' xs="11" className="m-auto sbo-details-actions-col">
                     <Card className="mt-3 p-2 sbo-gray-gradiant sbo-details-actions-card">
                         <Row className="m-0 mr-auto">
-                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'><InfoTooltip id="sbo-send" trigger={<Icon iconName="NavigateForward" className="sbo-details-icon" />}>Send</InfoTooltip></Col>
-                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'><InfoTooltip id="sbo-rework" trigger={<Icon iconName="NavigateBack" className="sbo-details-icon" />}>Rework</InfoTooltip></Col>
-                            <Col className="m-0 p-0 m-auto blue" xl='12' xs='2'><InfoTooltip id="sbo-edit" trigger={<Icon iconName="Edit" className="sbo-details-icon" />}>Edit</InfoTooltip></Col>
-                            <Col className="m-0 p-0 m-auto red" xl='12' xs='2'><InfoTooltip id="sbo-delete" trigger={<Icon iconName="Delete" className="sbo-details-icon" />}>Delete</InfoTooltip></Col>
+                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'>
+                                <InfoTooltip
+                                    id="sbo-send"
+                                    trigger={<Icon onClick={() => setShowSendModal(true)} iconName="NavigateForward" className="sbo-details-icon" />}
+                                >
+                                    Send
+                                </InfoTooltip>
+                            </Col>
+                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'>
+                                <InfoTooltip
+                                    id="sbo-rework"
+                                    trigger={<Icon iconName="NavigateBack" className="sbo-details-icon" />}
+                                >
+                                    Rework
+                                </InfoTooltip>
+                            </Col>
+                            <Col className="m-0 p-0 m-auto blue" xl='12' xs='2'>
+                                <InfoTooltip
+                                    id="sbo-edit"
+                                    trigger={<Icon iconName="Edit" className="sbo-details-icon" />}
+                                >
+                                    Edit
+                                </InfoTooltip>
+                            </Col>
+                            <Col className="m-0 p-0 m-auto red" xl='12' xs='2'>
+                                <InfoTooltip
+                                    id="sbo-delete"
+                                    trigger={<Icon iconName="Delete" className="sbo-details-icon" />}
+                                >
+                                    Delete
+                                </InfoTooltip>
+                            </Col>
                         </Row>
                     </Card>
                 </Col>

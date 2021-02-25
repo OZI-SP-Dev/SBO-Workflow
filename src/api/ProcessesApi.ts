@@ -6,7 +6,7 @@ import "@pnp/sp/folders";
 import { PagedItemCollection } from "@pnp/sp/items";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
-import { IPerson, IProcess, isIPerson, ParentOrgs, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
+import { IPerson, IProcess, isIPerson, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
 import { ApiError, DuplicateEntryError, InternalError } from "./InternalErrors";
 import ProcessesApiDev from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
@@ -321,9 +321,9 @@ const spProcessToIProcess = (process: SPProcess): IProcess => {
         ProgramName: process.ProgramName,
         ParentOrg: process.ParentOrg,
         Org: process.Org,
-        Buyer: process.Buyer,
-        ContractingOfficer: process.ContractingOfficer,
-        SmallBusinessProfessional: process.SmallBusinessProfessional,
+        Buyer: new Person(process.Buyer),
+        ContractingOfficer: new Person(process.ContractingOfficer),
+        SmallBusinessProfessional: new Person(process.SmallBusinessProfessional),
         SboDuration: process.SboDuration,
         ContractValueDollars: process.ContractValueDollars,
         SetAsideRecommendation: process.SetAsideRecommendation,
@@ -331,8 +331,8 @@ const spProcessToIProcess = (process: SPProcess): IProcess => {
         Created: DateTime.fromISO(process.Created),
         Modified: DateTime.fromISO(process.Modified),
         CurrentStage: process.CurrentStage,
-        CurrentAssignee: process.CurrentAssignee,
-        SBAPCR: process.SBAPCR,
+        CurrentAssignee: new Person(process.CurrentAssignee),
+        SBAPCR: process.SBAPCR && process.SBAPCR.EMail ? new Person(process.SBAPCR) : undefined,
         CurrentStageStartDate: DateTime.fromISO(process.CurrentStageStartDate),
         "odata.etag": process.__metadata.etag
     }
