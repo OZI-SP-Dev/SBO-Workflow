@@ -86,6 +86,20 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
             submit={submitForm}
         >
             <Form>
+                {props.process.CurrentStage === Stages.SBP_REVIEW &&
+                    <>
+                        <Form.Label className="required"><strong>Next Stage</strong></Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={nextStage}
+                            onChange={e => setNextStage(e.target.value as Stages)}
+                            className="mb-2"
+                        >
+                            <option>{Stages.SBA_PCR_REVIEW}</option>
+                            <option>{Stages.CO_FINAL_REVIEW}</option>
+                        </Form.Control>
+                    </>
+                }
                 <Form.Label className="required"><strong>{nextStage === Stages.CO_FINAL_REVIEW || nextStage === Stages.COMPLETED ? "Buyer:" : "Reviewer:"}</strong></Form.Label>
                 <Form.Control
                     as={PeoplePicker}
@@ -102,19 +116,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                         You must provide a {nextStage === Stages.CO_FINAL_REVIEW ? "Buyer" : "Reviewer"}
                     </Form.Control.Feedback>
                 }
-                {props.process.CurrentStage === Stages.SBP_REVIEW &&
-                    <>
-                        <Form.Label className="required mt-2"><strong>Next Stage</strong></Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={nextStage}
-                            onChange={e => setNextStage(e.target.value as Stages)}
-                        >
-                            <option>{Stages.SBA_PCR_REVIEW}</option>
-                            <option>{Stages.CO_FINAL_REVIEW}</option>
-                        </Form.Control>
-                    </>
-                }
+
                 <div className="mt-3 mb-3">
                     <Form.Label className="mt-2"><strong>Optional Note(s):</strong></Form.Label>
                     <Editor
