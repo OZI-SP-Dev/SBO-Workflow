@@ -116,8 +116,10 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                     </>
                 }
                 <div className="mt-3 mb-3">
+                    <Form.Label className="mt-2"><strong>Optional Note(s):</strong></Form.Label>
                     <Editor
                         init={{
+                            placeholder: "Optional Note(s)...",
                             height: '20rem',
                             menubar: false,
                             auto_focus: true,

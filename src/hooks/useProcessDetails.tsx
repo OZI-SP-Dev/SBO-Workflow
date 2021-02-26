@@ -60,7 +60,8 @@ export function useProcessDetails(processId: number): IProcessDetails {
             if (process) {
                 let submitProcess: IProcess = {
                     ...process,
-                    CurrentStage: newStage, CurrentAssignee: await userApi.getPersonDetails(assignee.EMail),
+                    CurrentStage: newStage,
+                    CurrentAssignee: await userApi.getPersonDetails(assignee.EMail),
                     CurrentStageStartDate: DateTime.local()
                 };
                 if (newStage === Stages.CO_INITIAL_REVIEW || newStage === Stages.CO_FINAL_REVIEW) {
@@ -76,7 +77,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
                     newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
                     setNotes(newNotes);
                 }
-                await email.sendAdvanceStageEmail(newProcess, assignee, noteText, await userApi.getCurrentUser());
+                await email.sendAdvanceStageEmail(newProcess, newProcess.CurrentAssignee, noteText, await userApi.getCurrentUser());
                 setProcess(newProcess);
             } else {
                 throw new PrematureActionError("You cannot send a Process before we're done loading it!");
