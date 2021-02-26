@@ -1,9 +1,13 @@
+import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { DocumentsApiConfig, IDocument } from "../api/DocumentsApi";
-import { INote, IProcess } from "../api/DomainObjects";
+import { INote, IPerson, IProcess, Stages } from "../api/DomainObjects";
+import { PrematureActionError } from "../api/InternalErrors";
 import { NotesApiConfig } from "../api/NotesApi";
 import { ProcessesApiConfig } from "../api/ProcessesApi";
+import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
+import { useEmail } from "./useEmail";
 
 
 export interface IProcessDetails {
@@ -11,6 +15,7 @@ export interface IProcessDetails {
     documents: IDocument[],
     notes: INote[],
     loading: boolean,
+    sendProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
     deleteDocument: (fileName: string) => Promise<void>,
     submitNote: (text: string) => Promise<INote | undefined>
@@ -23,6 +28,8 @@ export function useProcessDetails(processId: number): IProcessDetails {
     const processApi = ProcessesApiConfig.getApi();
     const documentsApi = DocumentsApiConfig.getApi();
     const notesApi = NotesApiConfig.getApi();
+    const userApi = UserApiConfig.getApi();
+    const email = useEmail();
     const [process, setProcess] = useState<IProcess>();
     const [documents, setDocuments] = useState<IDocument[]>([]);
     const [notes, setNotes] = useState<INote[]>([]);
@@ -31,13 +38,49 @@ export function useProcessDetails(processId: number): IProcessDetails {
     const fetchProcessDetails = async () => {
         try {
             setLoading(true);
-            let process = await processApi.fetchProcessById(processId);
-            if (process) {
-                let documents = documentsApi.fetchDocumentsForProcess(process);
-                let notes = notesApi.fetchNotesForProcess(process);
-                setProcess(process);
+            let updatedProcess = await processApi.fetchProcessById(processId);
+            if (updatedProcess) {
+                let documents = documentsApi.fetchDocumentsForProcess(updatedProcess);
+                let notes = notesApi.fetchNotesForProcess(updatedProcess);
+                setProcess(updatedProcess);
                 setDocuments(await documents);
                 setNotes(await notes);
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const sendProcess = async (newStage: Stages, assignee: IPerson, noteText: string): Promise<void> => {
+        try {
+            if (process) {
+                let submitProcess: IProcess = {
+                    ...process,
+                    CurrentStage: newStage,
+                    CurrentAssignee: await userApi.getPersonDetails(assignee.EMail),
+                    CurrentStageStartDate: DateTime.local()
+                };
+                if (newStage === Stages.CO_INITIAL_REVIEW || newStage === Stages.CO_FINAL_REVIEW) {
+                    submitProcess.ContractingOfficer = submitProcess.CurrentAssignee;
+                } else if (newStage === Stages.SBP_REVIEW) {
+                    submitProcess.SmallBusinessProfessional = submitProcess.CurrentAssignee;
+                } else if (newStage === Stages.SBA_PCR_REVIEW) {
+                    submitProcess.SBAPCR = submitProcess.CurrentAssignee;
+                }
+                let newProcess = await processApi.submitProcess(submitProcess);
+                if (noteText) {
+                    let newNotes = [...notes];
+                    newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
+                    setNotes(newNotes);
+                }
+                await email.sendAdvanceStageEmail(newProcess, newProcess.CurrentAssignee, noteText, await userApi.getCurrentUser());
+                setProcess(newProcess);
+            } else {
+                throw new PrematureActionError("You cannot send a Process before we're done loading it!");
             }
         } catch (e) {
             if (errorsContext.reportError) {
@@ -102,5 +145,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, sendProcess, submitDocument, deleteDocument, submitNote }
 }

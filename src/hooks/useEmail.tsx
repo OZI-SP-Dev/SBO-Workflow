@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { useContext, useState } from "react";
-import { IPerson, IProcess } from "../api/DomainObjects";
+import { IPerson, IProcess, nextStageText } from "../api/DomainObjects";
 import { EmailApiConfig } from "../api/EmailApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
 
@@ -8,6 +8,7 @@ export interface IEmailSender {
     sending: boolean,
     sendEmail: (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson) => Promise<void>,
     sendSubmitEmail: (process: IProcess) => Promise<void>,
+    sendAdvanceStageEmail: (process: IProcess, assignee: IPerson, noteText: string, from?: IPerson) => Promise<void>
 }
 
 export function useEmail(): IEmailSender {
@@ -48,9 +49,26 @@ export function useEmail(): IEmailSender {
         return sendEmail(to, subject, body);
     }
 
+    const sendAdvanceStageEmail = async (process: IProcess, assignee: IPerson, noteText: string, from?: IPerson): Promise<void> => {
+        let to = [assignee];
+        let cc = [process.Buyer];
+        let subject = `Procurement RFP Number: ${process.SolicitationNumber} has been assigned to you`;
+        let body = `Procurement RFP # ${process.SolicitationNumber} has been assigned to you for ${process.CurrentStage} on ${process.CurrentStageStartDate.toLocaleString(DateTime.DATETIME_MED)}.
+
+        When you are done, ${nextStageText(process)}.
+        
+        ${noteText ? "Notes: " + noteText + "<br/>" : ""}
+        Link to procurement: ${emailApi.siteUrl}/app/index.aspx#/Processes/View/${process.Id}
+        
+        Record will only be available for 90 days.`;
+
+        return sendEmail(to, subject, body, cc, from);
+    }
+
     return {
         sending,
         sendEmail,
-        sendSubmitEmail
+        sendSubmitEmail,
+        sendAdvanceStageEmail
     }
 }

@@ -7,7 +7,7 @@ export interface IUserApi {
     /**
      * @returns The current, logged in user. It will return a cached version after fetching it the first time.
      */
-    getCurrentUser: () => Promise<IPerson>
+    getCurrentUser: () => Promise<IPerson>,
 
     /**
      * Get the Id of the user with the email given
@@ -16,7 +16,16 @@ export interface IUserApi {
      * 
      * @returns The Id of the user with the supplied email
      */
-    getUserId: (email: string) => Promise<number>
+    getUserId: (email: string) => Promise<number>,
+
+    /**
+     * Get the full details of an IPerson by the email given
+     * 
+     * @param email The email of the user
+     * 
+     * @returns The IPerson of the user with the given email
+     */
+    getPersonDetails: (email: string) => Promise<IPerson>
 }
 
 export class UserApi implements IUserApi {
@@ -62,6 +71,11 @@ export class UserApi implements IUserApi {
             }
         }
     }
+
+    getPersonDetails = async (email: string): Promise<IPerson> => {
+        let ensuredUser = (await spWebContext.ensureUser(email)).data;
+        return new Person({ Id: ensuredUser.Id, Title: ensuredUser.Title, EMail: ensuredUser.Email });
+    }
 }
 
 export class UserApiDev implements IUserApi {
@@ -83,6 +97,10 @@ export class UserApiDev implements IUserApi {
     getUserId = async () => {
         await this.sleep();
         return 1;
+    }
+
+    getPersonDetails = async (email: string): Promise<IPerson> => {
+        return new Person({ Id: 1, Title: "Default User", EMail: email });
     }
 }
 

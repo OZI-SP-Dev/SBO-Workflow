@@ -32,7 +32,7 @@ export class EmailApi implements IEmailApi {
             let email: IEmailProperties = {
                 To: this.getEmails(to),
                 CC: cc ? this.getEmails(cc) : undefined,
-                Subject: "Requirement Requests Manager " + subject,
+                Subject: "SBO-Workflow " + subject,
                 Body: body.replace(/\n/g, '<BR>'),
                 From: from?.EMail,
                 AdditionalHeaders: {

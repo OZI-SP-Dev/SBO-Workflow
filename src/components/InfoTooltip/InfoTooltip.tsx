@@ -5,7 +5,8 @@ import './InfoTooltip.css';
 
 export interface InfoTooltipProps {
     id: string,
-    trigger?: ReactElement
+    trigger?: ReactElement,
+    onClick?: () => void
 }
 
 export const InfoTooltip: FunctionComponent<InfoTooltipProps> = props => {
@@ -18,7 +19,7 @@ export const InfoTooltip: FunctionComponent<InfoTooltipProps> = props => {
                     {props.children}
                 </Tooltip>
             }>
-            {props.trigger ? props.trigger : <Icon iconName='Info' ariaLabel="Info" className="ml-1 align-middle info-tooltip-icon" />}
+            {props.trigger ? props.trigger : <Icon onClick={props.onClick} iconName='Info' ariaLabel="Info" className="ml-1 align-middle info-tooltip-icon" />}
         </OverlayTrigger>
     );
 }

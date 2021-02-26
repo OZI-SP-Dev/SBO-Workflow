@@ -35,10 +35,10 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
             </Modal.Body>
             <Modal.Footer>
                 <Row>
-                    <Button className="mr-2" variant="secondary" onClick={props.handleClose}>
+                    <Button disabled={submitting} className="mr-2" variant="secondary" onClick={props.handleClose}>
                         Close
                     </Button>
-                    <Button variant={props.variant} onClick={submit}>
+                    <Button disabled={submitting} variant={props.variant} onClick={submit}>
                         {submitting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                         {' '}{"Submit"}
                     </Button>

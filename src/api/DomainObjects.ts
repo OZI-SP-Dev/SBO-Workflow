@@ -61,6 +61,23 @@ export enum Stages {
     COMPLETED = "Completed"
 }
 
+export const nextStageText = (process: IProcess) => {
+    switch (process.CurrentStage) {
+        case Stages.BUYER_REVIEW:
+            return "Send to CO for Initial Review";
+        case Stages.CO_INITIAL_REVIEW:
+            return "Send to Small Business for Review";
+        case Stages.SBP_REVIEW:
+            return "Send to SBA PCR Review OR Send to CO Final Review";
+        case Stages.SBA_PCR_REVIEW:
+            return "Send to CO Final Review";
+        case Stages.CO_FINAL_REVIEW:
+            return "Complete process to notify Buyer";
+        case Stages.COMPLETED:
+            return "This process has Completed";
+    }
+}
+
 export enum SetAsideRecommendations {
     SET_ASIDE = "SB Set-Aside",
     EIGHT_A = "8(a)",

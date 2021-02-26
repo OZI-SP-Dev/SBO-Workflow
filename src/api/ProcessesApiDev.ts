@@ -211,23 +211,36 @@ export default class ProcessesApiDev implements IProcessesApi {
 
     fetchFirstPageOfProcesses = async (filters: ProcessFilter[], sortBy?: "SolicitationNumber" | "ProcessType" | "Buyer" | "Org" | "CurrentStage" | "CurrentAssignee" | "CurrentStageStartDate" | "Created" | "Modified", ascending?: boolean): Promise<IProcessesPage> => {
         await sleep();
-        return this.processesPage;
+        return new DevProcessesPage(this.processesPage.results, this.processesPage.childPage);
     }
 
     submitProcess = async (process: IProcess): Promise<IProcess> => {
         await sleep();
-        process.Id = ++this.maxId;
-        process["odata.etag"] = "1";
-        this.processesPage.results.push(process);
-        return process;
+        let newProcess = { ...process };
+        if (process.Id > 0) {
+            let page = this.processesPage;
+            let i = page.results.findIndex(p => p.Id === process.Id);
+            while (i < 0 && page.childPage) {
+                page = page.childPage;
+                i = page.results.findIndex(p => p.Id === process.Id);
+            }
+            if (i >= 0) {
+                page.results[i] = newProcess;
+            }
+        } else {
+            process.Id = ++this.maxId;
+            process["odata.etag"] = "1";
+            this.processesPage.results.unshift(process);
+        }
+        return newProcess;
     }
 
     deleteProcess = async (processId: number): Promise<void> => {
         await sleep();
         let page = this.processesPage;
         let i = page.results.findIndex(p => p.Id === processId);
-        while (i < 0 && page.hasNext) {
-            page = await page.getNext();
+        while (i < 0 && page.childPage) {
+            page = page.childPage;
             i = page.results.findIndex(p => p.Id === processId);
         }
         if (i >= 0) {

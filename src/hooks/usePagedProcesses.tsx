@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { IPerson, IProcess, Person } from "../api/DomainObjects";
+import { IProcess } from "../api/DomainObjects";
 import { FilterField, FilterValue, IProcessesPage, ProcessesApiConfig, ProcessFilter } from "../api/ProcessesApi";
 import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
@@ -115,9 +115,9 @@ export function usePagedProcesses(): IPagedProcesses {
         try {
             let p = { ...process };
             // fetch the person details async to speed up the submit a little
-            let co = getPersonDetails(p.ContractingOfficer);
-            let sbp = getPersonDetails(p.SmallBusinessProfessional);
-            let buyer = getPersonDetails(p.Buyer);
+            let co = userApi.getPersonDetails(p.ContractingOfficer.EMail);
+            let sbp = userApi.getPersonDetails(p.SmallBusinessProfessional.EMail);
+            let buyer = userApi.getPersonDetails(p.Buyer.EMail);
             p.ContractingOfficer = await co;
             p.SmallBusinessProfessional = await sbp;
             p.Buyer = await buyer;
@@ -151,10 +151,6 @@ export function usePagedProcesses(): IPagedProcesses {
             }
             throw e;
         }
-    }
-
-    const getPersonDetails = async (person: IPerson): Promise<IPerson> => {
-        return new Person({ Id: await userApi.getUserId(person.EMail), Title: person.Title, EMail: person.EMail });
     }
 
     useEffect(() => {
