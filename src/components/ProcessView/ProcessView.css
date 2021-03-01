@@ -38,6 +38,11 @@
     color: #C23F38;
 }
 
+.disabled {
+    color: gray;
+    cursor: default;
+}
+
 @media (max-width: 1200px) {
     .sbo-details-actions-col {
         position: inherit;

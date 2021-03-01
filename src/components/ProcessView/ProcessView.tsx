@@ -1,13 +1,14 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Card, Col, Row } from "react-bootstrap";
-import { getBlankProcess, IProcess, ProcessTypes } from "../../api/DomainObjects";
+import { getBlankProcess, IProcess, ProcessTypes, Stages } from "../../api/DomainObjects";
 import { useProcessDetails } from "../../hooks/useProcessDetails";
 import { DocumentsView } from "../DocumentsView/DocumentsView";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { NotesView } from "../NotesView/NotesView";
 import { ProcessDetails } from "../ProcessDetails/ProcessDetails";
+import { ReworkFormModal } from "../ReworkFormModal/ReworkFormModal";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { SendFormModal } from "../SendFormModal/SendFormModal";
 import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
@@ -24,6 +25,24 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
 
     const [process, setProcess] = useState<IProcess | undefined>(props.process);
     const [showSendModal, setShowSendModal] = useState<boolean>(false);
+    const [showReworkModal, setShowReworkModal] = useState<boolean>(false);
+
+    const sendDisabled = process?.CurrentStage === Stages.COMPLETED;
+    const reworkDisabled = process?.CurrentStage === Stages.COMPLETED || process?.CurrentStage === Stages.BUYER_REVIEW;
+    const editDisabled = process?.CurrentStage === Stages.COMPLETED;
+    const deleteDisabled = process?.CurrentStage === Stages.COMPLETED;
+
+    const sendOnClick = () => {
+        if (!(sendDisabled)) {
+            setShowSendModal(true);
+        }
+    }
+
+    const reworkOnClick = () => {
+        if (!(reworkDisabled)) {
+            setShowReworkModal(true);
+        }
+    }
 
     useEffect(() => {
         if (processDetails.process) {
@@ -39,6 +58,12 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                 handleClose={() => setShowSendModal(false)}
                 submit={processDetails.sendProcess}
             />}
+            {process && <ReworkFormModal
+                process={process}
+                showModal={showReworkModal}
+                handleClose={() => setShowReworkModal(false)}
+                submit={processDetails.reworkProcess}
+            />}
             <Row className="m-0">
                 <Col xs="11" className="m-auto">
                     <HeaderBreadcrumbs crumbs={[{ crumbName: "Home", href: "#/" }, { crumbName: process ? process.SolicitationNumber : '' }]} />
@@ -49,31 +74,33 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                             <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'>
                                 <InfoTooltip
                                     id="sbo-send"
-                                    trigger={<Icon onClick={() => setShowSendModal(true)} iconName="NavigateForward" className="sbo-details-icon" />}
+                                    trigger={<Icon onClick={sendOnClick} iconName="NavigateForward"
+                                        className={`sbo-details-icon ${sendDisabled ? "disabled" : ""}`} />}
                                 >
                                     Send
                                 </InfoTooltip>
                             </Col>
-                            <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'>
+                            <Col className={`m-0 p-0 m-auto orange ${reworkDisabled ? "disabled" : ""}`} xl='12' xs='2'>
                                 <InfoTooltip
                                     id="sbo-rework"
-                                    trigger={<Icon iconName="NavigateBack" className="sbo-details-icon" />}
+                                    trigger={<Icon onClick={reworkOnClick} iconName="NavigateBack"
+                                        className={`sbo-details-icon ${reworkDisabled ? "disabled" : ""}`} />}
                                 >
                                     Rework
                                 </InfoTooltip>
                             </Col>
-                            <Col className="m-0 p-0 m-auto blue" xl='12' xs='2'>
+                            <Col className={`m-0 p-0 m-auto blue ${editDisabled ? "disabled" : ""}`} xl='12' xs='2'>
                                 <InfoTooltip
                                     id="sbo-edit"
-                                    trigger={<Icon iconName="Edit" className="sbo-details-icon" />}
+                                    trigger={<Icon iconName="Edit" className={`sbo-details-icon ${editDisabled ? "disabled" : ""}`} />}
                                 >
                                     Edit
                                 </InfoTooltip>
                             </Col>
-                            <Col className="m-0 p-0 m-auto red" xl='12' xs='2'>
+                            <Col className={`m-0 p-0 m-auto red ${deleteDisabled ? "disabled" : ""}`} xl='12' xs='2'>
                                 <InfoTooltip
                                     id="sbo-delete"
-                                    trigger={<Icon iconName="Delete" className="sbo-details-icon" />}
+                                    trigger={<Icon iconName="Delete" className={`sbo-details-icon ${deleteDisabled ? "disabled" : ""}`} />}
                                 >
                                     Delete
                                 </InfoTooltip>

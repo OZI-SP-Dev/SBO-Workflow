@@ -1,36 +1,34 @@
 import { Editor } from "@tinymce/tinymce-react";
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
-import { IPerson, IProcess, nextStageText, Person, Stages } from "../../api/DomainObjects";
+import { IPerson, IProcess, nextStageText, Person, ReworkReasons, Stages } from "../../api/DomainObjects";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
+import "./ReworkFormModal.css";
 
-export interface SendFormModalProps {
+export interface ReworkFormModalProps {
     process: IProcess,
     showModal: boolean,
     handleClose: () => void,
     submit: (nextStage: Stages, assignee: IPerson, noteText: string) => Promise<any>
 }
 
-export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
+export const ReworkFormModal: FunctionComponent<ReworkFormModalProps> = (props) => {
 
     const [nextStage, setNextStage] = useState<Stages>();
     const [assignee, setAssignee] = useState<IPerson>();
+    const [reworkReason, setReworkReason] = useState<ReworkReasons>();
     const [noteText, setNoteText] = useState<string>('');
     const [submitAttempted, setSubmitAttempted] = useState<boolean>(false);
 
     const getNextStage = () => {
         switch (props.process.CurrentStage) {
-            case Stages.BUYER_REVIEW:
-                return Stages.CO_INITIAL_REVIEW;
             case Stages.CO_INITIAL_REVIEW:
-                return Stages.SBP_REVIEW;
             case Stages.SBP_REVIEW:
-                return Stages.SBA_PCR_REVIEW;
-            case Stages.SBA_PCR_REVIEW:
-                return Stages.CO_FINAL_REVIEW;
             case Stages.CO_FINAL_REVIEW:
-                return Stages.COMPLETED;
+                return Stages.BUYER_REVIEW;
+            case Stages.SBA_PCR_REVIEW:
+                return Stages.SBP_REVIEW;
             default:
                 return undefined;
         }
@@ -40,16 +38,8 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
         switch (nextStage) {
             case Stages.BUYER_REVIEW:
                 return props.process.Buyer;
-            case Stages.CO_INITIAL_REVIEW:
-                return props.process.ContractingOfficer;
             case Stages.SBP_REVIEW:
                 return props.process.SmallBusinessProfessional;
-            case Stages.SBA_PCR_REVIEW:
-                return props.process.SBAPCR;
-            case Stages.CO_FINAL_REVIEW:
-                return props.process.ContractingOfficer;
-            case Stages.COMPLETED:
-                return props.process.Buyer;
         }
     }
 
@@ -72,35 +62,21 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
 
     const submitForm = async () => {
         setSubmitAttempted(true);
-        if (nextStage !== undefined && assignee !== undefined) {
-            await props.submit(nextStage, assignee, noteText);
+        if (nextStage !== undefined && assignee !== undefined && reworkReason !== undefined && noteText) {
+            await props.submit(nextStage, assignee, "<strong>Rework Reason: " + reworkReason + "</strong><br/>" + noteText);
             closeForm();
         }
     }
 
     return (
         <SubmittableModal
-            modalTitle={nextStageText(props.process)}
+            modalTitle={"Rework to " + nextStage}
             show={props.showModal}
             handleClose={closeForm}
             submit={submitForm}
         >
             <Form>
-                {props.process.CurrentStage === Stages.SBP_REVIEW &&
-                    <>
-                        <Form.Label className="required"><strong>Next Stage</strong></Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={nextStage}
-                            onChange={e => setNextStage(e.target.value as Stages)}
-                            className="mb-2"
-                        >
-                            <option>{Stages.SBA_PCR_REVIEW}</option>
-                            <option>{Stages.CO_FINAL_REVIEW}</option>
-                        </Form.Control>
-                    </>
-                }
-                <Form.Label className="required"><strong>{nextStage === Stages.CO_FINAL_REVIEW || nextStage === Stages.COMPLETED ? "Buyer:" : "Reviewer:"}</strong></Form.Label>
+                <Form.Label className="required"><strong>{nextStage === Stages.BUYER_REVIEW ? "Buyer:" : "Reviewer:"}</strong></Form.Label>
                 <Form.Control
                     as={PeoplePicker}
                     defaultValue={assignee ? [assignee] : undefined}
@@ -113,15 +89,32 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                 />
                 {submitAttempted && assignee === undefined &&
                     <Form.Control.Feedback type="invalid">
-                        You must provide a {nextStage === Stages.CO_FINAL_REVIEW ? "Buyer" : "Reviewer"}
+                        You must provide a {nextStage === Stages.BUYER_REVIEW ? "Buyer" : "Reviewer"}
                     </Form.Control.Feedback>
                 }
-
-                <div className="mt-2 mb-2">
-                    <Form.Label><strong>Optional Note(s):</strong></Form.Label>
+                <>
+                    <Form.Label className="mt-2 required"><strong>Rework Reason:</strong></Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={reworkReason}
+                        onChange={e => setReworkReason(e.target.value as ReworkReasons)}
+                        className="mb-2"
+                        isInvalid={submitAttempted && !reworkReason}
+                    >
+                        <option value={undefined}>--</option>
+                        {Object.values(ReworkReasons).map(reason => <option>{reason}</option>)}
+                    </Form.Control>
+                </>
+                {submitAttempted && !reworkReason &&
+                    <Form.Control.Feedback type="invalid">
+                        You must provide a reason to Rework the Process
+                    </Form.Control.Feedback>
+                }
+                <div className="mb-2">
+                    <Form.Label className="mt-2 required"><strong>Note(s):</strong></Form.Label>
                     <Editor
                         init={{
-                            placeholder: "Optional Note(s)...",
+                            placeholder: "Note(s) are Required to Rework...",
                             height: '20rem',
                             menubar: false,
                             auto_focus: true,
@@ -136,6 +129,13 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                         onEditorChange={(content) => setNoteText(content)}
                     />
                 </div>
+                {/* Invisible FormControl to be able to use the Feedback component on the RTE */}
+                <Form.Control className="invisible" isInvalid={submitAttempted && !noteText} />
+                {submitAttempted && !noteText &&
+                    <Form.Control.Feedback type="invalid">
+                        You must provide Notes to Rework the Process
+                    </Form.Control.Feedback>
+                }
             </Form>
         </SubmittableModal>
     );

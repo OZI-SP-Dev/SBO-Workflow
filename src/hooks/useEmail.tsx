@@ -8,7 +8,8 @@ export interface IEmailSender {
     sending: boolean,
     sendEmail: (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson) => Promise<void>,
     sendSubmitEmail: (process: IProcess) => Promise<void>,
-    sendAdvanceStageEmail: (process: IProcess, assignee: IPerson, noteText: string, from?: IPerson) => Promise<void>
+    sendAdvanceStageEmail: (process: IProcess, assignee: IPerson, noteText: string, from?: IPerson) => Promise<void>,
+    sendRejectStageEmail: (process: IProcess, assignee: IPerson, noteText: string, from?: IPerson) => Promise<void>
 }
 
 export function useEmail(): IEmailSender {
@@ -57,7 +58,23 @@ export function useEmail(): IEmailSender {
 
         When you are done, ${nextStageText(process)}.
         
-        ${noteText ? "Notes: " + noteText + "<br/>" : ""}
+        ${noteText ? "Notes: " + noteText : ""}
+        Link to procurement: ${emailApi.siteUrl}/app/index.aspx#/Processes/View/${process.Id}
+        
+        Record will only be available for 90 days.`;
+
+        return sendEmail(to, subject, body, cc, from);
+    }
+
+    const sendRejectStageEmail = async (process: IProcess, assignee: IPerson, noteText: string, from?: IPerson): Promise<void> => {
+        let to = [assignee];
+        let cc = [process.Buyer];
+        let subject = `Procurement RFP Number: ${process.SolicitationNumber} needs rework`;
+        let body = `Procurement RFP # ${process.SolicitationNumber} has been returned to you for rework of ${process.CurrentStage} on ${process.CurrentStageStartDate.toLocaleString(DateTime.DATETIME_MED)}.
+
+        When you are done, ${nextStageText(process)}.
+        
+        ${"Notes: " + noteText + "<br/>"}
         Link to procurement: ${emailApi.siteUrl}/app/index.aspx#/Processes/View/${process.Id}
         
         Record will only be available for 90 days.`;
@@ -69,6 +86,7 @@ export function useEmail(): IEmailSender {
         sending,
         sendEmail,
         sendSubmitEmail,
-        sendAdvanceStageEmail
+        sendAdvanceStageEmail,
+        sendRejectStageEmail
     }
 }
