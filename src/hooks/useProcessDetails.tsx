@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { DocumentsApiConfig, IDocument } from "../api/DocumentsApi";
 import { INote, IPerson, IProcess, Stages } from "../api/DomainObjects";
-import { PrematureActionError } from "../api/InternalErrors";
+import { InputError, PrematureActionError } from "../api/InternalErrors";
 import { NotesApiConfig } from "../api/NotesApi";
 import { ProcessesApiConfig } from "../api/ProcessesApi";
 import { UserApiConfig } from "../api/UserApi";
@@ -16,6 +16,7 @@ export interface IProcessDetails {
     notes: INote[],
     loading: boolean,
     sendProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
+    reworkProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
     deleteDocument: (fileName: string) => Promise<void>,
     submitNote: (text: string) => Promise<INote | undefined>
@@ -55,33 +56,62 @@ export function useProcessDetails(processId: number): IProcessDetails {
         }
     }
 
+    const updateProcessStage = async (newStage: Stages, assignee: IPerson): Promise<IProcess> => {
+        if (process) {
+            let submitProcess: IProcess = {
+                ...process,
+                CurrentStage: newStage,
+                CurrentAssignee: await userApi.getPersonDetails(assignee.EMail),
+                CurrentStageStartDate: DateTime.local()
+            };
+            if (newStage === Stages.BUYER_REVIEW) {
+                submitProcess.Buyer = submitProcess.CurrentAssignee;
+            } else if (newStage === Stages.CO_INITIAL_REVIEW || newStage === Stages.CO_FINAL_REVIEW) {
+                submitProcess.ContractingOfficer = submitProcess.CurrentAssignee;
+            } else if (newStage === Stages.SBP_REVIEW) {
+                submitProcess.SmallBusinessProfessional = submitProcess.CurrentAssignee;
+            } else if (newStage === Stages.SBA_PCR_REVIEW) {
+                submitProcess.SBAPCR = submitProcess.CurrentAssignee;
+            } else if (newStage === Stages.COMPLETED) {
+                submitProcess.Buyer = submitProcess.CurrentAssignee;
+            }
+            return await processApi.submitProcess(submitProcess);
+        } else {
+            throw new PrematureActionError("You cannot update a Process before we're done loading it!");
+        }
+    }
+
     const sendProcess = async (newStage: Stages, assignee: IPerson, noteText: string): Promise<void> => {
         try {
-            if (process) {
-                let submitProcess: IProcess = {
-                    ...process,
-                    CurrentStage: newStage,
-                    CurrentAssignee: await userApi.getPersonDetails(assignee.EMail),
-                    CurrentStageStartDate: DateTime.local()
-                };
-                if (newStage === Stages.CO_INITIAL_REVIEW || newStage === Stages.CO_FINAL_REVIEW) {
-                    submitProcess.ContractingOfficer = submitProcess.CurrentAssignee;
-                } else if (newStage === Stages.SBP_REVIEW) {
-                    submitProcess.SmallBusinessProfessional = submitProcess.CurrentAssignee;
-                } else if (newStage === Stages.SBA_PCR_REVIEW) {
-                    submitProcess.SBAPCR = submitProcess.CurrentAssignee;
-                }
-                let newProcess = await processApi.submitProcess(submitProcess);
-                if (noteText) {
-                    let newNotes = [...notes];
-                    newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
-                    setNotes(newNotes);
-                }
-                await email.sendAdvanceStageEmail(newProcess, newProcess.CurrentAssignee, noteText, await userApi.getCurrentUser());
-                setProcess(newProcess);
-            } else {
-                throw new PrematureActionError("You cannot send a Process before we're done loading it!");
+            let newProcess = await updateProcessStage(newStage, assignee);
+            if (noteText) {
+                let newNotes = [...notes];
+                newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
+                setNotes(newNotes);
             }
+            await email.sendAdvanceStageEmail(newProcess, newProcess.CurrentAssignee, noteText, await userApi.getCurrentUser());
+            setProcess(newProcess);
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const reworkProcess = async (newStage: Stages, assignee: IPerson, noteText: string): Promise<void> => {
+        try {
+            let newProcess = await updateProcessStage(newStage, assignee);
+            if (noteText) {
+                let newNotes = [...notes];
+                newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
+                setNotes(newNotes);
+            } else {
+                throw new InputError("You must provide notes to Rework this Process!")
+            }
+            await email.sendRejectStageEmail(newProcess, newProcess.CurrentAssignee, noteText, await userApi.getCurrentUser());
+            setProcess(newProcess);
         } catch (e) {
             if (errorsContext.reportError) {
                 errorsContext.reportError(e);
@@ -145,5 +175,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, sendProcess, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
 }

@@ -78,6 +78,22 @@ export const nextStageText = (process: IProcess) => {
     }
 }
 
+export enum ReworkReasons {
+    NO_ATTACHMENTS = "No Attachments/Insufficient Records",
+    ACQ_STRAT = "More Support for the Acq. Strategy",
+    MARKET_RES = "Insufficient Market Research",
+    NAICS_SIZE_STANDARD = "Wrong NAICS/Size Standard",
+    SYNOPSIS = "Synopsis (Required/Not Required)",
+    UNSIGNED_DOCS = "Unsigned Documents",
+    BLOCK_13_INC = "Block 13 Incomplete/Requires Details",
+    DOLLAR_VALUES = "Dollar Values Do Not Match ISP",
+    ACO_REVIEW = "Evidence of ACO Review Not Attached",
+    SDB_GOAL = "Approval for SDB Goal < 5% Not Attached",
+    MASTER_PLAN = "Master Plan Not Attached",
+    ZERO_LOW_GOALS = "Needs More Justification for Zero/Low Goals",
+    OTHER = "Other"
+}
+
 export enum SetAsideRecommendations {
     SET_ASIDE = "SB Set-Aside",
     EIGHT_A = "8(a)",

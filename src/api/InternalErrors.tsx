@@ -45,3 +45,11 @@ export class PrematureActionError extends InternalError {
         super(e ? e : "You cannot take this action before we're done loading the data!", message);
     }
 }
+
+export class InputError extends InternalError {
+    name: string = "InputError";
+
+    constructor(e?: Error | string, message?: string) {
+        super(e ? e : "There was a problem with the input you provided!", message);
+    }
+}
