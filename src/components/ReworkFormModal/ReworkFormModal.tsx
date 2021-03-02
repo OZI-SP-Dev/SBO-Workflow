@@ -56,6 +56,7 @@ export const ReworkFormModal: FunctionComponent<ReworkFormModalProps> = (props) 
     const closeForm = () => {
         setAssignee(undefined);
         setNoteText('');
+        setReworkReason(undefined);
         setSubmitAttempted(false);
         props.handleClose();
     }
