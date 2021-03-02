@@ -17,7 +17,7 @@ export const ReworkFormModal: FunctionComponent<ReworkFormModalProps> = (props) 
 
     const [nextStage, setNextStage] = useState<Stages>();
     const [assignee, setAssignee] = useState<IPerson>();
-    const [reworkReason, setReworkReason] = useState<ReworkReasons>();
+    const [reworkReason, setReworkReason] = useState<ReworkReasons | ''>('');
     const [noteText, setNoteText] = useState<string>('');
     const [submitAttempted, setSubmitAttempted] = useState<boolean>(false);
 
@@ -56,14 +56,14 @@ export const ReworkFormModal: FunctionComponent<ReworkFormModalProps> = (props) 
     const closeForm = () => {
         setAssignee(undefined);
         setNoteText('');
-        setReworkReason(undefined);
+        setReworkReason('');
         setSubmitAttempted(false);
         props.handleClose();
     }
 
     const submitForm = async () => {
         setSubmitAttempted(true);
-        if (nextStage !== undefined && assignee !== undefined && reworkReason !== undefined && noteText) {
+        if (nextStage !== undefined && assignee !== undefined && reworkReason && noteText) {
             await props.submit(nextStage, assignee, "<strong>Rework Reason: " + reworkReason + "</strong><br/>" + noteText);
             closeForm();
         }
@@ -102,7 +102,7 @@ export const ReworkFormModal: FunctionComponent<ReworkFormModalProps> = (props) 
                         className="mb-2"
                         isInvalid={submitAttempted && !reworkReason}
                     >
-                        <option value={undefined}>--</option>
+                        <option value={''}>--</option>
                         {Object.values(ReworkReasons).map(reason => <option>{reason}</option>)}
                     </Form.Control>
                 </>
