@@ -1,7 +1,7 @@
 import { Editor } from "@tinymce/tinymce-react";
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
-import { IPerson, IProcess, nextStageText, Person, ReworkReasons, Stages } from "../../api/DomainObjects";
+import { IPerson, IProcess, Person, ReworkReasons, Stages } from "../../api/DomainObjects";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import "./ReworkFormModal.css";

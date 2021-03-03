@@ -10,6 +10,7 @@ import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import "./ProcessForm.css"
 
 export interface IProcessFormProps {
+    editProcess?: IProcess,
     processType: ProcessTypes,
     showModal: boolean,
     handleClose: () => void,
@@ -18,7 +19,7 @@ export interface IProcessFormProps {
 
 export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
 
-    const [process, setProcess] = useState<IProcess>(getBlankProcess(props.processType));
+    const [process, setProcess] = useState<IProcess>(props.editProcess ? { ...props.editProcess } : getBlankProcess(props.processType));
     const [validation, setValidation] = useState<IProcessValidation>();
 
     const { orgs, loading: orgsLoading } = useContext(OrgsContext);
@@ -60,13 +61,13 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
 
     const closeForm = () => {
         setValidation(undefined);
-        setProcess(getBlankProcess(props.processType));
+        setProcess(props.editProcess ? { ...props.editProcess } : getBlankProcess(props.processType));
         props.handleClose();
     }
 
     return (
         <SubmittableModal
-            modalTitle={props.processType === ProcessTypes.DD2579 ? "Initiate Small Business Coordination Process (DD2579)" : "Initiate Individual Subcontracting Plan Process (ISP)"}
+            modalTitle={(props.editProcess ? "Edit " : "Initiate ") + (props.processType === ProcessTypes.DD2579 ? "Small Business Coordination Process (DD2579)" : "Individual Subcontracting Plan Process (ISP)")}
             show={props.showModal}
             size="lg"
             handleClose={closeForm}
@@ -141,6 +142,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                     <Col xl="6">
                         <Form.Control
                             as={PeoplePicker}
+                            defaultValue={process.Buyer.Title ? [process.Buyer] : []}
                             updatePeople={(p: IPerson[]) => {
                                 let persona = p[0];
                                 setProcess({ ...process, Buyer: persona ? new Person(persona) : new Person() });
@@ -158,6 +160,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                     <Col xl="6">
                         <Form.Control
                             as={PeoplePicker}
+                            defaultValue={process.ContractingOfficer.Title ? [process.ContractingOfficer] : []}
                             updatePeople={(p: IPerson[]) => {
                                 let persona = p[0];
                                 setProcess({ ...process, ContractingOfficer: persona ? new Person(persona) : new Person() });
@@ -175,6 +178,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                     <Col xl="6">
                         <Form.Control
                             as={PeoplePicker}
+                            defaultValue={process.SmallBusinessProfessional.Title ? [process.SmallBusinessProfessional] : []}
                             updatePeople={(p: IPerson[]) => {
                                 let persona = p[0];
                                 setProcess({ ...process, SmallBusinessProfessional: persona ? new Person(persona) : new Person() });

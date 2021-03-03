@@ -15,6 +15,7 @@ export interface IProcessDetails {
     documents: IDocument[],
     notes: INote[],
     loading: boolean,
+    updateProcess: (process: IProcess) => Promise<void>,
     sendProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     reworkProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
@@ -81,6 +82,31 @@ export function useProcessDetails(processId: number): IProcessDetails {
         }
     }
 
+    const updateProcess = async (newProcess: IProcess) => {
+        try {
+            if (process) {
+                if (newProcess.Id === process.Id) {
+                    setProcess(await processApi.submitProcess({
+                        ...newProcess,
+                        Buyer: newProcess.Buyer.Id < 0 ? await userApi.getPersonDetails(newProcess.Buyer.EMail) : newProcess.Buyer,
+                        ContractingOfficer: newProcess.ContractingOfficer.Id < 0 ? await userApi.getPersonDetails(newProcess.ContractingOfficer.EMail) : newProcess.ContractingOfficer,
+                        SmallBusinessProfessional: newProcess.SmallBusinessProfessional.Id < 0 ? await userApi.getPersonDetails(newProcess.SmallBusinessProfessional.EMail) : newProcess.SmallBusinessProfessional,
+                        CurrentAssignee: newProcess.CurrentAssignee.Id < 0 ? await userApi.getPersonDetails(newProcess.CurrentAssignee.EMail) : newProcess.CurrentAssignee,
+                        SBAPCR: newProcess.SBAPCR && newProcess.SBAPCR.Id < 0 ? await userApi.getPersonDetails(newProcess.SBAPCR.EMail) : newProcess.SBAPCR
+                    }));
+                } else { // should never happen, but I didn't want to leave the possibility open
+                    throw new InputError("You cannot update a different Process from this Process's page!")
+                }
+            } else {
+                throw new PrematureActionError("You cannot update a Process before we're done loading it!");
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        }
+    }
+
     const sendProcess = async (newStage: Stages, assignee: IPerson, noteText: string): Promise<void> => {
         try {
             let newProcess = await updateProcessStage(newStage, assignee);
@@ -95,8 +121,6 @@ export function useProcessDetails(processId: number): IProcessDetails {
             if (errorsContext.reportError) {
                 errorsContext.reportError(e);
             }
-        } finally {
-            setLoading(false);
         }
     }
 
@@ -116,8 +140,6 @@ export function useProcessDetails(processId: number): IProcessDetails {
             if (errorsContext.reportError) {
                 errorsContext.reportError(e);
             }
-        } finally {
-            setLoading(false);
         }
     }
 
@@ -175,5 +197,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, updateProcess, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
 }
