@@ -8,6 +8,7 @@ import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
 import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { NotesView } from "../NotesView/NotesView";
 import { ProcessDetails } from "../ProcessDetails/ProcessDetails";
+import { ProcessForm } from "../ProcessForm/ProcessForm";
 import { ReworkFormModal } from "../ReworkFormModal/ReworkFormModal";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { SendFormModal } from "../SendFormModal/SendFormModal";
@@ -26,21 +27,20 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
     const [process, setProcess] = useState<IProcess | undefined>(props.process);
     const [showSendModal, setShowSendModal] = useState<boolean>(false);
     const [showReworkModal, setShowReworkModal] = useState<boolean>(false);
+    const [showEditModal, setShowEditModal] = useState<boolean>(false);
 
-    const sendDisabled = process?.CurrentStage === Stages.COMPLETED;
-    const reworkDisabled = process?.CurrentStage === Stages.COMPLETED || process?.CurrentStage === Stages.BUYER_REVIEW;
-    const editDisabled = process?.CurrentStage === Stages.COMPLETED;
-    const deleteDisabled = process?.CurrentStage === Stages.COMPLETED;
+    const sendDisabled = !process || process.CurrentStage === Stages.COMPLETED;
+    const reworkDisabled = !process || process.CurrentStage === Stages.COMPLETED || process?.CurrentStage === Stages.BUYER_REVIEW;
+    const editDisabled = !process || process.CurrentStage === Stages.COMPLETED;
+    const deleteDisabled = !process || process.CurrentStage === Stages.COMPLETED;
 
-    const sendOnClick = () => {
-        if (!(sendDisabled)) {
+    const actionOnClick = (action: "Send" | "Rework" | "Edit" | "Delete") => {
+        if (action === "Send" && !sendDisabled) {
             setShowSendModal(true);
-        }
-    }
-
-    const reworkOnClick = () => {
-        if (!(reworkDisabled)) {
+        } else if (action === "Rework" && !reworkDisabled) {
             setShowReworkModal(true);
+        } else if (action === "Edit" && !editDisabled) {
+            setShowEditModal(true);
         }
     }
 
@@ -52,18 +52,28 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
 
     return (
         <>
-            {process && <SendFormModal
-                process={process}
-                showModal={showSendModal}
-                handleClose={() => setShowSendModal(false)}
-                submit={processDetails.sendProcess}
-            />}
-            {process && <ReworkFormModal
-                process={process}
-                showModal={showReworkModal}
-                handleClose={() => setShowReworkModal(false)}
-                submit={processDetails.reworkProcess}
-            />}
+            {process &&
+                <>
+                    <SendFormModal
+                        process={process}
+                        showModal={showSendModal}
+                        handleClose={() => setShowSendModal(false)}
+                        submit={processDetails.sendProcess}
+                    />
+                    <ReworkFormModal
+                        process={process}
+                        showModal={showReworkModal}
+                        handleClose={() => setShowReworkModal(false)}
+                        submit={processDetails.reworkProcess}
+                    />
+                    <ProcessForm
+                        editProcess={process}
+                        processType={process.ProcessType}
+                        showModal={showEditModal}
+                        handleClose={() => setShowEditModal(false)}
+                        submit={processDetails.updateProcess}
+                    />
+                </>}
             <Row className="m-0">
                 <Col xs="11" className="m-auto">
                     <HeaderBreadcrumbs crumbs={[{ crumbName: "Home", href: "#/" }, { crumbName: process ? process.SolicitationNumber : '' }]} />
@@ -74,7 +84,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                             <Col className="m-0 p-0 m-auto orange" xl='12' xs='2'>
                                 <InfoTooltip
                                     id="sbo-send"
-                                    trigger={<Icon onClick={sendOnClick} iconName="NavigateForward"
+                                    trigger={<Icon onClick={() => actionOnClick("Send")} iconName="NavigateForward"
                                         className={`sbo-details-icon ${sendDisabled ? "disabled" : ""}`} />}
                                 >
                                     Send
@@ -83,7 +93,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                             <Col className={`m-0 p-0 m-auto orange ${reworkDisabled ? "disabled" : ""}`} xl='12' xs='2'>
                                 <InfoTooltip
                                     id="sbo-rework"
-                                    trigger={<Icon onClick={reworkOnClick} iconName="NavigateBack"
+                                    trigger={<Icon onClick={() => actionOnClick("Rework")} iconName="NavigateBack"
                                         className={`sbo-details-icon ${reworkDisabled ? "disabled" : ""}`} />}
                                 >
                                     Rework
@@ -92,7 +102,8 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                             <Col className={`m-0 p-0 m-auto blue ${editDisabled ? "disabled" : ""}`} xl='12' xs='2'>
                                 <InfoTooltip
                                     id="sbo-edit"
-                                    trigger={<Icon iconName="Edit" className={`sbo-details-icon ${editDisabled ? "disabled" : ""}`} />}
+                                    trigger={<Icon onClick={() => actionOnClick("Edit")} iconName="Edit"
+                                        className={`sbo-details-icon ${editDisabled ? "disabled" : ""}`} />}
                                 >
                                     Edit
                                 </InfoTooltip>
