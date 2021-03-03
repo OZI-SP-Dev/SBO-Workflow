@@ -86,7 +86,14 @@ export function useProcessDetails(processId: number): IProcessDetails {
         try {
             if (process) {
                 if (newProcess.Id === process.Id) {
-                    setProcess(await processApi.submitProcess(newProcess));
+                    setProcess(await processApi.submitProcess({
+                        ...newProcess,
+                        Buyer: newProcess.Buyer.Id < 0 ? await userApi.getPersonDetails(newProcess.Buyer.EMail) : newProcess.Buyer,
+                        ContractingOfficer: newProcess.ContractingOfficer.Id < 0 ? await userApi.getPersonDetails(newProcess.ContractingOfficer.EMail) : newProcess.ContractingOfficer,
+                        SmallBusinessProfessional: newProcess.SmallBusinessProfessional.Id < 0 ? await userApi.getPersonDetails(newProcess.SmallBusinessProfessional.EMail) : newProcess.SmallBusinessProfessional,
+                        CurrentAssignee: newProcess.CurrentAssignee.Id < 0 ? await userApi.getPersonDetails(newProcess.CurrentAssignee.EMail) : newProcess.CurrentAssignee,
+                        SBAPCR: newProcess.SBAPCR && newProcess.SBAPCR.Id < 0 ? await userApi.getPersonDetails(newProcess.SBAPCR.EMail) : newProcess.SBAPCR
+                    }));
                 } else { // should never happen, but I didn't want to leave the possibility open
                     throw new InputError("You cannot update a different Process from this Process's page!")
                 }
