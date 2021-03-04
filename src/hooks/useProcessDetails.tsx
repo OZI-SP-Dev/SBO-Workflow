@@ -120,6 +120,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
             if (errorsContext.reportError) {
                 errorsContext.reportError(e);
             }
+            throw e;
         }
     }
 

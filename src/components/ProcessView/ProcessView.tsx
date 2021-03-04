@@ -52,9 +52,15 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
     }
 
     const deleteProcess = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        e.preventDefault();
-        await processDetails.deleteProcess();
-        history.replace("/");
+        try {
+            e.preventDefault();
+            await processDetails.deleteProcess();
+            history.replace("/");
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setShowDeleteModal(false);
+        }
     }
 
     useEffect(() => {
