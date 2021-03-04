@@ -60,8 +60,10 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
     useEffect(() => {
         if (processDetails.process) {
             setProcess(processDetails.process);
+        } else if (!processDetails.loading) { // forward user back home if the process doesn't exist
+            history.replace("/");
         } // eslint-disable-next-line
-    }, [processDetails.process]);
+    }, [processDetails.process, processDetails.loading]);
 
     return (
         <>
