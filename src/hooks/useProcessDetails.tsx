@@ -16,6 +16,7 @@ export interface IProcessDetails {
     notes: INote[],
     loading: boolean,
     updateProcess: (process: IProcess) => Promise<void>,
+    deleteProcess: () => Promise<void>,
     sendProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     reworkProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
@@ -97,6 +98,21 @@ export function useProcessDetails(processId: number): IProcessDetails {
                 } else { // should never happen, but I didn't want to leave the possibility open
                     throw new InputError("You cannot update a different Process from this Process's page!")
                 }
+            } else {
+                throw new PrematureActionError("You cannot update a Process before we're done loading it!");
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        }
+    }
+
+    const deleteProcess = async () => {
+        try {
+            if (process) {
+                await processApi.deleteProcess(process.Id);
+                setProcess(undefined);
             } else {
                 throw new PrematureActionError("You cannot update a Process before we're done loading it!");
             }
@@ -197,5 +213,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, updateProcess, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, updateProcess, deleteProcess, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
 }
