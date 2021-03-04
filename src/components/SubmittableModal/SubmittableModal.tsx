@@ -6,20 +6,21 @@ export interface ISubmittableModalProps {
     modalTitle: string,
     show: boolean,
     variant?: "primary" | "danger",
+    buttonText?: string,
     size?: "sm" | "lg" | "xl",
     closeOnClickOutside?: boolean,
     handleClose: () => void,
-    submit: () => Promise<any>
+    submit: (e: React.MouseEvent<HTMLElement, MouseEvent>) => Promise<any>
 }
 
 export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props => {
 
     const [submitting, setSubmitting] = useState<boolean>(false);
 
-    const submit = async () => {
+    const submit = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         try {
             setSubmitting(true);
-            await props.submit();
+            await props.submit(e);
         } finally {
             setSubmitting(false);
         }
@@ -40,7 +41,7 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
                     </Button>
                     <Button disabled={submitting} variant={props.variant} onClick={submit}>
                         {submitting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                        {' '}{"Submit"}
+                        {' '}{props.buttonText ? props.buttonText : "Submit"}
                     </Button>
                 </Row>
             </Modal.Footer>

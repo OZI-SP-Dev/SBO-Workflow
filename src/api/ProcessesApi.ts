@@ -98,10 +98,11 @@ export default class ProcessesApi implements IProcessesApi {
 
     fetchProcessById = async (processId: number): Promise<IProcess | undefined> => {
         try {
-            return spProcessToIProcess(await this.processesList.items.getById(processId)
-                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
+            let process: SPProcess = await this.processesList.items.getById(processId)
+                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate", "IsDeleted")
                 .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR")
-                .get());
+                .get();
+            return process && !process.IsDeleted ? spProcessToIProcess(process) : undefined;
         } catch (e) {
             console.error(`Error occurred while trying to fetch the Process with ID ${processId}`);
             console.error(e);
@@ -303,6 +304,7 @@ interface SPProcess {
     CurrentAssignee: IPerson,
     SBAPCR?: IPerson,
     CurrentStageStartDate: string,
+    IsDeleted: boolean,
     __metadata: {
         etag: string
     }

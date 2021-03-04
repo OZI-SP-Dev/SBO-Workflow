@@ -1,6 +1,7 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Card, Col, Row } from "react-bootstrap";
+import { useHistory } from "react-router-dom";
 import { getBlankProcess, IProcess, ProcessTypes, Stages } from "../../api/DomainObjects";
 import { useProcessDetails } from "../../hooks/useProcessDetails";
 import { DocumentsView } from "../DocumentsView/DocumentsView";
@@ -13,6 +14,7 @@ import { ReworkFormModal } from "../ReworkFormModal/ReworkFormModal";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { SendFormModal } from "../SendFormModal/SendFormModal";
 import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
+import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import "./ProcessView.css";
 
 export interface IProcessViewProps {
@@ -22,12 +24,15 @@ export interface IProcessViewProps {
 
 export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
 
+    const history = useHistory();
+
     const processDetails = useProcessDetails(props.processId);
 
     const [process, setProcess] = useState<IProcess | undefined>(props.process);
     const [showSendModal, setShowSendModal] = useState<boolean>(false);
     const [showReworkModal, setShowReworkModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
+    const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
     const sendDisabled = !process || process.CurrentStage === Stages.COMPLETED;
     const reworkDisabled = !process || process.CurrentStage === Stages.COMPLETED || process?.CurrentStage === Stages.BUYER_REVIEW;
@@ -41,14 +46,30 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
             setShowReworkModal(true);
         } else if (action === "Edit" && !editDisabled) {
             setShowEditModal(true);
+        } else if (action === "Delete" && !deleteDisabled) {
+            setShowDeleteModal(true);
+        }
+    }
+
+    const deleteProcess = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        try {
+            e.preventDefault();
+            await processDetails.deleteProcess();
+            history.replace("/");
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setShowDeleteModal(false);
         }
     }
 
     useEffect(() => {
         if (processDetails.process) {
             setProcess(processDetails.process);
+        } else if (!processDetails.loading) { // forward user back home if the process doesn't exist
+            history.replace("/");
         } // eslint-disable-next-line
-    }, [processDetails.process]);
+    }, [processDetails.process, processDetails.loading]);
 
     return (
         <>
@@ -73,6 +94,17 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                         handleClose={() => setShowEditModal(false)}
                         submit={processDetails.updateProcess}
                     />
+                    <SubmittableModal
+                        modalTitle="Delete Process"
+                        show={showDeleteModal}
+                        variant="danger"
+                        buttonText="Delete"
+                        closeOnClickOutside
+                        handleClose={() => setShowDeleteModal(false)}
+                        submit={deleteProcess}
+                    >
+                        <p>Are you sure that you want to delete Process {process.SolicitationNumber}?</p>
+                    </SubmittableModal>
                 </>}
             <Row className="m-0">
                 <Col xs="11" className="m-auto">
@@ -111,7 +143,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                             <Col className={`m-0 p-0 m-auto red ${deleteDisabled ? "disabled" : ""}`} xl='12' xs='2'>
                                 <InfoTooltip
                                     id="sbo-delete"
-                                    trigger={<Icon iconName="Delete" className={`sbo-details-icon ${deleteDisabled ? "disabled" : ""}`} />}
+                                    trigger={<Icon onClick={() => actionOnClick("Delete")} iconName="Delete" className={`sbo-details-icon ${deleteDisabled ? "disabled" : ""}`} />}
                                 >
                                     Delete
                                 </InfoTooltip>

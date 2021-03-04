@@ -16,6 +16,7 @@ export interface IProcessDetails {
     notes: INote[],
     loading: boolean,
     updateProcess: (process: IProcess) => Promise<void>,
+    deleteProcess: () => Promise<void>,
     sendProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     reworkProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
@@ -104,6 +105,22 @@ export function useProcessDetails(processId: number): IProcessDetails {
             if (errorsContext.reportError) {
                 errorsContext.reportError(e);
             }
+        }
+    }
+
+    const deleteProcess = async () => {
+        try {
+            if (process) {
+                await processApi.deleteProcess(process.Id);
+                setProcess(undefined);
+            } else {
+                throw new PrematureActionError("You cannot update a Process before we're done loading it!");
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+            throw e;
         }
     }
 
@@ -197,5 +214,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, updateProcess, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, updateProcess, deleteProcess, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
 }
