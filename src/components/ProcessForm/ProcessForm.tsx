@@ -84,6 +84,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             type="text"
                             value={process.SolicitationNumber}
                             onChange={e => setProcess({ ...process, SolicitationNumber: e.target.value })}
+                            disabled={props.editProcess !== undefined}
                             isInvalid={validation && validation.SolicitationNumberError !== ""}
                         />
                         <Form.Control.Feedback type="invalid">
