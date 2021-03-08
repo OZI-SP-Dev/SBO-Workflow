@@ -5,17 +5,16 @@
 
 #mainnav span {
     color: #fff;
-    top: 0;
     width: 100%;
     overflow: hidden;
     z-index: 1000;
     max-width: fit-content;
     cursor: pointer;
     height: 3rem;
+    vertical-align: -4px;
 }
 
-#mainnav,
-#mainnav a {
+#mainnav, #mainnav a, #mainnav button {
     color: #fff;
     font-weight: 600;
     height: 3rem;
@@ -27,6 +26,6 @@
     border-width: 0 1px 0 1px;
 }
 
-#mainnav span:hover,#mainnav a:hover {
+#mainnav span:hover, #mainnav a:hover, #mainnav button:hover {
     background-color: #2b8cff;
 }

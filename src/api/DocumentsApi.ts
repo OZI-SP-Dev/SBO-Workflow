@@ -143,7 +143,6 @@ export class DocumentsApiDev implements IDocumentsApi {
 export class DocumentsApiConfig {
     private static documentsApi: IDocumentsApi
 
-    // optionally supply the api used to set up test data in the dev version
     static getApi(): IDocumentsApi {
         if (!this.documentsApi) {
             this.documentsApi = process.env.NODE_ENV === 'development' ? new DocumentsApiDev() : new DocumentsApi();

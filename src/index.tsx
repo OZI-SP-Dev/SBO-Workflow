@@ -28,6 +28,7 @@ import 'tinymce/skins/ui/oxide/content.min.css'
 import 'tinymce/skins/content/default/content.min.css'
 import { ErrorsProvider } from './providers/ErrorsContext';
 import { UserProvider } from './providers/UserProvider';
+import { ContactUsProvider } from './providers/ContactUsContext';
 
 initializeIcons();
 initializeFileTypeIcons();
@@ -37,7 +38,9 @@ ReactDOM.render(
     <ErrorsProvider>
       <UserProvider>
         <OrgsProvider>
-          <App />
+          <ContactUsProvider>
+            <App />
+          </ContactUsProvider>
         </OrgsProvider>
       </UserProvider>
     </ErrorsProvider>

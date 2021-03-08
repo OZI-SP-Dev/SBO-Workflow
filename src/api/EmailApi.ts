@@ -75,7 +75,6 @@ export class EmailApiDev implements IEmailApi {
 export class EmailApiConfig {
     private static emailApi: IEmailApi
 
-    // optionally supply the api used to set up test data in the dev version
     static getApi(): IEmailApi {
         if (!this.emailApi) {
             this.emailApi = process.env.NODE_ENV === 'development' ? new EmailApiDev() : new EmailApi();
