@@ -175,7 +175,6 @@ export class NotesApiDev implements INotesApi {
 export class NotesApiConfig {
     private static notesApi: INotesApi
 
-    // optionally supply the api used to set up test data in the dev version
     static getApi(): INotesApi {
         if (!this.notesApi) {
             this.notesApi = process.env.NODE_ENV === 'development' ? new NotesApiDev() : new NotesApi();

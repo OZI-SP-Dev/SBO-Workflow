@@ -370,7 +370,6 @@ const processToSubmitProcess = (process: IProcess): ISubmitProcess => {
 export class ProcessesApiConfig {
     private static processesApi: IProcessesApi
 
-    // optionally supply the api used to set up test data in the dev version
     static getApi(): IProcessesApi {
         if (!this.processesApi) {
             this.processesApi = process.env.NODE_ENV === 'development' ? new ProcessesApiDev() : new ProcessesApi();

@@ -52,7 +52,6 @@ export class OrgsApiDev implements IOrgsApi {
 export class OrgsApiConfig {
     private static orgsApi: IOrgsApi
 
-    // optionally supply the api used to set up test data in the dev version
     static getApi(): IOrgsApi {
         if (!this.orgsApi) {
             this.orgsApi = process.env.NODE_ENV === 'development' ? new OrgsApiDev() : new OrgsApi();
