@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import React, { FunctionComponent, useContext, useState } from "react";
-import { Button, Form, Nav } from "react-bootstrap";
+import { Form, Nav } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
 import { UserApiConfig } from "../../api/UserApi";
 import { useEmail } from "../../hooks/useEmail";

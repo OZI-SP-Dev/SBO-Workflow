@@ -46,6 +46,7 @@ export function usePagedProcesses(): IPagedProcesses {
         page: 1,
         fieldFilters: []
     });
+    const [refresh, setRefresh] = useState<boolean>(true);
 
     const fetchProcessesPage = async (refreshCache?: boolean) => {
         try {
@@ -83,6 +84,7 @@ export function usePagedProcesses(): IPagedProcesses {
             page: 1,
             fieldFilters: []
         });
+        setRefresh(true);
     }
 
     const addFilter = (fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void => {
@@ -99,16 +101,19 @@ export function usePagedProcesses(): IPagedProcesses {
         } else {
             clearFilter(fieldName);
         }
+        setRefresh(true);
     }
 
     const clearFilter = (fieldName: FilterField): void => {
         if (filters.fieldFilters.some(filter => filter.fieldName === fieldName)) {
             setFilters({ ...filters, page: 1, fieldFilters: filters.fieldFilters.filter(filter => filter.fieldName !== fieldName) });
+            setRefresh(true);
         }
     }
 
     const clearAllFilters = (): void => {
         setFilters({ ...filters, fieldFilters: [] });
+        setRefresh(true);
     }
 
     const submitProcess = async (process: IProcess) => {
@@ -154,12 +159,9 @@ export function usePagedProcesses(): IPagedProcesses {
     }
 
     useEffect(() => {
-        fetchProcessesPage(); // eslint-disable-next-line
-    }, [filters.page]);
-
-    useEffect(() => {
-        fetchProcessesPage(true); // eslint-disable-next-line
-    }, [filters.fieldFilters, filters.sortBy, filters.ascending]);
+        fetchProcessesPage(refresh);
+        setRefresh(false); // eslint-disable-next-line
+    }, [filters.page, filters.fieldFilters, filters.sortBy, filters.ascending]);
 
     return {
         processes: processes.length >= filters.page ? processes[filters.page - 1].results : [],
@@ -169,7 +171,10 @@ export function usePagedProcesses(): IPagedProcesses {
         loading,
         fetchCachedProcess,
         refreshPage,
-        sortBy: (field, ascending) => setFilters({ ...filters, sortBy: field, ascending }),
+        sortBy: (field, ascending) => {
+            setFilters({ ...filters, sortBy: field, ascending });
+            setRefresh(true);
+        },
         addFilter,
         clearFilter,
         clearAllFilters,

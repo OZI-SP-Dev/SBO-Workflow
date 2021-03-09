@@ -13,7 +13,7 @@ export const ProcessesRoute: FunctionComponent<IProcessesRouteProps> = (props) =
 
     // refreshes the processes page when navigating back to the processes table
     useEffect(() => {
-        if (!props.processId) {
+        if (!props.processId && !pagedProcesses.loading) {
             pagedProcesses.refreshPage();
         } // eslint-disable-next-line
     }, [props.processId]);
