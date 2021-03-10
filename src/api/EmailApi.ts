@@ -1,6 +1,6 @@
 import { sp } from "@pnp/sp";
 import { IEmailProperties } from "@pnp/sp/sputilities";
-import { ApiError } from "./InternalErrors";
+import { ApiError, getAPIError } from "./InternalErrors";
 import "@pnp/sp/sputilities";
 import { IPerson } from "./DomainObjects";
 
@@ -41,19 +41,7 @@ export class EmailApi implements IEmailApi {
             }
             await sp.utility.sendEmail(email);
         } catch (e) {
-            let message = `Error trying to send Email with subject {${subject}}`
-            console.error(message);
-            console.error(e);
-            if (e instanceof Error) {
-                message = message += ` with error message ${e.message}`;
-                throw new ApiError(e, message);
-            } else if (typeof (e) === "string") {
-                message += ` with error message ${e}`;
-                throw new ApiError(new Error(e), message);
-            } else {
-                message += ` with error message ${e.message}`;
-                throw new ApiError(new Error(message));
-            }
+            throw getAPIError(e, `Error trying to send Email with subject ${subject}`);
         }
     }
 }

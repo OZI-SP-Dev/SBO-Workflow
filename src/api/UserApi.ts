@@ -1,7 +1,7 @@
 import { TestImages } from "@uifabric/example-data";
 import { spWebContext } from "../providers/SPWebContext";
 import { IPerson, Person } from "./DomainObjects";
-import { ApiError } from "./InternalErrors";
+import { ApiError, getAPIError } from "./InternalErrors";
 
 export interface IUserApi {
     /**
@@ -44,15 +44,7 @@ export class UserApi implements IUserApi {
             }
             return this.currentUser;
         } catch (e) {
-            console.error("Error occurred while trying to fetch the current user");
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to fetch the current user: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to fetch the current user: ${e}`);
-            } else {
-                throw new ApiError("Unknown error occurred while trying to fetch the current user");
-            }
+            throw getAPIError(e, "Error occurred while trying to fetch the current user");
         }
     };
 
@@ -60,15 +52,7 @@ export class UserApi implements IUserApi {
         try {
             return (await spWebContext.ensureUser(email)).data.Id;
         } catch (e) {
-            console.error(`Error occurred while trying to fetch user with Email ${email}`);
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to fetch user with Email ${email}: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to fetch user with Email ${email}: ${e}`);
-            } else {
-                throw new ApiError(`Unknown error occurred while trying to fetch user with Email ${email}`);
-            }
+            throw getAPIError(e, `Error occurred while trying to fetch user with Email ${email}`);
         }
     }
 

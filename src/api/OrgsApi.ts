@@ -1,5 +1,6 @@
 import { spWebContext } from "../providers/SPWebContext";
 import { ParentOrgs } from "./DomainObjects";
+import { getAPIError } from "./InternalErrors";
 import { sleep } from "./ProcessesApiDev";
 
 
@@ -17,7 +18,11 @@ export class OrgsApi implements IOrgsApi {
     private orgsList = spWebContext.lists.getByTitle("Orgs");
 
     fetchOrgs(): Promise<IOrg[]> {
-        return this.orgsList.items.select("Title", "ParentOrg").getAll();
+        try {
+            return this.orgsList.items.select("Title", "ParentOrg").getAll();
+        } catch (e) {
+            throw getAPIError(e, "Error occurred while trying to fetch the list of Orgs");
+        }
     }
 }
 

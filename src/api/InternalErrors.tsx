@@ -1,4 +1,14 @@
 
+export interface SPError {
+    error: {
+        code: string,
+        message: {
+            lang: "en-US" | string,
+            value: string
+        }
+    }
+}
+
 export class InternalError implements Error {
     name: string = "InternalError";
     message: string;
@@ -30,6 +40,14 @@ export class NotAuthorizedError extends InternalError {
     }
 }
 
+export class NotAuthenticatedError extends InternalError {
+    name: string = "NotAuthenticatedError";
+
+    constructor(e?: Error | string, message?: string) {
+        super(e ? e : "You are not logged in or your authentication has expired, please refresh your browser and try again!", message);
+    }
+}
+
 export class DuplicateEntryError extends InternalError {
     name: string = "DuplicateEntryError";
 
@@ -51,5 +69,30 @@ export class InputError extends InternalError {
 
     constructor(e?: Error | string, message?: string) {
         super(e ? e : "There was a problem with the input you provided!", message);
+    }
+}
+
+export const parseSPError = (e: Error | string): SPError | undefined => {
+    if (e instanceof Error && e.message.includes("::> {")) {
+        return JSON.parse(e.message.substring(e.message.indexOf("::> {") + 3));
+    } else if (typeof (e) === "string" && e.includes("::> {")) {
+        return JSON.parse(e.substring(e.indexOf("::> {") + 3));
+    }
+}
+
+export const getAPIError = (e: any, baseMessage: string): InternalError => {
+    console.error(baseMessage);
+    console.error(e);
+    const spError = parseSPError(e);
+    if (spError) {
+        return new ApiError(e, `${baseMessage}: ${spError.error.message.value}`)
+    } else if (e instanceof InternalError) {
+        return e;
+    } else if (e instanceof Error) {
+        return new ApiError(e, `${baseMessage}: ${e.message}`);
+    } else if (typeof (e) === "string") {
+        return new ApiError(`${baseMessage}: ${e}`);
+    } else {
+        return new ApiError(baseMessage);
     }
 }

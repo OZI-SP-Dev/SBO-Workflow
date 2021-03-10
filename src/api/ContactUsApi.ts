@@ -1,5 +1,6 @@
 import { spWebContext } from "../providers/SPWebContext";
 import { IPerson } from "./DomainObjects";
+import { getAPIError } from "./InternalErrors";
 import { sleep } from "./ProcessesApiDev";
 
 export interface IContact {
@@ -16,10 +17,14 @@ export class ContactUsApi implements IContactUsApi {
     private contactsList = spWebContext.lists.getByTitle("ContactUs");
 
     fetchContacts = (): Promise<IContact[]> => {
-        return this.contactsList.items
-            .select("Title", "Contact/Id", "Contact/Title", "Contact/EMail")
-            .expand("Contact")
-            .get();
+        try {
+            return this.contactsList.items
+                .select("Title", "Contact/Id", "Contact/Title", "Contact/EMail")
+                .expand("Contact")
+                .get();
+        } catch (e) {
+            throw getAPIError(e, "Error occurred while trying to fetch the Contacts for reporting bugs");
+        }
     }
 }
 

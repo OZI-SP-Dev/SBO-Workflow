@@ -1,5 +1,6 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { IOrg, OrgsApiConfig } from "../api/OrgsApi";
+import { ErrorsContext } from "./ErrorsContext";
 
 
 export interface IOrgsContext {
@@ -12,11 +13,19 @@ export const OrgsProvider: React.FunctionComponent = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [orgs, setOrgs] = useState<IOrg[]>([]);
 
+    const errorsContext = useContext(ErrorsContext);
     const orgsApi = OrgsApiConfig.getApi();
 
     const fetchOrgs = async () => {
-        setOrgs(await orgsApi.fetchOrgs());
-        setLoading(false);
+        try {
+            setOrgs(await orgsApi.fetchOrgs());
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
