@@ -1,7 +1,7 @@
 import { TestImages } from "@uifabric/example-data";
 import { spWebContext } from "../providers/SPWebContext";
 import { IPerson, Person } from "./DomainObjects";
-import { ApiError, getAPIError } from "./InternalErrors";
+import { getAPIError } from "./InternalErrors";
 
 export interface IUserApi {
     /**

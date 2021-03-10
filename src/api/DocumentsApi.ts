@@ -1,7 +1,7 @@
 import { sp } from "@pnp/sp";
 import { DateTime } from "luxon";
 import { IPerson, IProcess, Person } from "./DomainObjects";
-import { ApiError, getAPIError } from "./InternalErrors";
+import { getAPIError } from "./InternalErrors";
 import { sleep } from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
 

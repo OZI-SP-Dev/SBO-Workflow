@@ -1,8 +1,8 @@
 import { sp } from "@pnp/sp";
-import { IEmailProperties } from "@pnp/sp/sputilities";
-import { ApiError, getAPIError } from "./InternalErrors";
 import "@pnp/sp/sputilities";
+import { IEmailProperties } from "@pnp/sp/sputilities";
 import { IPerson } from "./DomainObjects";
+import { getAPIError } from "./InternalErrors";
 
 declare var _spPageContextInfo: any;
 

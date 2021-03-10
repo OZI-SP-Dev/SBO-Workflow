@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
 import { INote, IPerson, IProcess, Person } from "./DomainObjects";
-import { ApiError, getAPIError } from "./InternalErrors";
+import { getAPIError } from "./InternalErrors";
 import { sleep } from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
 
