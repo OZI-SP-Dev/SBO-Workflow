@@ -40,14 +40,6 @@ export class NotAuthorizedError extends InternalError {
     }
 }
 
-export class NotAuthenticatedError extends InternalError {
-    name: string = "NotAuthenticatedError";
-
-    constructor(e?: Error | string, message?: string) {
-        super(e ? e : "You are not logged in or your authentication has expired, please refresh your browser and try again!", message);
-    }
-}
-
 export class DuplicateEntryError extends InternalError {
     name: string = "DuplicateEntryError";
 
