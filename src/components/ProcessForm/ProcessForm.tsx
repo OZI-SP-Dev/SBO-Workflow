@@ -31,6 +31,13 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
         } // eslint-disable-next-line
     }, [process]);
 
+    useEffect(() => {
+        // Update the form's process whenever the props process changes
+        if (props.editProcess) {
+            setProcess({ ...props.editProcess });
+        } // eslint-disable-next-line
+    }, [props.editProcess]);
+
     const getNumbersOnly = (input: string): string => {
         return input.replaceAll(new RegExp("[^0-9]", 'g'), "");
     }

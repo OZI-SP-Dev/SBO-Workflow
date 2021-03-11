@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
 import { INote, IPerson, IProcess, Person } from "./DomainObjects";
-import { ApiError } from "./InternalErrors";
+import { getAPIError } from "./InternalErrors";
 import { sleep } from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
 
@@ -65,15 +65,7 @@ export default class NotesApi implements INotesApi {
                     }
                 });
         } catch (e) {
-            console.error(`Error occurred while trying to fetch the Notes for the Process ${process.SolicitationNumber}`);
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to fetch the Notes for the Process ${process.SolicitationNumber}: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to fetch the Notes for the Process ${process.SolicitationNumber}: ${e}`);
-            } else {
-                throw new ApiError(`Unknown error occurred while trying to fetch the Notes for the Process ${process.SolicitationNumber}`);
-            }
+            throw getAPIError(e, `Error occurred while trying to fetch the Notes for the Process ${process.SolicitationNumber}`);
         }
     }
 
@@ -92,15 +84,7 @@ export default class NotesApi implements INotesApi {
                 Modified: DateTime.fromISO(returnedNote.Modified)
             }
         } catch (e) {
-            console.error(`Error occurred while trying to submit a Note for the Process ${process.SolicitationNumber}`);
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to submit a Note for the Process ${process.SolicitationNumber}: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to submit a Note for the Process ${process.SolicitationNumber}: ${e}`);
-            } else {
-                throw new ApiError(`Unknown error occurred while trying to submit a Note for the Process ${process.SolicitationNumber}`);
-            }
+            throw getAPIError(e, `Error occurred while trying to submit a Note for the Process ${process.SolicitationNumber}`);
         }
     }
 }

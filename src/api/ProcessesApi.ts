@@ -7,7 +7,7 @@ import { PagedItemCollection } from "@pnp/sp/items";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
 import { IPerson, IProcess, isIPerson, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
-import { ApiError, DuplicateEntryError, InternalError } from "./InternalErrors";
+import { DuplicateEntryError, getAPIError } from "./InternalErrors";
 import ProcessesApiDev from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
 
@@ -104,15 +104,7 @@ export default class ProcessesApi implements IProcessesApi {
                 .get();
             return process && !process.IsDeleted ? spProcessToIProcess(process) : undefined;
         } catch (e) {
-            console.error(`Error occurred while trying to fetch the Process with ID ${processId}`);
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to fetch the Process with ID ${processId}: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to fetch the Process with ID ${processId}: ${e}`);
-            } else {
-                throw new ApiError(`Unknown error occurred while trying to fetch the Process with ID ${processId}`);
-            }
+            throw getAPIError(e, `Error occurred while trying to fetch the Process with ID ${processId}`);
         }
     }
 
@@ -145,15 +137,7 @@ export default class ProcessesApi implements IProcessesApi {
             let processesPage = await query.filter(queryString).orderBy(sortBy, ascending).top(10).getPaged<SPProcess[]>();
             return new SPProcessesPage(processesPage);
         } catch (e) {
-            console.error("Error occurred while trying to fetch the Processes");
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to fetch the Processes: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to fetch the Processes: ${e}`);
-            } else {
-                throw new ApiError("Unknown error occurred while trying to fetch the Processes");
-            }
+            throw getAPIError(e, "Error occurred while trying to fetch the Processes");
         }
     }
 
@@ -165,15 +149,7 @@ export default class ProcessesApi implements IProcessesApi {
         try {
             await this.processesList.items.getById(processId).update({ IsDeleted: true });
         } catch (e) {
-            console.error(`Error occurred while trying to delete the Process with ID ${processId}`);
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to delete the Process with ID ${processId}: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to delete the Process with ID ${processId}: ${e}`);
-            } else {
-                throw new ApiError(`Unknown error occurred while trying to delete the Process with ID ${processId}`);
-            }
+            throw getAPIError(e, `Error occurred while trying to delete the Process with ID ${processId}`);
         }
     }
 
@@ -205,17 +181,7 @@ export default class ProcessesApi implements IProcessesApi {
                 throw new DuplicateEntryError("A Process has already been created with this Solicitation Number!");
             }
         } catch (e) {
-            console.error(`Error occurred while trying to submit a new Process ${process.SolicitationNumber}`);
-            console.error(e);
-            if (e instanceof InternalError) {
-                throw e;
-            } else if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to submit a new Process ${process.SolicitationNumber}: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to submit a new Process ${process.SolicitationNumber}: ${e}`);
-            } else {
-                throw new ApiError(`Unknown error occurred while trying to submit a new Process ${process.SolicitationNumber}`);
-            }
+            throw getAPIError(e, `Error occurred while trying to submit a new Process ${process.SolicitationNumber}`);
         }
     }
 
@@ -228,15 +194,7 @@ export default class ProcessesApi implements IProcessesApi {
                         .update(processToSubmitProcess(process), process["odata.etag"])).data["odata.etag"]
             }
         } catch (e) {
-            console.error(`Error occurred while trying to update a Process ${process.SolicitationNumber}`);
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to update a Process ${process.SolicitationNumber}: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(`Error occurred while trying to update a Process ${process.SolicitationNumber}: ${e}`);
-            } else {
-                throw new ApiError(`Unknown error occurred while trying to update a Process ${process.SolicitationNumber}`);
-            }
+            throw getAPIError(e, `Error occurred while trying to update a Process ${process.SolicitationNumber}`);
         }
     }
 
