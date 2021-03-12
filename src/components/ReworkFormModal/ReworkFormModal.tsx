@@ -103,7 +103,7 @@ export const ReworkFormModal: FunctionComponent<ReworkFormModalProps> = (props) 
                         isInvalid={submitAttempted && !reworkReason}
                     >
                         <option value={''}>--</option>
-                        {Object.values(ReworkReasons).map(reason => <option>{reason}</option>)}
+                        {Object.values(ReworkReasons).map(reason => <option key={reason}>{reason}</option>)}
                     </Form.Control>
                 </>
                 {submitAttempted && !reworkReason &&

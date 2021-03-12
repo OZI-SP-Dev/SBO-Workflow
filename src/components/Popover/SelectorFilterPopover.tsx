@@ -31,7 +31,7 @@ export const SelectorFilterPopover: FunctionComponent<SelectorFilterPopoverProps
                 <Form.Control as="select" value={selected} onChange={e => setSelected(e.target.value)}>
                     <option value=''>--</option>
                     {props.values.map(value =>
-                        <option>{value}</option>
+                        <option key={value}>{value}</option>
                     )}
                 </Form.Control>
             </Form>

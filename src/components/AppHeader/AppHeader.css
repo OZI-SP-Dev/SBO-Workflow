@@ -1,6 +1,10 @@
 #mainnav {
     background-color: #337ab7;
     text-align: center;
+    position: fixed;
+    z-index: 999;
+    width: 100%;
+    top: 0;
 }
 
 #mainnav span {
