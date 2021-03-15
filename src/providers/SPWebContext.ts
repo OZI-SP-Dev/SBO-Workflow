@@ -7,5 +7,5 @@ import { IWeb, Web } from '@pnp/sp/webs';
 
 declare var _spPageContextInfo: any;
 
-const webUrl = process.env.NODE_ENV === 'development' ? 'http ://localhost:3000' : _spPageContextInfo.webAbsoluteUrl;
+export const webUrl = process.env.NODE_ENV === 'development' ? 'http ://localhost:3000' : _spPageContextInfo.webAbsoluteUrl;
 export const spWebContext: IWeb = Web(webUrl).configure({ headers: { "Accept": "application/json; odata=verbose" } });
