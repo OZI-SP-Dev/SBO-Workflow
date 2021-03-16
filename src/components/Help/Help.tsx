@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { Accordion, Card, Col, Row } from "react-bootstrap";
 import { webUrl } from "../../providers/SPWebContext";
 import { HeaderBreadcrumbs } from "../HeaderBreadcrumb/HeaderBreadcrumbs";
@@ -6,6 +6,34 @@ import "./Help.css";
 
 
 export const Help: FunctionComponent = () => {
+
+    const videos: { text: string, videoFile: string, thumbnailFile: string }[] = [
+        { text: "Create a DD 2579 Form", videoFile: "Create DD2579.mp4", thumbnailFile: "Create DD2579.png" },
+        { text: "Create an ISP Form", videoFile: "SBO ISP.mp4", thumbnailFile: "SBO ISP.png" },
+        { text: "My Tasks", videoFile: "My Tasks.mp4", thumbnailFile: "My_Tasks_First_Frame.png" },
+        { text: "Edit Docs", videoFile: "Edit KOLAB.mp4", thumbnailFile: "Edit KOLAB.png" },
+        { text: "Notes", videoFile: "Notes.mp4", thumbnailFile: "Notes.png" },
+        { text: "Send", videoFile: "Send.mp4", thumbnailFile: "Send.png" },
+        { text: "Rework", videoFile: "Rework.mp4", thumbnailFile: "Rework.png" }
+    ];
+
+    const [currentVideo, setCurrentVideo] = useState<string>("Create DD2579.mp4");
+    const [videoPlayerWidth, setVideoPlayerWidth] = useState<number>(549.53); // default value is the width at 1080p
+
+    const resizePlayer = () => {
+        const colWidth = document.getElementById("video-player-col")?.clientWidth;
+        if (colWidth) {
+            setVideoPlayerWidth(colWidth);
+        }
+    };
+
+    useEffect(() => {
+        resizePlayer();
+        window.addEventListener("resize", resizePlayer);
+        return () => {
+            window.removeEventListener("resize", resizePlayer);
+        };
+    });
 
     return (
         <>
@@ -20,7 +48,23 @@ export const Help: FunctionComponent = () => {
                             </Card>
                             <Card className="mt-3 p-2 sbo-gray-gradiant">
                                 <Card.Title><h1>Quick Hit Videos</h1><hr /></Card.Title>
-                                <Card.Text>Videos will go here</Card.Text>
+                                <Card.Body>
+                                    <Row className="m-0">
+                                        <Col id="video-player-col" className="m-0 p-0" xl="7" lg="12" md="12" sm="12" xs="12">
+                                            <video id="help-video-player" src={`${webUrl}/Resources/${currentVideo}`} controls width={videoPlayerWidth} className="help-video-player" />
+                                        </Col>
+                                        <Col id="select-video-cards-col" className="m-0 p-0" xl="5" lg="12" md="12" sm="12" xs="12">
+                                            {videos.map(v =>
+                                                <Card key={v.videoFile} className={`select-video-card ${currentVideo === v.videoFile ? "select-video-card-active" : ""}`} onClick={() => setCurrentVideo(v.videoFile)}>
+                                                    <Row className="m-0 p-0">
+                                                        <img src={`${webUrl}/Resources/${v.thumbnailFile}`} alt="" height={56} width={100} />
+                                                        <span className="ml-2">{v.text}</span>
+                                                    </Row>
+                                                </Card>
+                                            )}
+                                        </Col>
+                                    </Row>
+                                </Card.Body>
                             </Card>
                         </Col>
                         <Col className="m-0 p-0">

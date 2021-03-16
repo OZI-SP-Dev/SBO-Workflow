@@ -1,3 +1,17 @@
 .accordion .card-header {
     cursor: pointer;
 }
+
+.select-video-card {
+    cursor: pointer;
+}
+
+.select-video-card:hover, .select-video-card:focus, .select-video-card-active {
+    background-color: #2b8cff!important;
+    background-image: none, linear-gradient(to bottom, rgba(255, 255, 255, .4) 0, rgba(255, 255, 255, 0) 100%);
+}
+
+#select-video-cards-col {
+    max-height: 309.38px;
+    overflow: auto;
+}
