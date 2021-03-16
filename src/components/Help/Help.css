@@ -15,3 +15,7 @@
     max-height: 309.38px;
     overflow: auto;
 }
+
+#select-video-cards-col .row {
+    flex-wrap: nowrap;
+}

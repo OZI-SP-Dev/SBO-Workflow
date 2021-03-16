@@ -50,10 +50,10 @@ export const Help: FunctionComponent = () => {
                                 <Card.Title><h1>Quick Hit Videos</h1><hr /></Card.Title>
                                 <Card.Body>
                                     <Row className="m-0">
-                                        <Col id="video-player-col" className="m-0 p-0" xl="7" lg="12" md="12" sm="12" xs="12">
+                                        <Col id="video-player-col" className="m-0 p-0 mr-2" xl="7" lg="12" md="12" sm="12" xs="12">
                                             <video id="help-video-player" src={`${webUrl}/Resources/${currentVideo}`} controls width={videoPlayerWidth} className="help-video-player" />
                                         </Col>
-                                        <Col id="select-video-cards-col" className="m-0 p-0" xl="5" lg="12" md="12" sm="12" xs="12">
+                                        <Col id="select-video-cards-col" className="m-0 p-0">
                                             {videos.map(v =>
                                                 <Card key={v.videoFile} className={`select-video-card ${currentVideo === v.videoFile ? "select-video-card-active" : ""}`} onClick={() => setCurrentVideo(v.videoFile)}>
                                                     <Row className="m-0 p-0">
@@ -79,7 +79,7 @@ export const Help: FunctionComponent = () => {
                                     <a href="http://business.defense.gov/Acquisition/Subcontracting/DoD-CSP/">Comprehensive Subcontracting Plan Test Program</a><br /><br />
                                     <a href="http://business.defense.gov/About/Goals-and-Performance/">DoD Program Goals and Performance</a><br /><br />
                                     Have an Issue?<br />
-                                    Found a bug? Done'worry, click the "Report Bug" button in the top right corner of the page and send us the problem and we will fix it!<br />
+                                    Found a bug? Don't worry, click the "Report Bug" button in the top right corner of the page and send us the problem and we will fix it!<br />
                                 </Card.Text>
                             </Card>
                             <Card className="mt-3 p-2 sbo-gray-gradiant">
