@@ -25,7 +25,7 @@ export class ProcessValidation {
     }
 
     private static getCurrencyValidation(field: string): string {
-        let currency = field.replace('$', '').replaceAll(',', '');
+        let currency = field.replace('$', '').replace('.', '').replaceAll(',', '');
         if (new RegExp("[^0-9]").exec(currency)) {
             return "Only numeric values should be used!";
         } else if (currency.length === 0) {
