@@ -155,7 +155,7 @@ export function getBlankProcess(type: ProcessTypes): IProcess {
         ContractingOfficer: new Person(),
         SmallBusinessProfessional: new Person(),
         SboDuration: 0,
-        ContractValueDollars: '',
+        ContractValueDollars: '$.00',
         SetAsideRecommendation: undefined,
         MultipleAward: undefined,
         Created: DateTime.local(),

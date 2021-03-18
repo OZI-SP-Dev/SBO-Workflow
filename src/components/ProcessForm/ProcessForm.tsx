@@ -43,16 +43,21 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
     }
 
     const updateTotalContractValue = (input: string): void => {
-        let currency: string = getNumbersOnly(input);
-        if (currency.length <= 13) {
-            if (currency.length > 3) {
-                let commaIndex: number = currency.length - 3;
+        let numbers = getNumbersOnly(input);
+        let dollars: string = getNumbersOnly(numbers.substring(0, numbers.length - 2));
+        while (dollars[0] === '0') {
+            dollars = dollars.substring(1);
+        }
+        let cents: string = getNumbersOnly(numbers.substring(numbers.length - 2));
+        if (dollars.length <= 13) {
+            if (dollars.length > 3) {
+                let commaIndex: number = dollars.length - 3;
                 while (commaIndex > 0) {
-                    currency = currency.substring(0, commaIndex) + ',' + currency.substring(commaIndex);
+                    dollars = dollars.substring(0, commaIndex) + ',' + dollars.substring(commaIndex);
                     commaIndex -= 3;
                 }
             }
-            setProcess({ ...process, ContractValueDollars: ('$' + currency) });
+            setProcess({ ...process, ContractValueDollars: (`$${dollars}.${cents}`) });
         }
     }
 
