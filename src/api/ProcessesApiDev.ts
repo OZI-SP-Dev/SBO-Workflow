@@ -36,6 +36,7 @@ export default class ProcessesApiDev implements IProcessesApi {
             ProcessType: ProcessTypes.DD2579,
             SolicitationNumber: "Test1",
             ProgramName: "Program1",
+            SBPControlNumber: "A Control Number",
             ParentOrg: ParentOrgs.AFLCMC,
             Org: "OZI",
             Buyer: new Person({

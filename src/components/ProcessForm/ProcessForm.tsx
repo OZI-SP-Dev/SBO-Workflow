@@ -7,7 +7,7 @@ import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
-import "./ProcessForm.css"
+import "./ProcessForm.css";
 
 export interface IProcessFormProps {
     editProcess?: IProcess,
@@ -112,6 +112,17 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                         <Form.Control.Feedback type="invalid">
                             {validation ? validation.ProgramNameError : ""}
                         </Form.Control.Feedback>
+                    </Col>
+                    <Col xl="6">
+                        <Form.Label><strong>SBP Control Number (optional)</strong></Form.Label>
+                        <InfoTooltip id="sbp-control">For SBP use only</InfoTooltip>
+                    </Col>
+                    <Col xl="6">
+                        <Form.Control
+                            type="text"
+                            value={process.SBPControlNumber}
+                            onChange={e => setProcess({ ...process, SBPControlNumber: e.target.value })}
+                        />
                     </Col>
                     <Col xl="6">
                         <Form.Label className="required"><strong>Small Business Office</strong></Form.Label>
