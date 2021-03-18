@@ -29,6 +29,14 @@ export const ProcessDetails: FunctionComponent<IProcessDetailsProps> = (props) =
             </Row>
             <Row className="mb-2">
                 <Col md="5" sm="12" xs="12">
+                    <strong>SBP Control Number</strong>
+                </Col>
+                <Col md="7" sm="12" xs="12">
+                    {props.process.SBPControlNumber ? props.process.SBPControlNumber : "None"}
+                </Col>
+            </Row>
+            <Row className="mb-2">
+                <Col md="5" sm="12" xs="12">
                     <strong>Buyer's Organization</strong>
                 </Col>
                 <Col md="7" sm="12" xs="12">

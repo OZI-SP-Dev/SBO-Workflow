@@ -99,7 +99,7 @@ export default class ProcessesApi implements IProcessesApi {
     fetchProcessById = async (processId: number): Promise<IProcess | undefined> => {
         try {
             let process: SPProcess = await this.processesList.items.getById(processId)
-                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate", "IsDeleted")
+                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "SBPControlNumber", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate", "IsDeleted")
                 .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR")
                 .get();
             return process && !process.IsDeleted ? spProcessToIProcess(process) : undefined;
@@ -111,7 +111,7 @@ export default class ProcessesApi implements IProcessesApi {
     fetchFirstPageOfProcesses = async (filters: ProcessFilter[], sortBy: FilterField = "Modified", ascending: boolean = false): Promise<IProcessesPage> => {
         try {
             let query = this.processesList.items
-                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
+                .select("Id", "ProcessType", "SolicitationNumber", "ProgramName", "SBPControlNumber", "ParentOrg", "Org", "Buyer/Id", "Buyer/Title", "Buyer/EMail", "ContractingOfficer/Id", "ContractingOfficer/Title", "ContractingOfficer/EMail", "SmallBusinessProfessional/Id", "SmallBusinessProfessional/Title", "SmallBusinessProfessional/EMail", "SboDuration", "ContractValueDollars", "SetAsideRecommendation", "MultipleAward", "Created", "Modified", "CurrentStage", "CurrentAssignee/Id", "CurrentAssignee/Title", "CurrentAssignee/EMail", "SBAPCR/Id", "SBAPCR/Title", "SBAPCR/EMail", "CurrentStageStartDate")
                 .expand("Buyer", "ContractingOfficer", "SmallBusinessProfessional", "CurrentAssignee", "SBAPCR");
             let queryString = "IsDeleted ne 1" + (filters.findIndex(f => f.fieldName === "ProcessType") < 0 ? " and (ProcessType eq 'DD2579' or ProcessType eq 'ISP')" : "");
             for (let filter of filters) {
@@ -218,6 +218,7 @@ interface ISubmitProcess {
     ProcessType: ProcessTypes,
     SolicitationNumber: string,
     ProgramName: string,
+    SBPControlNumber?: string,
     ParentOrg: ParentOrgs,
     Org: string,
     BuyerId: number,
@@ -247,6 +248,7 @@ interface SPProcess {
     ProcessType: ProcessTypes,
     SolicitationNumber: string,
     ProgramName: string,
+    SBPControlNumber?: string,
     ParentOrg: ParentOrgs,
     Org: string,
     Buyer: IPerson,
@@ -279,6 +281,7 @@ const spProcessToIProcess = (process: SPProcess): IProcess => {
         ProcessType: process.ProcessType,
         SolicitationNumber: process.SolicitationNumber,
         ProgramName: process.ProgramName,
+        SBPControlNumber: process.SBPControlNumber,
         ParentOrg: process.ParentOrg,
         Org: process.Org,
         Buyer: new Person(process.Buyer),
@@ -308,6 +311,7 @@ const processToSubmitProcess = (process: IProcess): ISubmitProcess => {
         ProcessType: process.ProcessType,
         SolicitationNumber: process.SolicitationNumber,
         ProgramName: process.ProgramName,
+        SBPControlNumber: process.SBPControlNumber,
         ParentOrg: process.ParentOrg,
         Org: process.Org,
         BuyerId: process.Buyer.Id,

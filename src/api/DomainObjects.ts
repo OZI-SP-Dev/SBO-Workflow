@@ -124,6 +124,7 @@ export interface IProcess {
     ProcessType: ProcessTypes,
     SolicitationNumber: string,
     ProgramName: string,
+    SBPControlNumber?: string,
     ParentOrg: ParentOrgs, // I'm not sure this actually needs to be saved, it isn't reported to the user
     Org: string,
     Buyer: IPerson,
