@@ -6,7 +6,7 @@ import "@pnp/sp/folders";
 import { PagedItemCollection } from "@pnp/sp/items";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
-import { getCurrency, IPerson, IProcess, isIPerson, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
+import { IPerson, IProcess, isIPerson, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
 import { DuplicateEntryError, getAPIError } from "./InternalErrors";
 import ProcessesApiDev from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
