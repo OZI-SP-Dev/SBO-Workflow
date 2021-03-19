@@ -25,12 +25,10 @@ export class ProcessValidation {
     }
 
     private static getCurrencyValidation(field: string): string {
-        let currency = field.replace('$', '').replace('.', '').replaceAll(',', '');
-        if (new RegExp("[^0-9]").exec(currency)) {
-            return "Only numeric values should be used!";
-        } else if (currency.length === 0) {
-            return "Please provide the Contract Value in Dollars!"
-        } else if (currency.length > 13) {
+        let periodIndex = field.indexOf('.');
+        if (field.length === 0) {
+            return "Please provide the Contract Value!"
+        } else if (field.substring(0, periodIndex > -1 ? periodIndex : undefined).length > 13) {
             return "You entered too large of a number!"
         }
         return "";

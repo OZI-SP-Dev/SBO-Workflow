@@ -55,7 +55,7 @@ export default class ProcessesApiDev implements IProcessesApi {
                 EMail: "me@example.com"
             }),
             SboDuration: 2,
-            ContractValueDollars: '$1,234,567',
+            ContractValueDollars: '1234567.00',
             SetAsideRecommendation: SetAsideRecommendations.EDWOSB,
             MultipleAward: true,
             Created: DateTime.local(),
@@ -96,7 +96,7 @@ export default class ProcessesApiDev implements IProcessesApi {
                 EMail: "rob@example.com"
             }),
             SboDuration: 3,
-            ContractValueDollars: '$8,726,345',
+            ContractValueDollars: '8726345.00',
             SetAsideRecommendation: SetAsideRecommendations.OTHER,
             MultipleAward: true,
             Created: DateTime.local(),
@@ -137,7 +137,7 @@ export default class ProcessesApiDev implements IProcessesApi {
                 EMail: "me@example.com"
             }),
             SboDuration: 2,
-            ContractValueDollars: '$1,234,567',
+            ContractValueDollars: '1234567.00',
             SetAsideRecommendation: SetAsideRecommendations.EDWOSB,
             MultipleAward: true,
             Created: DateTime.local(),
@@ -178,7 +178,7 @@ export default class ProcessesApiDev implements IProcessesApi {
                 EMail: "rob@example.com"
             }),
             SboDuration: 3,
-            ContractValueDollars: '$8,726,345',
+            ContractValueDollars: '8726345.00',
             SetAsideRecommendation: SetAsideRecommendations.OTHER,
             MultipleAward: true,
             Created: DateTime.local(),

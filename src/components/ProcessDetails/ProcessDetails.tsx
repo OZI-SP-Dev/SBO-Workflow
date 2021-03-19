@@ -1,6 +1,6 @@
 import { FunctionComponent } from "react";
 import { Col, Row } from "react-bootstrap";
-import { IProcess, ProcessTypes } from "../../api/DomainObjects";
+import { getCurrency, IProcess, ProcessTypes } from "../../api/DomainObjects";
 import "./ProcessDetails.css"
 
 export interface IProcessDetailsProps {
@@ -88,7 +88,7 @@ export const ProcessDetails: FunctionComponent<IProcessDetailsProps> = (props) =
                     <strong>Total Contract Value</strong>
                 </Col>
                 <Col md="7" sm="12" xs="12">
-                    {props.process.ContractValueDollars}
+                    {getCurrency(props.process.ContractValueDollars)}
                 </Col>
             </Row>
             {props.process.ProcessType === ProcessTypes.DD2579 && <Row>
