@@ -6,7 +6,7 @@ import "@pnp/sp/folders";
 import { PagedItemCollection } from "@pnp/sp/items";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
-import { getCurrency, getNumberFromCurrency, IPerson, IProcess, isIPerson, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
+import { getCurrency, IPerson, IProcess, isIPerson, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
 import { DuplicateEntryError, getAPIError } from "./InternalErrors";
 import ProcessesApiDev from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
@@ -288,7 +288,7 @@ const spProcessToIProcess = (process: SPProcess): IProcess => {
         ContractingOfficer: new Person(process.ContractingOfficer),
         SmallBusinessProfessional: new Person(process.SmallBusinessProfessional),
         SboDuration: process.SboDuration,
-        ContractValueDollars: getNumberFromCurrency(process.ContractValueDollars),
+        ContractValueDollars: process.ContractValueDollars,
         SetAsideRecommendation: process.SetAsideRecommendation,
         MultipleAward: process.MultipleAward,
         Created: DateTime.fromISO(process.Created),
@@ -318,7 +318,7 @@ const processToSubmitProcess = (process: IProcess): ISubmitProcess => {
         ContractingOfficerId: process.ContractingOfficer.Id,
         SmallBusinessProfessionalId: process.SmallBusinessProfessional.Id,
         SboDuration: process.SboDuration,
-        ContractValueDollars: getCurrency(process.ContractValueDollars),
+        ContractValueDollars: process.ContractValueDollars,
         SetAsideRecommendation: process.SetAsideRecommendation,
         MultipleAward: process.MultipleAward,
         CurrentStage: process.CurrentStage,

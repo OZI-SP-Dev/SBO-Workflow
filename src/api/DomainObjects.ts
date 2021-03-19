@@ -195,7 +195,3 @@ export const getCurrency = (value: string | number): string => {
     }
     return `$${dollars}.${cents}`;
 }
-
-export const getNumberFromCurrency = (value: string): string => {
-    return value.replace('$', '').replaceAll(',', '');
-}
