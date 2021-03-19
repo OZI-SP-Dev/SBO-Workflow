@@ -166,3 +166,32 @@ export function getBlankProcess(type: ProcessTypes): IProcess {
         "odata.etag": ""
     }
 }
+
+export const getNumbersOnly = (input: string): string => {
+    return input.replaceAll(new RegExp("[^0-9]", 'g'), "");
+}
+
+export const getCurrency = (value: string | number): string => {
+    let numbers = value.toString();
+    let periodIndex = numbers.indexOf('.');
+    let dollars: string = numbers.substring(0, periodIndex > -1 ? periodIndex : undefined);
+    // remove leading 0's
+    while (dollars[0] === '0') {
+        dollars = dollars.substring(1);
+    }
+    // add commas
+    if (dollars.length > 3) {
+        let commaIndex: number = dollars.length - 3;
+        while (commaIndex > 0) {
+            dollars = dollars.substring(0, commaIndex) + ',' + dollars.substring(commaIndex);
+            commaIndex -= 3;
+        }
+    }
+    let cents: string = periodIndex > -1 ? numbers.substring(periodIndex + 1) : '00';
+    if (cents.length > 2) {
+        cents = cents.substring(0, 2);
+    } else if (cents.length === 1) {
+        cents += '0';
+    }
+    return `$${dollars}.${cents}`;
+}

@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useContext, useEffect, useState } from "react";
 import { Col, Form } from "react-bootstrap";
-import { getBlankProcess, IPerson, IProcess, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations } from "../../api/DomainObjects";
+import { getBlankProcess, getNumbersOnly, IPerson, IProcess, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations } from "../../api/DomainObjects";
 import { OrgsContext } from "../../providers/OrgsContext";
 import { IProcessValidation, ProcessValidation } from "../../utils/ProcessValidation";
 import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
@@ -38,24 +38,6 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
         } // eslint-disable-next-line
     }, [props.editProcess]);
 
-    const getNumbersOnly = (input: string): string => {
-        return input.replaceAll(new RegExp("[^0-9]", 'g'), "");
-    }
-
-    const updateTotalContractValue = (input: string): void => {
-        let currency: string = getNumbersOnly(input);
-        if (currency.length <= 13) {
-            if (currency.length > 3) {
-                let commaIndex: number = currency.length - 3;
-                while (commaIndex > 0) {
-                    currency = currency.substring(0, commaIndex) + ',' + currency.substring(commaIndex);
-                    commaIndex -= 3;
-                }
-            }
-            setProcess({ ...process, ContractValueDollars: ('$' + currency) });
-        }
-    }
-
     const submitForm = async () => {
         const processValidation = ProcessValidation.validateProcess(process, orgs ? orgs : []);
         if (processValidation.IsErrored) {
@@ -70,6 +52,22 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
         setValidation(undefined);
         setProcess(props.editProcess ? { ...props.editProcess } : getBlankProcess(props.processType));
         props.handleClose();
+    }
+
+    const updateContractValue = (input: string) => {
+        if (input) {
+            let periodIndex = input.indexOf('.');
+            let cents: string = periodIndex > -1 ? input.substring(periodIndex + 1) : '';
+            if (cents.length > 2) {
+                cents = cents.substring(0, 2);
+            }
+            let number = `${input.substring(0, periodIndex > -1 ? periodIndex : undefined)}${periodIndex > -1 ? '.' : ''}${cents}`;
+            if (!isNaN(new Number(number).valueOf())) {
+                setProcess({ ...process, ContractValueDollars: number });
+            }
+        } else {
+            setProcess({ ...process, ContractValueDollars: '' });
+        }
     }
 
     return (
@@ -233,7 +231,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             <Form.Control
                                 type="text"
                                 value={process.ContractValueDollars}
-                                onChange={e => updateTotalContractValue(e.target.value)}
+                                onChange={e => updateContractValue(e.target.value)}
                                 isInvalid={validation && validation.ContractValueDollarsError !== ""}
                             />
                             <Form.Control.Feedback type="invalid">
