@@ -15,6 +15,7 @@ export interface IProcessDetails {
     documents: IDocument[],
     notes: INote[],
     loading: boolean,
+    getUpdatedProcess: () => Promise<void>,
     updateProcess: (process: IProcess) => Promise<void>,
     deleteProcess: () => Promise<void>,
     sendProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
@@ -48,6 +49,22 @@ export function useProcessDetails(processId: number): IProcessDetails {
                 setProcess(updatedProcess);
                 setDocuments(await documents);
                 setNotes(await notes);
+            }
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const getUpdatedProcess = async () => {
+        try {
+            setLoading(true);
+            let updatedProcess = await processApi.fetchProcessById(processId);
+            if (updatedProcess) {
+                setProcess(updatedProcess);
             }
         } catch (e) {
             if (errorsContext.reportError) {
@@ -214,5 +231,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, updateProcess, deleteProcess, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, getUpdatedProcess, updateProcess, deleteProcess, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
 }

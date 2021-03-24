@@ -9,6 +9,8 @@ import "./ReworkFormModal.css";
 export interface ReworkFormModalProps {
     process: IProcess,
     showModal: boolean,
+    submitDisabled?: boolean,
+    onShow?: () => void,
     handleClose: () => void,
     submit: (nextStage: Stages, assignee: IPerson, noteText: string) => Promise<any>
 }
@@ -73,6 +75,8 @@ export const ReworkFormModal: FunctionComponent<ReworkFormModalProps> = (props) 
         <SubmittableModal
             modalTitle={"Rework to " + nextStage}
             show={props.showModal}
+            submitDisabled={props.submitDisabled}
+            onShow={props.onShow}
             handleClose={closeForm}
             submit={submitForm}
         >
