@@ -9,6 +9,8 @@ export interface ISubmittableModalProps {
     buttonText?: string,
     size?: "sm" | "lg" | "xl",
     closeOnClickOutside?: boolean,
+    submitDisabled?: boolean,
+    onShow?: () => void,
     handleClose: () => void,
     submit: (e: React.MouseEvent<HTMLElement, MouseEvent>) => Promise<any>
 }
@@ -27,7 +29,7 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
     }
 
     return (
-        <Modal show={props.show} size={props.size} onHide={props.handleClose} backdrop={props.closeOnClickOutside ? undefined : "static"}>
+        <Modal show={props.show} size={props.size} onShow={props.onShow} onHide={props.handleClose} backdrop={props.closeOnClickOutside ? undefined : "static"}>
             <Modal.Header closeButton>
                 <Modal.Title>{props.modalTitle}</Modal.Title>
             </Modal.Header>
@@ -39,7 +41,7 @@ export const SubmittableModal: FunctionComponent<ISubmittableModalProps> = props
                     <Button disabled={submitting} className="mr-2" variant="secondary" onClick={props.handleClose}>
                         Close
                     </Button>
-                    <Button disabled={submitting} variant={props.variant} onClick={submit}>
+                    <Button disabled={submitting || props.submitDisabled} variant={props.variant} onClick={submit}>
                         {submitting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                         {' '}{props.buttonText ? props.buttonText : "Submit"}
                     </Button>

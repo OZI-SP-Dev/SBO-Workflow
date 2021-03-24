@@ -77,6 +77,9 @@ export const getAPIError = (e: any, baseMessage: string): InternalError => {
     console.error(e);
     const spError = parseSPError(e);
     if (spError) {
+        if (spError.error.message.value.includes("ETag value")) {
+            return new ApiError(e, `${baseMessage}: It looks like someone else has edited this Process and the data you're looking at is no longer up to date, refresh the browser to get the updated data.`)
+        }
         return new ApiError(e, `${baseMessage}: ${spError.error.message.value}`)
     } else if (e instanceof InternalError) {
         return e;

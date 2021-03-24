@@ -13,6 +13,8 @@ export interface IProcessFormProps {
     editProcess?: IProcess,
     processType: ProcessTypes,
     showModal: boolean,
+    submitDisabled?: boolean,
+    onShow?: () => void,
     handleClose: () => void,
     submit: (process: IProcess) => Promise<any>
 }
@@ -75,6 +77,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
             modalTitle={(props.editProcess ? "Edit " : "Initiate ") + (props.processType === ProcessTypes.DD2579 ? "Small Business Coordination Process (DD2579)" : "Individual Subcontracting Plan Process (ISP)")}
             show={props.showModal}
             size="lg"
+            submitDisabled={props.submitDisabled}
+            onShow={props.onShow}
             handleClose={closeForm}
             submit={submitForm}
         >

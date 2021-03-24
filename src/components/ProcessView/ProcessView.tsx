@@ -78,12 +78,16 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                     <SendFormModal
                         process={process}
                         showModal={showSendModal}
+                        submitDisabled={processDetails.loading}
+                        onShow={processDetails.getUpdatedProcess}
                         handleClose={() => setShowSendModal(false)}
                         submit={processDetails.sendProcess}
                     />
                     <ReworkFormModal
                         process={process}
                         showModal={showReworkModal}
+                        submitDisabled={processDetails.loading}
+                        onShow={processDetails.getUpdatedProcess}
                         handleClose={() => setShowReworkModal(false)}
                         submit={processDetails.reworkProcess}
                     />
@@ -91,6 +95,8 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                         editProcess={process}
                         processType={process.ProcessType}
                         showModal={showEditModal}
+                        submitDisabled={processDetails.loading}
+                        onShow={processDetails.getUpdatedProcess}
                         handleClose={() => setShowEditModal(false)}
                         submit={processDetails.updateProcess}
                     />
@@ -100,6 +106,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                         variant="danger"
                         buttonText="Delete"
                         closeOnClickOutside
+                        submitDisabled={processDetails.loading}
                         handleClose={() => setShowDeleteModal(false)}
                         submit={deleteProcess}
                     >
