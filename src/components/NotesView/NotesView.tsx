@@ -41,13 +41,16 @@ export const NotesView: FunctionComponent<INotesViewProps> = (props) => {
                     <div className="mt-3 mb-3">
                         <Editor
                             init={{
+                                formats: {
+                                    underline: { inline: 'u', exact: true }
+                                },
                                 height: '20rem',
                                 menubar: false,
                                 auto_focus: true,
                                 //statusbar: false, //Have to show this as part of the license agreement if we don't attribute elsewhere
                                 plugins: [
                                     'advlist autolink lists link charmap anchor',
-                                    'searchreplace visualblocks',
+                                    'searchreplace',
                                     'insertdatetime paste wordcount'
                                 ],
                                 toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent link'

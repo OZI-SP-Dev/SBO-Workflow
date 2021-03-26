@@ -104,7 +104,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                         </Form.Control>
                     </>
                 }
-                <Form.Label className="required"><strong>{nextStage === Stages.CO_FINAL_REVIEW || nextStage === Stages.COMPLETED ? "Buyer:" : "Reviewer:"}</strong></Form.Label>
+                <Form.Label className="required"><strong>{nextStage === Stages.COMPLETED ? "Buyer:" : "Reviewer:"}</strong></Form.Label>
                 <Form.Control
                     as={PeoplePicker}
                     defaultValue={assignee ? [assignee] : undefined}
@@ -125,6 +125,9 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                     <Form.Label><strong>Optional Note(s):</strong></Form.Label>
                     <Editor
                         init={{
+                            formats: {
+                                underline: { inline: 'u', exact: true }
+                            },
                             placeholder: "Optional Note(s)...",
                             height: '20rem',
                             menubar: false,
@@ -132,7 +135,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                             //statusbar: false, //Have to show this as part of the license agreement if we don't attribute elsewhere
                             plugins: [
                                 'advlist autolink lists link charmap anchor',
-                                'searchreplace visualblocks',
+                                'searchreplace',
                                 'insertdatetime paste wordcount'
                             ],
                             toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent link'

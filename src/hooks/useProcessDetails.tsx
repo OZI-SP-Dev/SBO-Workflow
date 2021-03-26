@@ -83,7 +83,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
                 CurrentAssignee: await userApi.getPersonDetails(assignee.EMail),
                 CurrentStageStartDate: DateTime.local()
             };
-            if (newStage === Stages.BUYER_REVIEW) {
+            if (newStage === Stages.BUYER_REVIEW || newStage === Stages.COMPLETED) {
                 submitProcess.Buyer = submitProcess.CurrentAssignee;
             } else if (newStage === Stages.CO_INITIAL_REVIEW || newStage === Stages.CO_FINAL_REVIEW) {
                 submitProcess.ContractingOfficer = submitProcess.CurrentAssignee;
@@ -91,8 +91,6 @@ export function useProcessDetails(processId: number): IProcessDetails {
                 submitProcess.SmallBusinessProfessional = submitProcess.CurrentAssignee;
             } else if (newStage === Stages.SBA_PCR_REVIEW) {
                 submitProcess.SBAPCR = submitProcess.CurrentAssignee;
-            } else if (newStage === Stages.COMPLETED) {
-                submitProcess.Buyer = submitProcess.CurrentAssignee;
             }
             return await processApi.submitProcess(submitProcess);
         } else {
