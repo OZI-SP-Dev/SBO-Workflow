@@ -3,6 +3,7 @@ import "@pnp/sp/content-types/list";
 import "@pnp/sp/files/folder";
 import "@pnp/sp/files/web";
 import "@pnp/sp/folders";
+import "@pnp/sp/lists";
 import { PagedItemCollection } from "@pnp/sp/items";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
@@ -163,7 +164,7 @@ export default class ProcessesApi implements IProcessesApi {
             if ((await this.processesList.items.select("SolicitationNumber").filter(`SolicitationNumber eq '${process.SolicitationNumber}' and IsDeleted ne 1`).get()).length === 0) {
                 const fileName = process.ProcessType === ProcessTypes.DD2579 ? "dd2579.pdf" : "Draft_ISP_Checklist.docx";
 
-                let newFolder = await sp.web.rootFolder.folders.getByName("Processes").folders.add(process.SolicitationNumber);
+                let newFolder = await sp.web.lists.getByTitle("Processes").rootFolder.folders.add(process.SolicitationNumber);
 
                 let fileCopyPromise = sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`)
                     .copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, true, false);
