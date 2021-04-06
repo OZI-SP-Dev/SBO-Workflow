@@ -69,7 +69,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                     </Row>
                 </Card>
                 <h3>Small Business Processes</h3>
-                <Table striped bordered size="sm" responsive>
+                <Table striped bordered size="sm">
                     <thead>
                         <tr>
                             <th>
@@ -90,7 +90,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                                         clearFilter={props.pagedProcesses.clearFilter} />
                                 </Row>
                             </th>
-                            <th>
+                            <th className="sbo-width-sm">
                                 <Row className="m-0">
                                     <span>Process</span>
                                     <SortIcon
@@ -127,7 +127,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                                         clearFilter={props.pagedProcesses.clearFilter} />
                                 </Row>
                             </th>
-                            <th>
+                            <th className="sbo-width-md">
                                 <Row className="m-0">
                                     <span>Buyer's Org</span>
                                     <SortIcon
@@ -146,7 +146,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                                         clearFilter={props.pagedProcesses.clearFilter} />
                                 </Row>
                             </th>
-                            <th>
+                            <th className="sbo-width-md">
                                 <Row className="m-0">
                                     <span>Current Stage</span>
                                     <SortIcon
@@ -183,7 +183,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                                         clearFilter={props.pagedProcesses.clearFilter} />
                                 </Row>
                             </th>
-                            <th>
+                            <th className="sbo-width-md">
                                 <Row className="m-0">
                                     <span>Stage Start</span>
                                     <SortIcon
@@ -201,7 +201,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                                         clearFilter={props.pagedProcesses.clearFilter} />
                                 </Row>
                             </th>
-                            <th>
+                            <th className="sbo-width-md">
                                 <Row className="m-0">
                                     <span>Process Start</span>
                                     <SortIcon
