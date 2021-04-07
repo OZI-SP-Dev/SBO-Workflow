@@ -1,5 +1,6 @@
 import { sp } from "@pnp/sp";
 import { DateTime } from "luxon";
+import { spWebContext, webUrl } from "../providers/SPWebContext";
 import { IPerson, IProcess, Person } from "./DomainObjects";
 import { getAPIError } from "./InternalErrors";
 import { sleep } from "./ProcessesApiDev";
@@ -41,14 +42,19 @@ export default class DocumentsApi implements IDocumentsApi {
 
     fetchDocumentsForProcess = async (process: IProcess): Promise<IDocument[]> => {
         try {
-            return (await sp.web.getFolderByServerRelativePath(`Processes/${process.SolicitationNumber}`).files.select("Name", "TimeLastModified", "ServerRelativeUrl", "ModifiedBy").expand("ModifiedBy").get()).map((file: any) => {
-                return {
-                    Name: file.Name,
-                    ModifiedBy: new Person(file.ModifiedBy),
-                    Modified: DateTime.fromISO(file.TimeLastModified),
-                    LinkUrl: file.ServerRelativeUrl
-                }
-            });
+            const listUri = `${new URL(webUrl).pathname}/Processes`;
+            return (await spWebContext.getList(listUri).items
+                .select("FileLeafRef", "Modified", "ServerUrl", "Editor/Id", "Editor/Title", "Editor/EMail")
+                .expand("Editor")
+                .filter(`ContentType eq 'Document' and FileDirRef eq '${listUri}/${process.SolicitationNumber}'`)
+                .get()).map((file: any) => {
+                    return {
+                        Name: file.FileLeafRef,
+                        ModifiedBy: new Person(file.Editor),
+                        Modified: DateTime.fromISO(file.Modified),
+                        LinkUrl: file.ServerUrl
+                    }
+                });
         } catch (e) {
             throw getAPIError(e, `Error occurred while trying to fetch the Files for the Process ${process.SolicitationNumber}`);
         }

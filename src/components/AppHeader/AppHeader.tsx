@@ -13,7 +13,7 @@ export const AppHeader: FunctionComponent = () => {
                 <LinkContainer isActive={m => m !== null && m?.isExact} to="/">
                     <Nav.Link className="p-0">
                         <img src="./orangeeagle2.png" alt="SBO Logo" height="30px" />
-                        <span> SBO Workflow</span>
+                        <span> Kolab</span>
                     </Nav.Link>
                 </LinkContainer>
             </Navbar.Brand>
