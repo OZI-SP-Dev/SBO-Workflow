@@ -10,7 +10,8 @@ export interface IDocument {
     Name: string,
     ModifiedBy: IPerson,
     Modified: DateTime,
-    LinkUrl: string
+    LinkUrl: string,
+    UniqueId: string
 }
 
 export interface IDocumentsApi {
@@ -44,7 +45,7 @@ export default class DocumentsApi implements IDocumentsApi {
         try {
             const listUri = `${new URL(webUrl).pathname}/Processes`;
             return (await spWebContext.getList(listUri).items
-                .select("FileLeafRef", "Modified", "ServerUrl", "Editor/Id", "Editor/Title", "Editor/EMail")
+                .select("FileLeafRef", "Modified", "ServerUrl", "Editor/Id", "Editor/Title", "Editor/EMail", "UniqueId")
                 .expand("Editor")
                 .filter(`ContentType eq 'Document' and FileDirRef eq '${listUri}/${process.SolicitationNumber}'`)
                 .get()).map((file: any) => {
@@ -52,7 +53,8 @@ export default class DocumentsApi implements IDocumentsApi {
                         Name: file.FileLeafRef,
                         ModifiedBy: new Person(file.Editor),
                         Modified: DateTime.fromISO(file.Modified),
-                        LinkUrl: file.ServerUrl
+                        LinkUrl: file.ServerUrl,
+                        UniqueId: file.UniqueId
                     }
                 });
         } catch (e) {
@@ -62,12 +64,16 @@ export default class DocumentsApi implements IDocumentsApi {
 
     uploadDocument = async (process: IProcess, file: File): Promise<IDocument> => {
         try {
-            let spFile: any = await (await sp.web.getFolderByServerRelativePath(`Processes/${process.SolicitationNumber}`).files.add(file.name, file, true)).file.select("Name", "TimeLastModified", "ServerRelativeUrl", "ModifiedBy").expand("ModifiedBy").get();
+            let spFile: any = await (await sp.web.getFolderByServerRelativePath(`Processes/${process.SolicitationNumber}`).files.add(file.name, file, true)).file
+                .select("FileLeafRef", "Modified", "ServerUrl", "Editor/Id", "Editor/Title", "Editor/EMail", "UniqueId")
+                .expand("Editor")
+                .get();
             return {
-                Name: spFile.Name,
-                ModifiedBy: new Person(spFile.ModifiedBy),
-                Modified: DateTime.fromISO(spFile.TimeLastModified),
-                LinkUrl: spFile.ServerRelativeUrl
+                Name: spFile.FileLeafRef,
+                ModifiedBy: new Person(spFile.Editor),
+                Modified: DateTime.fromISO(spFile.Modified),
+                LinkUrl: spFile.ServerUrl,
+                UniqueId: spFile.UniqueId
             };
         } catch (e) {
             throw getAPIError(e, `Error occurred while trying to upload the File ${file.name} for the Process ${process.SolicitationNumber}`);
@@ -91,12 +97,14 @@ export class DocumentsApiDev implements IDocumentsApi {
         Name: "dd2579.pdf",
         ModifiedBy: new Person({ Id: 1, Title: "Jeremy Clark", EMail: "me@yahoo.com" }),
         Modified: DateTime.local(),
-        LinkUrl: "/dd2579.pdf"
+        LinkUrl: "/dd2579.pdf",
+        UniqueId: "ID"
     }, {
         Name: "Draft_ISP_Checklist.docx",
         ModifiedBy: new Person({ Id: 1, Title: "Jeremy Clark", EMail: "me@yahoo.com" }),
         Modified: DateTime.local(),
-        LinkUrl: "/Draft_ISP_Checklist.docx"
+        LinkUrl: "/Draft_ISP_Checklist.docx",
+        UniqueId: "ID"
     }]
 
     fetchDocumentsForProcess = async (process: IProcess): Promise<IDocument[]> => {
@@ -110,7 +118,8 @@ export class DocumentsApiDev implements IDocumentsApi {
             Name: file.name,
             ModifiedBy: new Person(await this.userApi.getCurrentUser()),
             Modified: DateTime.local(),
-            LinkUrl: "/" + file.name
+            LinkUrl: "/" + file.name,
+            UniqueId: "ID"
         }
         this.documents.push(newDoc);
         return newDoc;
