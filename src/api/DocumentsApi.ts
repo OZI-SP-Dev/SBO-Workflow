@@ -64,15 +64,12 @@ export default class DocumentsApi implements IDocumentsApi {
 
     uploadDocument = async (process: IProcess, file: File): Promise<IDocument> => {
         try {
-            let spFile: any = await (await sp.web.getFolderByServerRelativePath(`Processes/${process.SolicitationNumber}`).files.add(file.name, file, true)).file
-                .select("FileLeafRef", "Modified", "ServerUrl", "Editor/Id", "Editor/Title", "Editor/EMail", "UniqueId")
-                .expand("Editor")
-                .get();
+            let spFile: any = await (await sp.web.getFolderByServerRelativePath(`Processes/${process.SolicitationNumber}`).files.add(file.name, file, true)).file.select("Name", "TimeLastModified", "ServerRelativeUrl", "ModifiedBy").expand("ModifiedBy").get();
             return {
-                Name: spFile.FileLeafRef,
-                ModifiedBy: new Person(spFile.Editor),
-                Modified: DateTime.fromISO(spFile.Modified),
-                LinkUrl: spFile.ServerUrl,
+                Name: spFile.Name,
+                ModifiedBy: new Person(spFile.ModifiedBy),
+                Modified: DateTime.fromISO(spFile.TimeLastModified),
+                LinkUrl: spFile.ServerRelativeUrl,
                 UniqueId: spFile.UniqueId
             };
         } catch (e) {
