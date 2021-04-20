@@ -8,20 +8,41 @@ tbody tr:hover {
     background-color: #ffffff!important;
 }
 
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+th>.row>span {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 th, th>.row {
     white-space: nowrap;
     flex-wrap: nowrap;
 }
 
-th>.row>span {
-    margin-right: 0.5rem;
+th.sbo-width-sm {
+    width: 7.5%;
+}
+
+th.sbo-width-md {
+    width: 9.5%;
+}
+
+td {
+    word-wrap: break-word;
 }
 
 .sort-icon {
     user-select: none;
     font-size: x-small;
     margin-right: 0.5rem;
-    margin-top: 4px;
+    margin-left: 0.5rem;
+    margin-top: 5px;
     color: darkgray;
     cursor: pointer;
 }

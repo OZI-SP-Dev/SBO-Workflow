@@ -1,5 +1,6 @@
 import { sp } from "@pnp/sp";
 import { DateTime } from "luxon";
+import { spWebContext, webUrl } from "../providers/SPWebContext";
 import { IPerson, IProcess, Person } from "./DomainObjects";
 import { getAPIError } from "./InternalErrors";
 import { sleep } from "./ProcessesApiDev";
@@ -9,7 +10,8 @@ export interface IDocument {
     Name: string,
     ModifiedBy: IPerson,
     Modified: DateTime,
-    LinkUrl: string
+    LinkUrl: string,
+    UniqueId: string
 }
 
 export interface IDocumentsApi {
@@ -41,14 +43,20 @@ export default class DocumentsApi implements IDocumentsApi {
 
     fetchDocumentsForProcess = async (process: IProcess): Promise<IDocument[]> => {
         try {
-            return (await sp.web.getFolderByServerRelativePath(`Processes/${process.SolicitationNumber}`).files.select("Name", "TimeLastModified", "ServerRelativeUrl", "ModifiedBy").expand("ModifiedBy").get()).map((file: any) => {
-                return {
-                    Name: file.Name,
-                    ModifiedBy: new Person(file.ModifiedBy),
-                    Modified: DateTime.fromISO(file.TimeLastModified),
-                    LinkUrl: file.ServerRelativeUrl
-                }
-            });
+            const listUri = `${new URL(webUrl).pathname}/Processes`;
+            return (await spWebContext.getList(listUri).items
+                .select("FileLeafRef", "Modified", "ServerUrl", "Editor/Id", "Editor/Title", "Editor/EMail", "UniqueId")
+                .expand("Editor")
+                .filter(`ContentType eq 'Document' and FileDirRef eq '${listUri}/${process.SolicitationNumber}'`)
+                .get()).map((file: any) => {
+                    return {
+                        Name: file.FileLeafRef,
+                        ModifiedBy: new Person(file.Editor),
+                        Modified: DateTime.fromISO(file.Modified),
+                        LinkUrl: file.ServerUrl,
+                        UniqueId: file.UniqueId
+                    }
+                });
         } catch (e) {
             throw getAPIError(e, `Error occurred while trying to fetch the Files for the Process ${process.SolicitationNumber}`);
         }
@@ -61,7 +69,8 @@ export default class DocumentsApi implements IDocumentsApi {
                 Name: spFile.Name,
                 ModifiedBy: new Person(spFile.ModifiedBy),
                 Modified: DateTime.fromISO(spFile.TimeLastModified),
-                LinkUrl: spFile.ServerRelativeUrl
+                LinkUrl: spFile.ServerRelativeUrl,
+                UniqueId: spFile.UniqueId
             };
         } catch (e) {
             throw getAPIError(e, `Error occurred while trying to upload the File ${file.name} for the Process ${process.SolicitationNumber}`);
@@ -85,12 +94,14 @@ export class DocumentsApiDev implements IDocumentsApi {
         Name: "dd2579.pdf",
         ModifiedBy: new Person({ Id: 1, Title: "Jeremy Clark", EMail: "me@yahoo.com" }),
         Modified: DateTime.local(),
-        LinkUrl: "/dd2579.pdf"
+        LinkUrl: "/dd2579.pdf",
+        UniqueId: "ID"
     }, {
         Name: "Draft_ISP_Checklist.docx",
         ModifiedBy: new Person({ Id: 1, Title: "Jeremy Clark", EMail: "me@yahoo.com" }),
         Modified: DateTime.local(),
-        LinkUrl: "/Draft_ISP_Checklist.docx"
+        LinkUrl: "/Draft_ISP_Checklist.docx",
+        UniqueId: "ID"
     }]
 
     fetchDocumentsForProcess = async (process: IProcess): Promise<IDocument[]> => {
@@ -104,7 +115,8 @@ export class DocumentsApiDev implements IDocumentsApi {
             Name: file.name,
             ModifiedBy: new Person(await this.userApi.getCurrentUser()),
             Modified: DateTime.local(),
-            LinkUrl: "/" + file.name
+            LinkUrl: "/" + file.name,
+            UniqueId: "ID"
         }
         this.documents.push(newDoc);
         return newDoc;

@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#000000" />
   <meta name="SBO Workflow" content="SBO" />
   <link rel="apple-touch-icon" href="./logo192.png" />
-  <title>SBO Workflow</title>
+  <title>Kolab</title>
 </head>
 
 <body id="sbo-body">
@@ -17,6 +17,11 @@
   </form>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
+  <script>
+    if (document.documentMode) {
+      document.getElementById("root").innerHTML = "This application is not supported by your browser. <br /><br />Please use the latest version of Chrome, Edge, Firefox, or Safari";
+    }
+  </script>
 </body>
 
 </html>
