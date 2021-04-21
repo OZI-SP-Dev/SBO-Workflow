@@ -29,10 +29,20 @@ interface IPeoplePickerProps {
 }
 
 export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props) => {
-	const [peopleList] = React.useState<IPersonaProps[]>(people);
-	const [selectedItems, setSelectedItems] = React.useState<IPersonaProps[]>([]);
+
+	const getEmptyResolveSuggestions = () => {
+		return cachedPeople.getCachedPeople().slice(0, 10);
+	}
+
+	const removeSuggestion = (person: IPersonaProps) => {
+		setSuggestions(cachedPeople.removePersonFromCache(person.text ? person.text : person.title ? person.title : '').slice(0, 10));
+	}
 
 	const cachedPeople = useCachedPeople();
+	const [peopleList] = React.useState<IPersonaProps[]>(people);
+	const [selectedItems, setSelectedItems] = React.useState<IPersonaProps[]>([]);
+	// I don't quite understand this but updating suggestions makes it update the rendered suggestions
+	const [, setSuggestions] = React.useState<IPerson[]>(getEmptyResolveSuggestions);
 
 	const peoplePickerInput = React.useRef<any>(null);
 
@@ -122,6 +132,8 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 			resolveDelay={300}
 			componentRef={peoplePickerInput}
 			itemLimit={props.itemLimit ? props.itemLimit : 1}
+			onEmptyResolveSuggestions={getEmptyResolveSuggestions}
+			onRemoveSuggestion={removeSuggestion}
 		/>
 	);
 };

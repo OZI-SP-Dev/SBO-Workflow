@@ -3,7 +3,8 @@ import { IPerson } from "../api/DomainObjects";
 
 export interface ICachedPeople {
     getCachedPeople: () => IPerson[],
-    cachePerson: (person: IPerson) => void
+    cachePerson: (person: IPerson) => void,
+    removePersonFromCache: (title: string) => IPerson[]
 }
 
 const SBO_CACHED_PEOPLE: string = "sboCachedPeople";
@@ -16,11 +17,16 @@ export const useCachedPeople = (): ICachedPeople => {
     };
 
     const cachePerson = (person: IPerson) => {
-        const people = getCachedPeople();
-        if (people.findIndex((p: IPerson) => p.EMail === person.EMail) < 0) {
-            localStorage.setItem(SBO_CACHED_PEOPLE, JSON.stringify([...people, person]));
-        }
+        const people: IPerson[] = getCachedPeople();
+        // always put the new person at the front and filter them out of the old list to prevent duplicates
+        localStorage.setItem(SBO_CACHED_PEOPLE, JSON.stringify([person, ...people.filter(p => p.EMail !== person.EMail)]));
     }
 
-    return { getCachedPeople, cachePerson };
+    const removePersonFromCache = (title: string): IPerson[] => {
+        const people: IPerson[] = getCachedPeople().filter((p: IPerson) => p.Title !== title);
+        localStorage.setItem(SBO_CACHED_PEOPLE, JSON.stringify([...people]));
+        return people;
+    }
+
+    return { getCachedPeople, cachePerson, removePersonFromCache };
 }
