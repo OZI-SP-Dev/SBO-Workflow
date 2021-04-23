@@ -3,9 +3,10 @@ import "@pnp/sp/profiles";
 import { IPeoplePickerEntity } from '@pnp/sp/profiles';
 import { people } from '@uifabric/example-data';
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
-import { IBasePickerSuggestionsProps, NormalPeoplePicker } from 'office-ui-fabric-react/lib/Pickers';
+import { IBasePickerSuggestionsProps, NormalPeoplePicker, Suggestions } from 'office-ui-fabric-react/lib/Pickers';
 import * as React from 'react';
 import { IPerson, Person } from "../../api/DomainObjects";
+import { useCachedPeople } from "../../hooks/useCachedPeople";
 
 declare var _spPageContextInfo: any;
 
@@ -28,8 +29,20 @@ interface IPeoplePickerProps {
 }
 
 export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props) => {
+
+	const getEmptyResolveSuggestions = () => {
+		return cachedPeople.getCachedPeople().slice(0, 10);
+	}
+
+	const removeSuggestion = (person: IPersonaProps) => {
+		setSuggestions(cachedPeople.removePersonFromCache(person.text ? person.text : person.title ? person.title : '').slice(0, 10));
+	}
+
+	const cachedPeople = useCachedPeople();
 	const [peopleList] = React.useState<IPersonaProps[]>(people);
 	const [selectedItems, setSelectedItems] = React.useState<IPersonaProps[]>([]);
+	// I don't quite understand this but updating suggestions makes it update the rendered suggestions
+	const [, setSuggestions] = React.useState<IPerson[]>(getEmptyResolveSuggestions);
 
 	const peoplePickerInput = React.useRef<any>(null);
 
@@ -74,7 +87,10 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 					});
 					newPersonas.push(persona);
 				});
-				filteredPersonas = newPersonas;
+				filteredPersonas = [
+					...cachedPeople.getCachedPeople().filter(p => p.Title.toLowerCase().includes(filterText.toLowerCase())),
+					...newPersonas
+				];
 			}
 			return filteredPersonas;
 		} else {
@@ -93,6 +109,7 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 	const onItemsChange = (items: any[] | void): void => {
 		if (items) {
 			setSelectedItems(items);
+			items.forEach(i => cachedPeople.cachePerson(i));
 			props.updatePeople(items);
 			peoplePickerInput.current?.focus();
 		}
@@ -115,6 +132,8 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 			resolveDelay={300}
 			componentRef={peoplePickerInput}
 			itemLimit={props.itemLimit ? props.itemLimit : 1}
+			onEmptyResolveSuggestions={getEmptyResolveSuggestions}
+			onRemoveSuggestion={removeSuggestion}
 		/>
 	);
 };
