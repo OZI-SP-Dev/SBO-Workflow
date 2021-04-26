@@ -1,3 +1,18 @@
+import 'react-app-polyfill/ie11';
+import 'react-app-polyfill/stable';
+import 'core-js/features/array/find';
+import 'core-js/features/array/includes';
+import 'core-js/features/number/is-nan';
+import "core-js/stable/array/from";
+import "core-js/stable/array/fill";
+import "core-js/stable/array/iterator";
+import "core-js/stable/promise";
+import "core-js/stable/reflect";
+import "es6-map/implement";
+import "core-js/stable/symbol";
+import "whatwg-fetch";
+import 'proxy-polyfill/proxy.min.js';
+import "@pnp/polyfill-ie11";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
