@@ -15,7 +15,7 @@ export const NoteView: FunctionComponent<INoteViewProps> = (props) => {
         <Card className="note">
             <Card.Body as={Col} className="p-2">
                 <p className="mb-0" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(props.note.Text) }} />
-                <p className="note-timestamp float-right mb-0">
+                <p className="note-timestamp mb-0">
                     -<i>{props.note.Author.Title} at {props.note.Modified.toLocaleString(DateTime.DATETIME_MED)}</i>
                 </p>
             </Card.Body>

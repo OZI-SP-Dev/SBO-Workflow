@@ -9,10 +9,9 @@
 
 #mainnav span {
     color: #fff;
-    width: 100%;
+    width: auto;
     overflow: hidden;
     z-index: 1000;
-    max-width: fit-content;
     cursor: pointer;
     height: 3rem;
     vertical-align: -4px;
