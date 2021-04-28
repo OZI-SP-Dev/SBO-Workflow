@@ -27,9 +27,9 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => 
                 await props.submitDocument(e.target.files[0]);
             } finally {
                 // reset file input so that a file with the same name can be used again
+                setUploading(false);
                 e.target.files = null;
                 e.target.value = '';
-                setUploading(false);
             }
         }
     }

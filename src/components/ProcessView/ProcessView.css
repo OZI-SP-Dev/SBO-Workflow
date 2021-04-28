@@ -14,7 +14,8 @@
 }
 
 .sbo-details-actions-card .row, .sbo-details-actions-card .row div {
-    max-width: fit-content;
+    display: flex;
+    justify-content: center;
 }
 
 .sbo-details-actions-card .row div {
