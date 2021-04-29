@@ -234,8 +234,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                         <Form.Group>
                             <Form.Control
                                 type="text"
-                                value={process.ContractValueDollars}
-                                onChange={e => updateContractValue(e.target.value)}
+                                value={'$' + process.ContractValueDollars}
+                                onChange={e => updateContractValue(e.target.value.substr(1))}
                                 isInvalid={validation && validation.ContractValueDollarsError !== ""}
                             />
                             <Form.Control.Feedback type="invalid">

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { IPerson } from "../api/DomainObjects";
 
 export interface ICachedPeople {

@@ -3,7 +3,7 @@ import "@pnp/sp/profiles";
 import { IPeoplePickerEntity } from '@pnp/sp/profiles';
 import { people } from '@uifabric/example-data';
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
-import { IBasePickerSuggestionsProps, NormalPeoplePicker, Suggestions } from 'office-ui-fabric-react/lib/Pickers';
+import { IBasePickerSuggestionsProps, NormalPeoplePicker } from 'office-ui-fabric-react/lib/Pickers';
 import * as React from 'react';
 import { IPerson, Person } from "../../api/DomainObjects";
 import { useCachedPeople } from "../../hooks/useCachedPeople";

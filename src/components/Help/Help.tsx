@@ -72,7 +72,7 @@ export const Help: FunctionComponent = () => {
                                 <Card.Title><h1>Resources</h1><hr /></Card.Title>
                                 <Card.Text>
                                     <a download href={`${webUrl}/Resources/2579QuickStart_V2.pptx`}>2579 Quick Start</a><br /><br />
-                                    <a href="https://www.census.gov/eos/www/naics/index.html">North American Industry Classification System (NAICS)</a><br /><br />
+                                    <a href="https://www.census.gov/naics/">North American Industry Classification System (NAICS)</a><br /><br />
                                     <a href="https://www.sba.gov/contracting/getting-started-contractor/make-sure-you-meet-sba-size-standards/table-small-business-size-standards">Small Business Administration Size Standards (Size Standards)</a><br /><br />
                                     <a href="https://www.fpds.gov/fpdsng_cms/index.php/en/worksite.html">Product and Service Codes (PSC)</a><br /><br />
                                     <a href="http://dsbs.sba.gov/dsbs/search/dsp_dsbs.cfm">SBA Small Business Dynamic Search Tool</a><br /><br />
