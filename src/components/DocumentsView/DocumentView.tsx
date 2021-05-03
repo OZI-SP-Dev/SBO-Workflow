@@ -17,32 +17,17 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
     const [deleteTarget, setDeleteTarget] = useState<any>();
 
     const extension = props.document.LinkUrl.substr(props.document.LinkUrl.lastIndexOf('.') + 1);
-    const wordExtensions = ["doc", "dot", "wbk", "docx", "docm", "dotx", "dotm", "docb"];
-    const excelExtensions = ["xls", "xlt", "xlm", "xlsx", "xlsm", "xltx", "xltm", "xlsb", "xla", "xlam", "xll", "xlw"];
-    const ppExtensions = ["ppt", "pot", "pps", "pptx", "pptm", "potx", "potm", "ppam", "ppsx", "ppsm", "sldx", "sldm"];
 
     const deleteIconOnclick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         setDeleteTarget(e.target);
         setShowDeletePopover(true);
     }
 
-    const getDocLink = (): string => {
-        if (wordExtensions.includes(extension)) {
-            return `${window.location.origin}/:w:/r${props.document.LinkUrl.substring(0, props.document.LinkUrl.indexOf("/Processes"))}/_layouts/15/Doc.aspx?sourcedoc={${props.document.UniqueId}}&file=${props.document.Name}&action=default&mobileredirect=true`
-        } else if (excelExtensions.includes(extension)) {
-            return `${window.location.origin}/:x:/r${props.document.LinkUrl.substring(0, props.document.LinkUrl.indexOf("/Processes"))}/_layouts/15/Doc.aspx?sourcedoc={${props.document.UniqueId}}&file=${props.document.Name}&action=default&mobileredirect=true`
-        } else if (ppExtensions.includes(extension)) {
-            return `${window.location.origin}/:p:/r${props.document.LinkUrl.substring(0, props.document.LinkUrl.indexOf("/Processes"))}/_layouts/15/Doc.aspx?sourcedoc={${props.document.UniqueId}}&file=${props.document.Name}&action=default&mobileredirect=true`
-        } else {
-            return props.document.LinkUrl;
-        }
-    }
-
     return (
         <Card className="sbo-gray-gradiant">
             <Row className="m-3">
                 <Col>
-                    <a download={!wordExtensions.concat(excelExtensions).concat(ppExtensions).includes(extension)} href={getDocLink()}>
+                    <a download href={props.document.LinkUrl}>
                         <Icon {...getFileTypeIconProps({ extension: extension, size: 20, imageFileType: 'png' })} className="show-overflow" />
                         <span className="align-middle">{' '}{props.document.Name}</span>
                     </a>
