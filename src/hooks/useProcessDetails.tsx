@@ -21,6 +21,7 @@ export interface IProcessDetails {
     sendProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     reworkProcess: (newStage: Stages, assignee: IPerson, noteText: string) => Promise<void>,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
+    getUpdatedDocuments: () => Promise<IDocument[] | undefined>,
     deleteDocument: (fileName: string) => Promise<void>,
     submitNote: (text: string) => Promise<INote | undefined>
 }
@@ -193,6 +194,25 @@ export function useProcessDetails(processId: number): IProcessDetails {
         }
     }
 
+    const getUpdatedDocuments = async (): Promise<IDocument[] | undefined> => {
+        try {
+            let updatedDocuments: IDocument[] = [];
+            if (process) {
+                updatedDocuments = await documentsApi.fetchDocumentsForProcess(process);
+                if (updatedDocuments) {
+                    setDocuments(updatedDocuments);
+                }
+            }
+            return updatedDocuments;
+        } catch (e) {
+            if (errorsContext.reportError) {
+                errorsContext.reportError(e);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const deleteDocument = async (fileName: string): Promise<void> => {
         try {
             if (process) {
@@ -229,5 +249,5 @@ export function useProcessDetails(processId: number): IProcessDetails {
         fetchProcessDetails(); // eslint-disable-next-line
     }, [processId]);
 
-    return { process, documents, notes, loading, getUpdatedProcess, updateProcess, deleteProcess, sendProcess, reworkProcess, submitDocument, deleteDocument, submitNote }
+    return { process, documents, notes, loading, getUpdatedProcess, updateProcess, deleteProcess, sendProcess, reworkProcess, submitDocument, getUpdatedDocuments, deleteDocument, submitNote }
 }
