@@ -17,7 +17,23 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
     const [deleteTarget, setDeleteTarget] = useState<any>();
 
     const extension = props.document.LinkUrl.substr(props.document.LinkUrl.lastIndexOf('.') + 1);
+    const wordExtensions: string[] = ["doc", "dot", "wbk", "docx", "docm", "dotx", "dotm", "docb"];
+    const excelExtensions: string[] = ["xls", "xlt", "xlm", "xlsx", "xlsm", "xltx", "xltm", "xlsb", "xla", "xlam", "xll", "xlw"];
+    const ppExtensions: string[] = ["ppt", "pot", "pps", "pptx", "pptm", "potx", "potm", "ppam", "ppsx", "ppsm", "sldx", "sldm"];
 
+    const isOfficeFile: boolean = wordExtensions.concat(excelExtensions).concat(ppExtensions).includes(extension);
+
+    const getDownloadUrl = (): string => {
+        if (wordExtensions.includes(extension)) {
+            return `ms-word:ofe|u|${window.location.origin}${props.document.LinkUrl}`;
+        } else if (excelExtensions.includes(extension)) {
+            return `ms-excel:ofe|u|${window.location.origin}${props.document.LinkUrl}`;
+        } else if (ppExtensions.includes(extension)) {
+            return `ms-powerpoint:ofe|u|${window.location.origin}${props.document.LinkUrl}`;
+        } else {
+            return props.document.LinkUrl;
+        }
+    }
     const deleteIconOnclick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         setDeleteTarget(e.target);
         setShowDeletePopover(true);
@@ -27,10 +43,15 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
         <Card className="sbo-gray-gradiant">
             <Row className="m-3">
                 <Col>
-                    <a download href={props.document.LinkUrl}>
+                    <a download={!isOfficeFile} href={getDownloadUrl()}>
                         <Icon {...getFileTypeIconProps({ extension: extension, size: 20, imageFileType: 'png' })} className="show-overflow" />
                         <span className="align-middle">{' '}{props.document.Name}</span>
                     </a>
+                    {isOfficeFile &&
+                        <a download href={props.document.LinkUrl}>
+                            <span className="align-middle ml-3">Download</span>
+                        </a>
+                    }
                     <ConfirmPopover
                         show={showDeletePopover}
                         target={deleteTarget}
