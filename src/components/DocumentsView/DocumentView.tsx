@@ -42,16 +42,11 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
     return (
         <Card className="sbo-gray-gradiant">
             <Row className="m-3">
-                <Col>
+                <Col className="pr-0">
                     <a download={!isOfficeFile} href={getDownloadUrl()}>
                         <Icon {...getFileTypeIconProps({ extension: extension, size: 20, imageFileType: 'png' })} className="show-overflow" />
                         <span className="align-middle">{' '}{props.document.Name}</span>
                     </a>
-                    {isOfficeFile &&
-                        <a download href={props.document.LinkUrl}>
-                            <span className="align-middle ml-3">Download</span>
-                        </a>
-                    }
                     <ConfirmPopover
                         show={showDeletePopover}
                         target={deleteTarget}
@@ -63,6 +58,9 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
                         handleClose={() => setShowDeletePopover(false)}
                     />
                     <IconButton className="float-right" iconProps={{ iconName: "Cancel" }} onClick={deleteIconOnclick} />
+                    <a download href={props.document.LinkUrl} className="float-right align-middle">
+                        <IconButton className="float-right" iconProps={{ iconName: "Download" }} />
+                    </a>
                     <p className="mb-0">Last Updated By: {props.document.ModifiedBy.Title} on {props.document.Modified.toLocaleString(DateTime.DATETIME_MED)}</p>
                 </Col>
             </Row>
