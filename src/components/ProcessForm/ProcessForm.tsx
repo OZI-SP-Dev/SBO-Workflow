@@ -235,7 +235,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                             <Form.Control
                                 type="text"
                                 value={'$' + process.ContractValueDollars}
-                                onChange={e => updateContractValue(e.target.value.substr(1))}
+                                // check if the dollar sign is there in case the tabbed into the field and it erased it
+                                onChange={e => updateContractValue(e.target.value.startsWith('$') ? e.target.value.substr(1) : e.target.value)}
                                 isInvalid={validation && validation.ContractValueDollarsError !== ""}
                             />
                             <Form.Control.Feedback type="invalid">

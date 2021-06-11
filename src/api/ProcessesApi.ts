@@ -96,7 +96,6 @@ export default class ProcessesApi implements IProcessesApi {
 
     private userApi = UserApiConfig.getApi();
     private notesApi = NotesApiConfig.getApi();
-    private documentsApi = DocumentsApiConfig.getApi();
     private processesList = spWebContext.lists.getByTitle("Processes");
     private dd2579ContentTypeId: string | undefined;
     private ispContentTypeId: string | undefined;
@@ -167,6 +166,7 @@ export default class ProcessesApi implements IProcessesApi {
             // Must check if there is already a folder with that name because the add folder function will overwrite it
             const duplicateProcesses: { Id: number, SolicitationNumber: string, IsDeleted: boolean }[] =
                 await this.processesList.items.select("Id", "SolicitationNumber", "IsDeleted").filter(`SolicitationNumber eq '${process.SolicitationNumber}'`).get();
+            // If the duplicate process was marked as deleted then delete all notes and files for the old one
             if (duplicateProcesses.some(p => p.IsDeleted)) {
                 let deleteNotesPromise = this.notesApi.deleteNotesForProcess(duplicateProcesses[0].Id);
                 let deleteFilesPromises: Promise<any>[] = [];
@@ -177,7 +177,7 @@ export default class ProcessesApi implements IProcessesApi {
                 for (let deleteFilesPromise of deleteFilesPromises) {
                     await deleteFilesPromise;
                 }
-            } else {
+            } else if (duplicateProcesses.length > 0) {
                 throw new DuplicateEntryError("A Process has already been created with this Solicitation Number!");
             }
 
