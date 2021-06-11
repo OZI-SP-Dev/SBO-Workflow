@@ -169,7 +169,14 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                         <NotesView className="mt-5" notes={processDetails.notes} submitNote={processDetails.submitNote} />
                     </Col>
                     <Col>
-                        <DocumentsView documents={processDetails.documents} loading={processDetails.loading} submitDocument={processDetails.submitDocument} getUpdatedDocuments={processDetails.getUpdatedDocuments} deleteDocument={processDetails.deleteDocument} />
+                        <DocumentsView
+                            documents={processDetails.documents}
+                            loading={processDetails.loading}
+                            readOnly={processDetails.loading || process?.CurrentStage === Stages.COMPLETED}
+                            submitDocument={processDetails.submitDocument}
+                            getUpdatedDocuments={processDetails.getUpdatedDocuments}
+                            deleteDocument={processDetails.deleteDocument}
+                        />
                     </Col>
                 </Row>
                 <SBOSpinner show={processDetails.loading} displayText="Loading Process..." />
