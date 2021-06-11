@@ -129,7 +129,7 @@ export function usePagedProcesses(): IPagedProcesses {
             p.CurrentAssignee = await buyer;
             let submittedProcess = await processesApi.submitProcess(p);
             if (p.Buyer.Id !== (await userApi.getCurrentUser()).Id) {
-                email.sendSubmitEmail(p);
+                email.sendSubmitEmail(submittedProcess);
             }
             let pages = [...processes];
             pages[0].results.unshift(submittedProcess);

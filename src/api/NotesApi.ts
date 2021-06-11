@@ -20,6 +20,13 @@ export interface INotesApi {
      * @param process The IProcess that the INote is associated with.
      */
     submitNote(text: string, process: IProcess): Promise<INote>
+
+    /**
+     * Deletes all of the INotes for the given IProcess.
+     * 
+     * @param process The IProcess that the INotes are associated with.
+     */
+    deleteNotesForProcess(processId: number): Promise<void>,
 }
 
 /**
@@ -87,6 +94,21 @@ export default class NotesApi implements INotesApi {
             throw getAPIError(e, `Error occurred while trying to submit a Note for the Process ${process.SolicitationNumber}`);
         }
     }
+
+    deleteNotesForProcess = async (processId: number) => {
+        try {
+            let deleteNotesPromises: Promise<any>[] = [];
+            let notes: {Id: number}[] = await this.notesList.items.select("Id").filter(`ProcessId eq ${processId}`).get();
+            for (let note of notes) {
+                deleteNotesPromises.push(this.notesList.items.getById(note.Id).delete());
+            }
+            for (const deleteNotePromise of deleteNotesPromises) {
+                await deleteNotePromise;
+            }
+        } catch (e) {
+            throw getAPIError(e, `Error occurred while trying to delete the Notes for the Process with ID ${processId}`);
+        }
+    }
 }
 
 export class NotesApiDev implements INotesApi {
@@ -135,7 +157,7 @@ export class NotesApiDev implements INotesApi {
             EMail: "me@example.com"
         }),
         Modified: DateTime.local()
-    }]
+    }];
 
     fetchNotesForProcess = async (process: IProcess): Promise<INote[]> => {
         await sleep();
@@ -153,6 +175,11 @@ export class NotesApiDev implements INotesApi {
         };
         this.notes.push(note);
         return note;
+    }
+
+    deleteNotesForProcess = async (processId: number): Promise<void> => {
+        await sleep();
+        this.notes = this.notes.filter(note => note.ProcessId !== processId);
     }
 }
 

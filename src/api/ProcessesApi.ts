@@ -3,12 +3,14 @@ import "@pnp/sp/content-types/list";
 import "@pnp/sp/files/folder";
 import "@pnp/sp/files/web";
 import "@pnp/sp/folders";
-import "@pnp/sp/lists";
 import { PagedItemCollection } from "@pnp/sp/items";
+import "@pnp/sp/lists";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
+import { DocumentsApiConfig } from "./DocumentsApi";
 import { IPerson, IProcess, isIPerson, ParentOrgs, Person, ProcessTypes, SetAsideRecommendations, Stages } from "./DomainObjects";
 import { DuplicateEntryError, getAPIError } from "./InternalErrors";
+import { NotesApiConfig } from "./NotesApi";
 import ProcessesApiDev from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
 
@@ -93,6 +95,7 @@ export interface IProcessesApi {
 export default class ProcessesApi implements IProcessesApi {
 
     private userApi = UserApiConfig.getApi();
+    private notesApi = NotesApiConfig.getApi();
     private processesList = spWebContext.lists.getByTitle("Processes");
     private dd2579ContentTypeId: string | undefined;
     private ispContentTypeId: string | undefined;
@@ -161,26 +164,39 @@ export default class ProcessesApi implements IProcessesApi {
             }
 
             // Must check if there is already a folder with that name because the add folder function will overwrite it
-            if ((await this.processesList.items.select("SolicitationNumber").filter(`SolicitationNumber eq '${process.SolicitationNumber}' and IsDeleted ne 1`).get()).length === 0) {
-                const fileName = process.ProcessType === ProcessTypes.DD2579 ? "dd2579.pdf" : "Draft_ISP_Checklist.docx";
-
-                let newFolder = await sp.web.lists.getByTitle("Processes").rootFolder.folders.add(process.SolicitationNumber);
-
-                let fileCopyPromise = sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`)
-                    .copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, true, false);
-
-                let folderFields = newFolder.folder.listItemAllFields();
-                let updatePromise = this.processesList.items.getById((await folderFields).Id).update({
-                    ContentTypeId: process.ProcessType === ProcessTypes.DD2579 ? this.dd2579ContentTypeId : this.ispContentTypeId,
-                    ...processToSubmitProcess(process)
-                });
-
-                await fileCopyPromise;
-
-                return { ...process, Id: (await folderFields).Id, Modified: DateTime.local(), Created: DateTime.local(), "odata.etag": (await updatePromise).data["odata.etag"] };
-            } else {
+            const duplicateProcesses: { Id: number, SolicitationNumber: string, IsDeleted: boolean }[] =
+                await this.processesList.items.select("Id", "SolicitationNumber", "IsDeleted").filter(`SolicitationNumber eq '${process.SolicitationNumber}'`).get();
+            // If the duplicate process was marked as deleted then delete all notes and files for the old one
+            if (duplicateProcesses.some(p => p.IsDeleted)) {
+                let deleteNotesPromise = this.notesApi.deleteNotesForProcess(duplicateProcesses[0].Id);
+                let deleteFilesPromises: Promise<any>[] = [];
+                for (let file of await sp.web.getFolderByServerRelativePath(`Processes/${process.SolicitationNumber}`).files.get()) {
+                    deleteFilesPromises.push(sp.web.getFolderByServerRelativePath(`Processes/${process.SolicitationNumber}`).files.getByName(file.Name).delete());
+                }
+                await deleteNotesPromise;
+                for (let deleteFilesPromise of deleteFilesPromises) {
+                    await deleteFilesPromise;
+                }
+            } else if (duplicateProcesses.length > 0) {
                 throw new DuplicateEntryError("A Process has already been created with this Solicitation Number!");
             }
+
+            const fileName = process.ProcessType === ProcessTypes.DD2579 ? "dd2579.pdf" : "Draft_ISP_Checklist.docx";
+
+            let newFolder = await sp.web.lists.getByTitle("Processes").rootFolder.folders.add(process.SolicitationNumber);
+
+            let fileCopyPromise = sp.web.getFileByUrl(`${_spPageContextInfo.webAbsoluteUrl}/app/${fileName}`)
+                .copyByPath(`${_spPageContextInfo.webAbsoluteUrl}/Processes/${process.SolicitationNumber}/${process.SolicitationNumber}-${fileName}`, true, false);
+
+            let folderFields = newFolder.folder.listItemAllFields();
+            let updatePromise = this.processesList.items.getById((await folderFields).Id).update({
+                ContentTypeId: process.ProcessType === ProcessTypes.DD2579 ? this.dd2579ContentTypeId : this.ispContentTypeId,
+                ...processToSubmitProcess(process)
+            });
+
+            await fileCopyPromise;
+
+            return { ...process, Id: (await folderFields).Id, Modified: DateTime.local(), Created: DateTime.local(), "odata.etag": (await updatePromise).data["odata.etag"] };
         } catch (e) {
             throw getAPIError(e, `Error occurred while trying to submit a new Process ${process.SolicitationNumber}`);
         }
