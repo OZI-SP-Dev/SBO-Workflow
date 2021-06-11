@@ -8,6 +8,7 @@ import { ConfirmPopover } from "../Popover/ConfirmPopover";
 
 export interface IDocumentViewProps {
     document: IDocument,
+    readOnly: boolean,
     deleteDocument: (fileName: string) => Promise<void>
 }
 
@@ -47,7 +48,7 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
                         <Icon {...getFileTypeIconProps({ extension: extension, size: 20, imageFileType: 'png' })} className="show-overflow" />
                         <span className="align-middle">{' '}{props.document.Name}</span>
                     </a>
-                    <ConfirmPopover
+                    {!props.readOnly && <ConfirmPopover
                         show={showDeletePopover}
                         target={deleteTarget}
                         variant="danger"
@@ -56,8 +57,8 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
                         placement="left"
                         onSubmit={() => props.deleteDocument(props.document.Name)}
                         handleClose={() => setShowDeletePopover(false)}
-                    />
-                    <IconButton className="float-right" iconProps={{ iconName: "Cancel" }} onClick={deleteIconOnclick} />
+                    />}
+                    {!props.readOnly && <IconButton className="float-right" iconProps={{ iconName: "Cancel" }} onClick={deleteIconOnclick} />}
                     <a download href={props.document.LinkUrl} className="float-right align-middle">
                         <IconButton className="float-right" iconProps={{ iconName: "Download" }} />
                     </a>

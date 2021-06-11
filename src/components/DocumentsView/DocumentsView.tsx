@@ -8,6 +8,7 @@ import { DocumentView } from "./DocumentView";
 
 export interface IDocumentsViewProps {
     documents: IDocument[],
+    readOnly: boolean,
     loading: boolean,
     submitDocument: (file: File) => Promise<IDocument | undefined>,
     getUpdatedDocuments: () => Promise<IDocument[] | undefined>,
@@ -25,7 +26,7 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => 
     }
 
     const fileInputOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
+        if (e.target.files && !props.readOnly) {
             setUploading(true);
             setFile(e.target.files[0]);
             e.target.files = null;
@@ -34,7 +35,7 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => 
     }
 
     const submitDocument = async () => {
-        if (file) {
+        if (file && !props.readOnly) {
             try {
                 await props.submitDocument(file);
             } finally {
@@ -68,13 +69,13 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (props) => 
     return (
         <>
             <h5 className="ml-3 mb-3">Documents</h5>
-            <input id="sbo-process-document-input" type="file" className="hidden" onChange={fileInputOnChange} />
-            {!props.loading &&
+            {!props.readOnly && <input id="sbo-process-document-input" type="file" className="hidden" onChange={fileInputOnChange} />}
+            {(!props.loading && !props.readOnly) &&
                 <Button className="ml-3 mb-3 sbo-button" disabled={uploading} onClick={fileInputOnClick}>
                     <Icon iconName="Upload" /><br />
                     {uploading && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}{' '}{uploading ? "Uploading" : "Upload"}
                 </Button>}
-            { props.documents.map(doc => <Col key={doc.Name} className="mb-3 pr-0"><DocumentView document={doc} deleteDocument={props.deleteDocument} /></Col>)}
+            {props.documents.map(doc => <Col key={doc.Name} className="mb-3 pr-0"><DocumentView document={doc} readOnly={props.readOnly} deleteDocument={props.deleteDocument} /></Col>)}
             <SubmittableModal
                 modalTitle="Overwrite File"
                 show={showConfirmOverwritePopover}
