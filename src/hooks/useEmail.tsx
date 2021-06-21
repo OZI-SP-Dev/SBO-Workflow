@@ -43,7 +43,7 @@ export function useEmail(): IEmailSender {
         When you are done, Send to CO Initial Review.
         
         
-        Link to procurement: ${emailApi.siteUrl}/app/index.aspx#/Processes/View/${process.Id}
+        Link to procurement: ${emailApi.siteUrl}/app/index.aspx?route=%23%2FProcesses%2FView%2F${process.Id}
         
         Record will only be available for 90 days.`;
 
@@ -59,7 +59,7 @@ export function useEmail(): IEmailSender {
         When you are done, ${nextStageText(process)}.
         
         ${noteText ? "Notes: " + noteText : ""}
-        Link to procurement: ${emailApi.siteUrl}/app/index.aspx#/Processes/View/${process.Id}
+        Link to procurement: ${emailApi.siteUrl}/app/index.aspx?route=%23%2FProcesses%2FView%2F${process.Id}
         
         Record will only be available for 90 days.`;
 
@@ -75,7 +75,7 @@ export function useEmail(): IEmailSender {
         When you are done, ${nextStageText(process)}.
         
         ${"Notes: " + noteText + "<br/>"}
-        Link to procurement: ${emailApi.siteUrl}/app/index.aspx#/Processes/View/${process.Id}
+        Link to procurement: ${emailApi.siteUrl}/app/index.aspx?route=%23%2FProcesses%2FView%2F${process.Id}
         
         Record will only be available for 90 days.`;
 
