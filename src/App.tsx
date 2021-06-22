@@ -6,12 +6,14 @@ import { AppHeader } from './components/AppHeader/AppHeader';
 import { ErrorList } from './components/ErrorList/ErrorList';
 import { Help } from './components/Help/Help';
 import { ProcessesRoute } from './components/ProcessesRoute/ProcessesRoute';
+import { RouteParamRedirect } from './components/RouteParamRedirect/RouteParamRedirect';
 
 export const App: FunctionComponent = () => {
 
   return (
     <div className="App">
       <HashRouter>
+        <RouteParamRedirect />
         <Container fluid className="p-0 mt-5">
           <AppHeader />
           <ErrorList />
