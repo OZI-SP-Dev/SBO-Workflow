@@ -34,10 +34,9 @@ export class ProcessValidation {
         return "";
     }
 
-    private static getSolicitationNumberValidation(field: string): string {
-        /* Check the Solicitation Number for:
-            1) Invalid characters --  https://support.microsoft.com/en-us/office/restrictions-and-limitations-in-onedrive-and-sharepoint-64883a5d-228e-48f5-b3d2-eb39e07630fa#invalidcharacters
-            2) Length using getSingleLineValidation
+    private static getRestrictSpecialCharacterValidation(field: string): string {
+        /* Ensure value doesn't contain special characters:
+            https://support.microsoft.com/en-us/office/restrictions-and-limitations-in-onedrive-and-sharepoint-64883a5d-228e-48f5-b3d2-eb39e07630fa#invalidcharacters
         */
 
         const regex = new RegExp(/[#%"*:<>?/\\|]/);
@@ -48,14 +47,13 @@ export class ProcessValidation {
         }
         else
         {
-            // Doesn't contain invalid characters so proceed with length check
-            return this.getSingleLineValidation(field, 255)
+              return "";
         }
     }
 
     static validateProcess(process: IProcess, orgs: IOrg[]): IProcessValidation {
         let validation: IProcessValidation = {
-            SolicitationNumberError: this.getSolicitationNumberValidation(process.SolicitationNumber),
+            SolicitationNumberError: this.getRestrictSpecialCharacterValidation(process.SolicitationNumber) || this.getSingleLineValidation(process.SolicitationNumber, 255),
             ProgramNameError: this.getSingleLineValidation(process.ProgramName, 255),
             OrgError: orgs.find(org => org.Title === process.Org && org.ParentOrg === process.ParentOrg) ? "" : "Please select the Buyer's Organization from the given dropdown list!",
             BuyerError: process.Buyer && process.Buyer.Title ? "" : `Please provide the Buyer for this ${process.ProcessType} Process!`,
