@@ -41,11 +41,13 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
     }, [props.editProcess]);
 
     const submitForm = async () => {
+        let trimmedProcess = { ...process, SolicitationNumber: process.SolicitationNumber.trim() };
+        setProcess(trimmedProcess);
         const processValidation = ProcessValidation.validateProcess(process, orgs ? orgs : []);
         if (processValidation.IsErrored) {
             setValidation(processValidation);
         } else {
-            await props.submit(process);
+            await props.submit(trimmedProcess);
             closeForm();
         }
     }
