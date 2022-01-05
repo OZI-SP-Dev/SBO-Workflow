@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.0.2] 2021-01-05
+### Fixed
+- Solicitation number special character restrictions added to prevent # % " * : < > ? / \ |
+
 ## [0.0.1] 2020-12-16
 ### Added
 - Page Header and placeholder routes

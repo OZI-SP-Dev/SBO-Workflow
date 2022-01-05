@@ -34,9 +34,26 @@ export class ProcessValidation {
         return "";
     }
 
+    private static getRestrictSpecialCharacterValidation(field: string): string {
+        /* Ensure value doesn't contain special characters:
+            https://support.microsoft.com/en-us/office/restrictions-and-limitations-in-onedrive-and-sharepoint-64883a5d-228e-48f5-b3d2-eb39e07630fa#invalidcharacters
+        */
+
+        const regex = new RegExp(/[#%"*:<>?/\\|]/);
+
+        if (regex.test(field))
+        {
+            return "Please remove any of the following special characters: # % \" * : < > ? / \\ |"
+        }
+        else
+        {
+              return "";
+        }
+    }
+
     static validateProcess(process: IProcess, orgs: IOrg[]): IProcessValidation {
         let validation: IProcessValidation = {
-            SolicitationNumberError: this.getSingleLineValidation(process.SolicitationNumber, 255),
+            SolicitationNumberError: this.getRestrictSpecialCharacterValidation(process.SolicitationNumber) || this.getSingleLineValidation(process.SolicitationNumber, 255),
             ProgramNameError: this.getSingleLineValidation(process.ProgramName, 255),
             OrgError: orgs.find(org => org.Title === process.Org && org.ParentOrg === process.ParentOrg) ? "" : "Please select the Buyer's Organization from the given dropdown list!",
             BuyerError: process.Buyer && process.Buyer.Title ? "" : `Please provide the Buyer for this ${process.ProcessType} Process!`,

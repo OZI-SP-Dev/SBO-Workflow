@@ -1,7 +1,7 @@
 {
   "name": "sbo-workflow",
   "homepage": ".",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "@fluentui/react": "^7.121.5",
@@ -39,6 +39,7 @@
     "build": "react-scripts build&&npm run mergeaspx",
     "test": "react-scripts test",
     "build:uat": "env-cmd -f ./.env.uat.json react-scripts build&&npm run mergeaspx",
+    "start:uat": "env-cmd -f ./.env.uat.json react-scripts start",
     "mergeaspx": "concat -o build/index.aspx build/index.aspx build/index.html"
   },
   "eslintConfig": {
