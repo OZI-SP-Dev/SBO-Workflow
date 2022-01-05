@@ -1,7 +1,7 @@
 {
   "name": "sbo-workflow",
   "homepage": ".",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "@fluentui/react": "^7.121.5",
