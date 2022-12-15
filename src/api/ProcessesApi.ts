@@ -227,8 +227,7 @@ export default class ProcessesApi implements IProcessesApi {
           "CurrentAssignee",
           "SBAPCR"
         );
-      let queryString =
-        "(ContentType eq 'SBODD2579' or ContentType eq 'SBOISPForm') and IsDeleted ne 1";
+      let queryString = "ContentType ne 'Document' and IsDeleted ne 1";
       for (let filter of filters) {
         if (isDateRange(filter.filterValue)) {
           if (filter.filterValue.start !== null) {
