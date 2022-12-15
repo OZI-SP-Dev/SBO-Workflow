@@ -228,9 +228,7 @@ export default class ProcessesApi implements IProcessesApi {
           "SBAPCR"
         );
       let queryString =
-        (filters.findIndex((f) => f.fieldName === "ProcessType") < 0
-          ? "(ProcessType eq 'DD2579' or ProcessType eq 'ISP')"
-          : "") + " and IsDeleted ne 1";
+        "(ContentType eq 'SBODD2579' or ContentType eq 'SBOISPForm') and IsDeleted ne 1";
       for (let filter of filters) {
         if (isDateRange(filter.filterValue)) {
           if (filter.filterValue.start !== null) {
