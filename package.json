@@ -22,7 +22,7 @@
     "core-js": "^3.11.0",
     "dompurify": "^2.2.6",
     "env-cmd": "^10.1.0",
-    "luxon": "^1.26.0",
+    "luxon": "^1.28.1",
     "proxy-polyfill": "^0.3.2",
     "react": "^17.0.1",
     "react-app-polyfill": "^2.0.0",
