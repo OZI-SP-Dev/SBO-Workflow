@@ -7,7 +7,6 @@ import { PagedItemCollection } from "@pnp/sp/items";
 import "@pnp/sp/lists";
 import { DateTime } from "luxon";
 import { spWebContext } from "../providers/SPWebContext";
-import { DocumentsApiConfig } from "./DocumentsApi";
 import {
   IPerson,
   IProcess,
