@@ -1,11 +1,5 @@
 import { Icon } from "@fluentui/react";
-import React, {
-  ChangeEvent,
-  FunctionComponent,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { ChangeEvent, FunctionComponent, useRef, useState } from "react";
 import { Button, Col, Spinner } from "react-bootstrap";
 import { IDocument } from "../../api/DocumentsApi";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
@@ -29,49 +23,46 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (
   const [showConfirmOverwritePopover, setShowConfirmOverwritePopover] =
     useState<boolean>(false);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const fileInputOnClick = () => {
-    document.getElementById("sbo-process-document-input")?.click();
+    inputRef?.current?.click();
   };
 
   const fileInputOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && !props.readOnly) {
       setUploading(true);
-      setFile(e.target.files[0]);
+      const saveFile = e.target.files[0];
       e.target.files = null;
       e.target.value = "";
-    }
-  };
 
-  const submitDocument = useCallback(async () => {
-    if (file && !props.readOnly) {
-      try {
-        await props.submitDocument(file);
-      } finally {
-        // reset file input so that a file with the same name can be used again
-        closeOverwriteModal();
-      }
-    }
-  }, [file, props]);
-
-  const closeOverwriteModal = () => {
-    setUploading(false);
-    setFile(undefined);
-    setShowConfirmOverwritePopover(false);
-  };
-
-  useEffect(() => {
-    const checkDuplicateFile = async () => {
       let updatedDocuments = await props.getUpdatedDocuments();
-      if (updatedDocuments?.find((doc) => doc.Name === file?.name)) {
+      if (updatedDocuments?.find((doc) => doc.Name === saveFile?.name)) {
+        setFile(saveFile);
         setShowConfirmOverwritePopover(true);
       } else {
-        submitDocument();
+        try {
+          await props.submitDocument(saveFile);
+        } finally {
+          // reset file input so that a file with the same name can be used again
+          closeOverwriteModal();
+        }
       }
-    };
-    if (file) {
-      checkDuplicateFile();
     }
-  }, [file, props, submitDocument]);
+  };
+
+  const closeOverwriteModal = () => {
+    setShowConfirmOverwritePopover(false);
+    setUploading(false);
+    setFile(undefined);
+  };
+
+  const overWriteFile = async () => {
+    if (file) {
+      await props.submitDocument(file);
+    }
+    closeOverwriteModal();
+  };
 
   return (
     <>
@@ -79,6 +70,7 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (
       {!props.readOnly && (
         <input
           id="sbo-process-document-input"
+          ref={inputRef}
           type="file"
           className="hidden"
           onChange={fileInputOnChange}
@@ -121,7 +113,7 @@ export const DocumentsView: FunctionComponent<IDocumentsViewProps> = (
         size="sm"
         closeOnClickOutside
         handleClose={closeOverwriteModal}
-        submit={submitDocument}
+        submit={overWriteFile}
       >
         <p>
           Are you sure you want to overwrite the file{file && " " + file.name}?
