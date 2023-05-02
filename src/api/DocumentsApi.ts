@@ -1,6 +1,8 @@
 import { sp } from "@pnp/sp";
+import "@pnp/sp/webs";
+import "@pnp/sp/folders";
+import "@pnp/sp/files/folder";
 import { DateTime } from "luxon";
-import { spWebContext, webUrl } from "../providers/SPWebContext";
 import { IPerson, IProcess, Person } from "./DomainObjects";
 import { getAPIError } from "./InternalErrors";
 import { sleep } from "./ProcessesApiDev";
@@ -44,30 +46,25 @@ export default class DocumentsApi implements IDocumentsApi {
     process: IProcess
   ): Promise<IDocument[]> => {
     try {
-      const listUri = `${new URL(webUrl).pathname}/Processes`;
-      return (
-        await spWebContext
-          .getList(listUri)
-          .items.select(
-            "FileLeafRef",
-            "Modified",
-            "ServerUrl",
-            "Editor/Id",
-            "Editor/Title",
-            "Editor/EMail",
-            "UniqueId"
-          )
-          .expand("Editor")
-          .filter(
-            `FileDirRef eq '${listUri}/${process.SolicitationNumber}' and ContentType eq 'Document'`
-          )
-          .get()
-      ).map((file: any) => {
+      const path = "Processes/" + process.SolicitationNumber;
+      const files = await sp.web
+        .getFolderByServerRelativePath(path)
+        .files.select(
+          "Name",
+          "TimeLastModified",
+          "ServerRelativeUrl",
+          "ModifiedBy",
+          "UniqueId"
+        )
+        .expand("ModifiedBy")
+        .get();
+
+      return files.map((file: any) => {
         return {
-          Name: file.FileLeafRef,
-          ModifiedBy: new Person(file.Editor),
-          Modified: DateTime.fromISO(file.Modified),
-          LinkUrl: file.ServerUrl,
+          Name: file.Name,
+          ModifiedBy: new Person(file.ModifiedBy),
+          Modified: DateTime.fromISO(file.TimeLastModified),
+          LinkUrl: file.ServerRelativeUrl,
           UniqueId: file.UniqueId,
         };
       });
