@@ -143,13 +143,28 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                 <InfoTooltip
                   id="sbo-send"
                   trigger={
-                    <Icon
+                    <button
+                      type="button"
+                      name="Send"
+                      tabIndex={1}
+                      disabled={sendDisabled}
+                      className="orange"
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        borderRadius: "50%",
+                      }}
                       onClick={() => actionOnClick("Send")}
-                      iconName="NavigateForward"
-                      className={`sbo-details-icon ${
-                        sendDisabled ? "disabled" : ""
-                      }`}
-                    />
+                    >
+                      <Icon
+                        aria-label="Send"
+                        role="img"
+                        iconName="NavigateForward"
+                        className={`sbo-details-icon ${
+                          sendDisabled ? "disabled" : ""
+                        }`}
+                      />
+                    </button>
                   }
                 >
                   Send
@@ -165,13 +180,28 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                 <InfoTooltip
                   id="sbo-rework"
                   trigger={
-                    <Icon
+                    <button
+                      type="button"
+                      name="Rework"
+                      tabIndex={2}
+                      disabled={reworkDisabled}
+                      className="orange"
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        borderRadius: "50%",
+                      }}
                       onClick={() => actionOnClick("Rework")}
-                      iconName="NavigateBack"
-                      className={`sbo-details-icon ${
-                        reworkDisabled ? "disabled" : ""
-                      }`}
-                    />
+                    >
+                      <Icon
+                        aria-label="Rework"
+                        role="img"
+                        iconName="NavigateBack"
+                        className={`sbo-details-icon ${
+                          reworkDisabled ? "disabled" : ""
+                        }`}
+                      />
+                    </button>
                   }
                 >
                   Rework
@@ -187,13 +217,28 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                 <InfoTooltip
                   id="sbo-edit"
                   trigger={
-                    <Icon
+                    <button
+                      type="button"
+                      name="Edit"
+                      tabIndex={3}
+                      disabled={editDisabled}
+                      className="blue"
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        borderRadius: "50%",
+                      }}
                       onClick={() => actionOnClick("Edit")}
-                      iconName="Edit"
-                      className={`sbo-details-icon ${
-                        editDisabled ? "disabled" : ""
-                      }`}
-                    />
+                    >
+                      <Icon
+                        aria-label="Edit"
+                        role="img"
+                        iconName="Edit"
+                        className={`sbo-details-icon ${
+                          editDisabled ? "disabled" : ""
+                        }`}
+                      />
+                    </button>
                   }
                 >
                   Edit
@@ -209,13 +254,28 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                 <InfoTooltip
                   id="sbo-delete"
                   trigger={
-                    <Icon
+                    <button
+                      type="button"
+                      name="Delete"
+                      tabIndex={4}
+                      disabled={deleteDisabled}
+                      className="red"
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        borderRadius: "50%",
+                      }}
                       onClick={() => actionOnClick("Delete")}
-                      iconName="Delete"
-                      className={`sbo-details-icon ${
-                        deleteDisabled ? "disabled" : ""
-                      }`}
-                    />
+                    >
+                      <Icon
+                        aria-label="Delete"
+                        role="img"
+                        iconName="Delete"
+                        className={`sbo-details-icon ${
+                          deleteDisabled ? "disabled" : ""
+                        }`}
+                      />
+                    </button>
                   }
                 >
                   Delete
