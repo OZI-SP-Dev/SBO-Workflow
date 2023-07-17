@@ -111,6 +111,7 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
               className="float-right"
               iconProps={{ iconName: "Cancel" }}
               onClick={deleteIconOnclick}
+              aria-label="Delete"
             />
           )}
           <a
@@ -121,6 +122,7 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
             <IconButton
               className="float-right"
               iconProps={{ iconName: "Download" }}
+              aria-label="Add a Note"
             />
           </a>
           <p className="mb-0">
