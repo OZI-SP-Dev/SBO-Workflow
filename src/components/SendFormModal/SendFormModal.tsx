@@ -163,6 +163,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                   "undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent link",
               }}
               onEditorChange={(content) => setNoteText(content)}
+              id="formNotes"
             />
           </Form.Group>
         </div>
