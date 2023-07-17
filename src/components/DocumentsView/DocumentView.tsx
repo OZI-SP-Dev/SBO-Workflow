@@ -94,37 +94,35 @@ export const DocumentView: FunctionComponent<IDocumentViewProps> = (props) => {
             />
             <span className="align-middle"> {props.document.Name}</span>
           </a>
-          {!props.readOnly && (
-            <ConfirmPopover
-              show={showDeletePopover}
-              target={deleteTarget}
-              variant="danger"
-              titleText="Delete Document"
-              confirmationText="Are you sure you want to delete this document?"
-              placement="left"
-              onSubmit={() => props.deleteDocument(props.document.Name)}
-              handleClose={() => setShowDeletePopover(false)}
-            />
-          )}
-          {!props.readOnly && (
+          <span className="float-right">
+            {!props.readOnly && (
+              <ConfirmPopover
+                show={showDeletePopover}
+                target={deleteTarget}
+                variant="danger"
+                titleText="Delete Document"
+                confirmationText="Are you sure you want to delete this document?"
+                placement="left"
+                onSubmit={() => props.deleteDocument(props.document.Name)}
+                handleClose={() => setShowDeletePopover(false)}
+              />
+            )}
             <IconButton
-              className="float-right"
-              iconProps={{ iconName: "Cancel" }}
-              onClick={deleteIconOnclick}
-              aria-label="Delete"
-            />
-          )}
-          <a
-            download
-            href={props.document.LinkUrl}
-            className="float-right align-middle"
-          >
-            <IconButton
-              className="float-right"
+              download
+              href={props.document.LinkUrl}
+              className="align-middle"
               iconProps={{ iconName: "Download" }}
-              aria-label="Add a Note"
+              aria-label="Download"
             />
-          </a>
+            {!props.readOnly && (
+              <IconButton
+                className="align-middle"
+                iconProps={{ iconName: "Cancel" }}
+                onClick={deleteIconOnclick}
+                aria-label="Delete"
+              />
+            )}
+          </span>
           <p className="mb-0">
             Last Updated By: {props.document.ModifiedBy.Title} on{" "}
             {props.document.Modified.toLocaleString(DateTime.DATETIME_MED)}
