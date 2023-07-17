@@ -187,29 +187,40 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
             />
           </Col>
         </Form.Group>
-        <Form.Group as={Row} controlId="formSBO">
-          <Col xl="6">
-            <Form.Label className="required">
-              <strong>Small Business Office</strong>
-            </Form.Label>
-            <InfoTooltip id="office">
-              Center of your Small Business Specialist
-            </InfoTooltip>
-          </Col>
-          <Col xl="6">
-            {Object.values(ParentOrgs).map((org) => (
-              <Form.Check
-                key={org}
-                inline
-                label={org}
-                type="radio"
-                id={`${org}-radio`}
-                checked={process.ParentOrg === org}
-                onChange={() => setProcess({ ...process, ParentOrg: org })}
-              />
-            ))}
-          </Col>
-        </Form.Group>
+        <fieldset>
+          <Form.Group as={Row}>
+            <Col xl="6">
+              <Form.Label
+                className="required"
+                as="legend"
+                style={{
+                  fontSize: "1rem",
+                  width: "fit-content",
+                  float: "left",
+                }}
+              >
+                <strong>Small Business Office</strong>
+              </Form.Label>
+              <InfoTooltip id="office">
+                Center of your Small Business Specialist
+              </InfoTooltip>
+            </Col>
+            <Col xl="6">
+              {Object.values(ParentOrgs).map((org) => (
+                <Form.Check
+                  key={org}
+                  inline
+                  name="formSBO"
+                  label={org}
+                  type="radio"
+                  id={`${org}-radio`}
+                  checked={process.ParentOrg === org}
+                  onChange={() => setProcess({ ...process, ParentOrg: org })}
+                />
+              ))}
+            </Col>
+          </Form.Group>
+        </fieldset>
         <Form.Group as={Row} controlId="formBuyerOrg">
           <Col xl="6">
             <Form.Label className="required">
