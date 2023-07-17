@@ -146,7 +146,6 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                     <button
                       type="button"
                       name="Send"
-                      tabIndex={1}
                       disabled={sendDisabled}
                       className="orange"
                       style={{
@@ -183,7 +182,6 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                     <button
                       type="button"
                       name="Rework"
-                      tabIndex={2}
                       disabled={reworkDisabled}
                       className="orange"
                       style={{
@@ -220,7 +218,6 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                     <button
                       type="button"
                       name="Edit"
-                      tabIndex={3}
                       disabled={editDisabled}
                       className="blue"
                       style={{
@@ -257,7 +254,6 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
                     <button
                       type="button"
                       name="Delete"
-                      tabIndex={4}
                       disabled={deleteDisabled}
                       className="red"
                       style={{
