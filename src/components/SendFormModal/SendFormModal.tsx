@@ -130,6 +130,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
             }}
             required
             isInvalid={submitAttempted && assignee === undefined}
+            id="personSelect"
           />
           {submitAttempted && assignee === undefined && (
             <Form.Control.Feedback type="invalid">

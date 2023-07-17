@@ -255,6 +255,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               }}
               required
               isInvalid={validation && validation.BuyerError !== ""}
+              id="formBuyer"
             />
             <Form.Control.Feedback type="invalid">
               {validation ? validation.BuyerError : ""}
@@ -288,6 +289,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               isInvalid={
                 validation && validation.ContractingOfficerError !== ""
               }
+              id="formCO"
             />
             <Form.Control.Feedback type="invalid">
               {validation ? validation.ContractingOfficerError : ""}
@@ -321,6 +323,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               isInvalid={
                 validation && validation.SmallBusinessProfessionalError !== ""
               }
+              id="formSBP"
             />
             <Form.Control.Feedback type="invalid">
               {validation ? validation.SmallBusinessProfessionalError : ""}

@@ -116,6 +116,7 @@ export const ReworkFormModal: FunctionComponent<ReworkFormModalProps> = (
             }}
             required
             isInvalid={submitAttempted && assignee === undefined}
+            id="reworkFormPersonSelect"
           />
           {submitAttempted && assignee === undefined && (
             <Form.Control.Feedback type="invalid">

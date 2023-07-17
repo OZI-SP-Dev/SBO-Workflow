@@ -29,6 +29,7 @@ interface IPeoplePickerProps {
   required?: boolean;
   itemLimit?: number;
   updatePeople: (p: IPerson[]) => void;
+  id?: string;
 }
 
 export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
@@ -154,6 +155,7 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
       itemLimit={props.itemLimit ? props.itemLimit : 1}
       onEmptyResolveSuggestions={getEmptyResolveSuggestions}
       onRemoveSuggestion={removeSuggestion}
+      inputProps={{ id: props.id }}
     />
   );
 };
