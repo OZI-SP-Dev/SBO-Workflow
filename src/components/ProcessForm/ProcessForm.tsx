@@ -1,10 +1,5 @@
-import React, {
-  FunctionComponent,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Col, Form } from "react-bootstrap";
+import { FunctionComponent, useContext, useEffect, useState } from "react";
+import { Col, Form, Row } from "react-bootstrap";
 import {
   getBlankProcess,
   getNumbersOnly,
@@ -126,7 +121,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
       submit={submitForm}
     >
       <Form className="process-form">
-        <Form.Row>
+        <Form.Group as={Row} controlId="formContractNumber">
           <Col xl="6">
             <Form.Label className="required">
               <strong>Solicitation/Contract Number</strong>
@@ -151,6 +146,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               {validation ? validation.SolicitationNumberError : ""}
             </Form.Control.Feedback>
           </Col>
+        </Form.Group>
+        <Form.Group as={Row} controlId="formProgramName">
           <Col xl="6">
             <Form.Label className="required">
               <strong>Program Name or Item Being Acquired</strong>
@@ -172,6 +169,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               {validation ? validation.ProgramNameError : ""}
             </Form.Control.Feedback>
           </Col>
+        </Form.Group>
+        <Form.Group as={Row} controlId="formSBPControl">
           <Col xl="6">
             <Form.Label>
               <strong>SBP Control Number (optional)</strong>
@@ -187,27 +186,42 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               }
             />
           </Col>
-          <Col xl="6">
-            <Form.Label className="required">
-              <strong>Small Business Office</strong>
-            </Form.Label>
-            <InfoTooltip id="office">
-              Center of your Small Business Specialist
-            </InfoTooltip>
-          </Col>
-          <Col xl="6">
-            {Object.values(ParentOrgs).map((org) => (
-              <Form.Check
-                key={org}
-                inline
-                label={org}
-                type="radio"
-                id={`${org}-radio`}
-                checked={process.ParentOrg === org}
-                onChange={() => setProcess({ ...process, ParentOrg: org })}
-              />
-            ))}
-          </Col>
+        </Form.Group>
+        <fieldset>
+          <Form.Group as={Row}>
+            <Col xl="6">
+              <Form.Label
+                className="required"
+                as="legend"
+                style={{
+                  fontSize: "1rem",
+                  width: "fit-content",
+                  float: "left",
+                }}
+              >
+                <strong>Small Business Office</strong>
+              </Form.Label>
+              <InfoTooltip id="office">
+                Center of your Small Business Specialist
+              </InfoTooltip>
+            </Col>
+            <Col xl="6">
+              {Object.values(ParentOrgs).map((org) => (
+                <Form.Check
+                  key={org}
+                  inline
+                  name="formSBO"
+                  label={org}
+                  type="radio"
+                  id={`${org}-radio`}
+                  checked={process.ParentOrg === org}
+                  onChange={() => setProcess({ ...process, ParentOrg: org })}
+                />
+              ))}
+            </Col>
+          </Form.Group>
+        </fieldset>
+        <Form.Group as={Row} controlId="formBuyerOrg">
           <Col xl="6">
             <Form.Label className="required">
               <strong>Buyer's Organization</strong>
@@ -216,6 +230,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
           <Col xl="6">
             <Form.Control
               as="select"
+              name="Org"
               value={process.Org}
               onChange={(e) => setProcess({ ...process, Org: e.target.value })}
               isInvalid={validation && validation.OrgError !== ""}
@@ -231,6 +246,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               {validation ? validation.OrgError : ""}
             </Form.Control.Feedback>
           </Col>
+        </Form.Group>
+        <Form.Group as={Row} controlId="formBuyer">
           <Col xl="6">
             <Form.Label className="required">
               <strong>Buyer</strong>
@@ -249,11 +266,14 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               }}
               required
               isInvalid={validation && validation.BuyerError !== ""}
+              id="formBuyer"
             />
             <Form.Control.Feedback type="invalid">
               {validation ? validation.BuyerError : ""}
             </Form.Control.Feedback>
           </Col>
+        </Form.Group>
+        <Form.Group as={Row} controlId="formCO">
           <Col xl="6">
             <Form.Label className="required">
               <strong>Contracting Officer</strong>
@@ -280,11 +300,14 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               isInvalid={
                 validation && validation.ContractingOfficerError !== ""
               }
+              id="formCO"
             />
             <Form.Control.Feedback type="invalid">
               {validation ? validation.ContractingOfficerError : ""}
             </Form.Control.Feedback>
           </Col>
+        </Form.Group>
+        <Form.Group as={Row} controlId="formSBP">
           <Col xl="6">
             <Form.Label className="required">
               <strong>Small Business Professional</strong>
@@ -311,11 +334,14 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               isInvalid={
                 validation && validation.SmallBusinessProfessionalError !== ""
               }
+              id="formSBP"
             />
             <Form.Control.Feedback type="invalid">
               {validation ? validation.SmallBusinessProfessionalError : ""}
             </Form.Control.Feedback>
           </Col>
+        </Form.Group>
+        <Form.Group as={Row} controlId="formPOP">
           <Col xl="6">
             <Form.Label className="required">
               <strong>PoP (months, including options)</strong>
@@ -338,6 +364,8 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               {validation ? validation.SboDurationError : ""}
             </Form.Control.Feedback>
           </Col>
+        </Form.Group>
+        <Form.Group as={Row} controlId="formContractValue">
           <Col xl="6">
             <Form.Label className="required">
               <strong>Total Contract Value (Including Option)</strong>
@@ -347,29 +375,29 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
             </InfoTooltip>
           </Col>
           <Col xl="6">
-            <Form.Group>
-              <Form.Control
-                type="text"
-                value={"$" + process.ContractValueDollars}
-                // check if the dollar sign is there in case the tabbed into the field and it erased it
-                onChange={(e) =>
-                  updateContractValue(
-                    e.target.value.startsWith("$")
-                      ? e.target.value.substr(1)
-                      : e.target.value
-                  )
-                }
-                isInvalid={
-                  validation && validation.ContractValueDollarsError !== ""
-                }
-              />
-              <Form.Control.Feedback type="invalid">
-                {validation ? validation.ContractValueDollarsError : ""}
-              </Form.Control.Feedback>
-            </Form.Group>
+            <Form.Control
+              type="text"
+              value={"$" + process.ContractValueDollars}
+              // check if the dollar sign is there in case the tabbed into the field and it erased it
+              onChange={(e) =>
+                updateContractValue(
+                  e.target.value.startsWith("$")
+                    ? e.target.value.substr(1)
+                    : e.target.value
+                )
+              }
+              isInvalid={
+                validation && validation.ContractValueDollarsError !== ""
+              }
+            />
+            <Form.Control.Feedback type="invalid">
+              {validation ? validation.ContractValueDollarsError : ""}
+            </Form.Control.Feedback>
           </Col>
-          {props.processType === ProcessTypes.DD2579 && (
-            <>
+        </Form.Group>
+        {props.processType === ProcessTypes.DD2579 && (
+          <>
+            <Form.Group as={Row} controlId="formSetAsideRecommendation">
               <Col xl="6">
                 <Form.Label className="required">
                   <strong>Set-Aside Recommendation</strong>
@@ -381,6 +409,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               <Col xl="6">
                 <Form.Control
                   as="select"
+                  name="SetAsideRecommendation"
                   value={process.SetAsideRecommendation}
                   onChange={(e) =>
                     setProcess({
@@ -403,45 +432,47 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
                   {validation ? validation.SetAsideRecommendationError : ""}
                 </Form.Control.Feedback>
               </Col>
-              <Col xl="6">
-                <Form.Label className="required">
-                  <strong>Muliple-Award</strong>
-                </Form.Label>
-              </Col>
-              <Col xl="6">
-                <Form.Check inline type="radio">
-                  <Form.Group controlId="award-radio">
-                    <Form.Check.Input
-                      type="radio"
-                      id="award-radio-yes"
-                      checked={process.MultipleAward}
-                      onChange={() =>
-                        setProcess({ ...process, MultipleAward: true })
-                      }
-                    />
-                    <Form.Check.Label
-                      htmlFor="award-radio-yes"
-                      className="mr-3"
-                    >
-                      Yes
-                    </Form.Check.Label>
-                    <Form.Check.Input
-                      type="radio"
-                      id="award-radio-no"
-                      checked={!process.MultipleAward}
-                      onChange={() =>
-                        setProcess({ ...process, MultipleAward: false })
-                      }
-                    />
-                    <Form.Check.Label htmlFor="award-radio-no" className="mr-3">
-                      No
-                    </Form.Check.Label>
-                  </Form.Group>
-                </Form.Check>
-              </Col>
-            </>
-          )}
-        </Form.Row>
+            </Form.Group>
+            <fieldset>
+              <Form.Group as={Row}>
+                <Col xl="6">
+                  <Form.Label
+                    className="required"
+                    as="legend"
+                    style={{ fontSize: "1rem" }}
+                  >
+                    <strong>Muliple-Award</strong>
+                  </Form.Label>
+                </Col>
+                <Col xl="6">
+                  <Form.Check
+                    inline
+                    type="radio"
+                    id="award-radio-yes"
+                    name="formMultipleAward"
+                    checked={process.MultipleAward}
+                    onChange={() =>
+                      setProcess({ ...process, MultipleAward: true })
+                    }
+                    label="Yes"
+                    className="mr-3"
+                  />
+                  <Form.Check
+                    inline
+                    type="radio"
+                    id="award-radio-no"
+                    name="formMultipleAward"
+                    checked={!process.MultipleAward}
+                    onChange={() =>
+                      setProcess({ ...process, MultipleAward: false })
+                    }
+                    label="No"
+                  />
+                </Col>
+              </Form.Group>
+            </fieldset>
+          </>
+        )}
       </Form>
       <SBOSpinner show={orgsLoading !== false} displayText="Loading Orgs..." />
     </SubmittableModal>
