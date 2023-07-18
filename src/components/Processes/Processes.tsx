@@ -91,7 +91,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
         <Table striped bordered size="sm">
           <thead>
             <tr>
-              <th>
+              <th scope="col">
                 <Row className="m-0">
                   <span>Solicitation/Contract #</span>
                   <SortIcon
@@ -112,7 +112,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                   />
                 </Row>
               </th>
-              <th className="sbo-width-sm">
+              <th className="sbo-width-sm" scope="col">
                 <Row className="m-0">
                   <span>Process</span>
                   <SortIcon
@@ -134,7 +134,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                   />
                 </Row>
               </th>
-              <th>
+              <th scope="col">
                 <Row className="m-0">
                   <span>Buyer</span>
                   <SortIcon
@@ -155,7 +155,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                   />
                 </Row>
               </th>
-              <th className="sbo-width-md">
+              <th className="sbo-width-md" scope="col">
                 <Row className="m-0">
                   <span>Buyer's Org</span>
                   <SortIcon
@@ -181,7 +181,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                   />
                 </Row>
               </th>
-              <th className="sbo-width-md">
+              <th className="sbo-width-md" scope="col">
                 <Row className="m-0">
                   <span>Current Stage</span>
                   <SortIcon
@@ -203,7 +203,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                   />
                 </Row>
               </th>
-              <th>
+              <th scope="col">
                 <Row className="m-0">
                   <span>Current Assignee</span>
                   <SortIcon
@@ -224,7 +224,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                   />
                 </Row>
               </th>
-              <th className="sbo-width-md">
+              <th className="sbo-width-md" scope="col">
                 <Row className="m-0">
                   <span>Stage Start</span>
                   <SortIcon
@@ -245,7 +245,7 @@ export const Processes: FunctionComponent<IProcessesProps> = (props) => {
                   />
                 </Row>
               </th>
-              <th className="sbo-width-md">
+              <th className="sbo-width-md" scope="col">
                 <Row className="m-0">
                   <span>Process Start</span>
                   <SortIcon
