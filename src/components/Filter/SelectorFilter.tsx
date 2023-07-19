@@ -1,43 +1,59 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent, useState } from "react";
+import { Button } from "react-bootstrap";
 import { FilterField, FilterValue } from "../../api/ProcessesApi";
 import { SelectorFilterPopover } from "../Popover/SelectorFilterPopover";
 
 export interface SelectorFilterProps {
-    iconClassName?: string,
-    active: boolean
-    field: FilterField,
-    title: string,
-    values: string[],
-    addFilter(fieldName: FilterField, filterValue: FilterValue): void,
-    clearFilter(fieldName: FilterField): void
+  iconClassName?: string;
+  active: boolean;
+  field: FilterField;
+  title: string;
+  values: string[];
+  addFilter(fieldName: FilterField, filterValue: FilterValue): void;
+  clearFilter(fieldName: FilterField): void;
 }
 
-export const SelectorFilter: FunctionComponent<SelectorFilterProps> = (props) => {
+export const SelectorFilter: FunctionComponent<SelectorFilterProps> = (
+  props
+) => {
+  const [show, setShow] = useState<boolean>(false);
+  const [target, setTarget] = useState<any>();
 
-    const [show, setShow] = useState<boolean>(false);
-    const [target, setTarget] = useState<any>();
+  const iconOnClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    e.stopPropagation();
+    setShow(true);
+    setTarget(e.target);
+  };
 
-    const iconOnClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        e.stopPropagation();
-        setShow(true);
-        setTarget(e.target);
-    }
-
-    return (
-        <>
-            <SelectorFilterPopover
-                show={show}
-                target={target}
-                titleText={props.title}
-                placement="bottom"
-                values={props.values}
-                onSubmit={(filterValue: FilterValue) => props.addFilter(props.field, filterValue)}
-                clearFilter={() => props.clearFilter(props.field)}
-                handleClose={() => setShow(false)}
-            />
-            <Icon iconName="FilterSolid" className={`field-filter-button ${props.active ? "active-filter-icon" : ""} ${props.iconClassName}`} onClick={iconOnClick} />
-        </>
-    );
-
-}
+  return (
+    <>
+      <SelectorFilterPopover
+        show={show}
+        target={target}
+        titleText={props.title}
+        placement="bottom"
+        values={props.values}
+        onSubmit={(filterValue: FilterValue) =>
+          props.addFilter(props.field, filterValue)
+        }
+        clearFilter={() => props.clearFilter(props.field)}
+        handleClose={() => setShow(false)}
+      />
+      <Button
+        variant="outline-primary"
+        className="ml-auto th-button"
+        onClick={iconOnClick}
+        size="sm"
+        aria-label={"Filter on " + props.title}
+      >
+        <Icon
+          iconName="FilterSolid"
+          className={`field-filter-button ${
+            props.active ? "active-filter-icon" : ""
+          } ${props.iconClassName}`}
+        />
+      </Button>
+    </>
+  );
+};
