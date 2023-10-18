@@ -148,6 +148,7 @@ export interface IProcess {
   CurrentAssignee: IPerson;
   SBAPCR?: IPerson;
   CurrentStageStartDate: DateTime;
+  OL?: string;
   "odata.etag": string;
 }
 

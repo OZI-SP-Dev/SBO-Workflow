@@ -23,6 +23,7 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { initializeIcons } from "@fluentui/font-icons-mdl2";
 import { OrgsProvider } from "./providers/OrgsContext";
+import { OLsProvider } from "./providers/OLsContext";
 import { initializeFileTypeIcons } from "@fluentui/react-file-type-icons";
 import "tinymce/tinymce";
 import "tinymce/icons/default";
@@ -54,11 +55,13 @@ ReactDOM.render(
   <React.StrictMode>
     <ErrorsProvider>
       <UserProvider>
-        <OrgsProvider>
-          <ContactUsProvider>
-            <App />
-          </ContactUsProvider>
-        </OrgsProvider>
+        <OLsProvider>
+          <OrgsProvider>
+            <ContactUsProvider>
+              <App />
+            </ContactUsProvider>
+          </OrgsProvider>
+        </OLsProvider>
       </UserProvider>
     </ErrorsProvider>
   </React.StrictMode>,
