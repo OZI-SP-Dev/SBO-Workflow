@@ -160,7 +160,8 @@ export default class ProcessesApi implements IProcessesApi {
           "SBAPCR/Title",
           "SBAPCR/EMail",
           "CurrentStageStartDate",
-          "IsDeleted"
+          "IsDeleted",
+          "OL"
         )
         .expand(
           "Buyer",
@@ -451,6 +452,7 @@ interface ISubmitProcess {
   SBAPCRId?: number;
   CurrentStageStartDate: string;
   IsDeleted?: boolean;
+  OL: string;
   __metadata?: {
     etag: string;
   };
@@ -481,6 +483,7 @@ interface SPProcess {
   SBAPCR?: IPerson;
   CurrentStageStartDate: string;
   IsDeleted: boolean;
+  OL?: string;
   __metadata: {
     etag: string;
   };
@@ -516,6 +519,7 @@ const spProcessToIProcess = (process: SPProcess): IProcess => {
         ? new Person(process.SBAPCR)
         : undefined,
     CurrentStageStartDate: DateTime.fromISO(process.CurrentStageStartDate),
+    OL: process.OL ?? "WPAFB",
     "odata.etag": process.__metadata.etag,
   };
 };
@@ -545,6 +549,7 @@ const processToSubmitProcess = (process: IProcess): ISubmitProcess => {
     SBAPCRId: process.SBAPCR ? process.SBAPCR.Id : undefined,
     CurrentStageStartDate: process.CurrentStageStartDate.toISO(),
     IsDeleted: false,
+    OL: process.OL ?? "WPAFB",
   };
 };
 

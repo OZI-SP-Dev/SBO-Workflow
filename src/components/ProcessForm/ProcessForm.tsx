@@ -20,6 +20,7 @@ import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import SBOSpinner from "../SBOSpinner/SBOSpinner";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import "./ProcessForm.css";
+import { OLsContext } from "../../providers/OLsContext";
 
 export interface IProcessFormProps {
   editProcess?: IProcess;
@@ -39,6 +40,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
   );
   const [validation, setValidation] = useState<IProcessValidation>();
 
+  const { ols, loading: olsLoading } = useContext(OLsContext);
   const { orgs, loading: orgsLoading } = useContext(OrgsContext);
 
   useEffect(() => {
@@ -221,6 +223,27 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
             </Col>
           </Form.Group>
         </fieldset>
+
+        <Form.Group as={Row} controlId="formOL">
+          <Col xl="6">
+            <Form.Label className="required">
+              <strong>OL</strong>
+            </Form.Label>
+          </Col>
+          <Col xl="6">
+            <Form.Control
+              as="select"
+              value={process.OL ?? "WPAFB"}
+              onChange={(e) => setProcess({ ...process, OL: e.target.value })}
+              className="mr-sm-2"
+            >
+              {ols?.map((ol) => (
+                <option key={ol.Title}>{ol.Title}</option>
+              ))}
+            </Form.Control>
+          </Col>
+        </Form.Group>
+
         <Form.Group as={Row} controlId="formBuyerOrg">
           <Col xl="6">
             <Form.Label className="required">
@@ -475,6 +498,7 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
         )}
       </Form>
       <SBOSpinner show={orgsLoading !== false} displayText="Loading Orgs..." />
+      <SBOSpinner show={olsLoading !== false} displayText="Loading OLs..." />
     </SubmittableModal>
   );
 };
