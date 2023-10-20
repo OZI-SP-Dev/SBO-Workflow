@@ -1,12 +1,14 @@
-import { FunctionComponent, useContext } from "react";
+import { FunctionComponent, useContext, useEffect } from "react";
 import { Form, Nav, Navbar } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { ReportBugs } from "../ReportBugs/ReportBugs";
 import { OLsContext } from "../../providers/OLsContext";
 import { UserContext } from "../../providers/UserProvider";
+import { useCachedOL } from "../../hooks/useCachedOL";
 import "./AppHeader.css";
 
 export const AppHeader: FunctionComponent = () => {
+  const cachedOL = useCachedOL();
   const { ols, loading } = useContext(OLsContext);
   const { owner } = useContext(UserContext);
 
@@ -37,7 +39,13 @@ export const AppHeader: FunctionComponent = () => {
         <Form inline>
           <Form.Group>
             <Form.Label className="mr-sm-1">OL:</Form.Label>
-            <Form.Control as="select" size="sm" className="mr-sm-2">
+            <Form.Control
+              as="select"
+              value={cachedOL.getCachedOL()}
+              onChange={(e) => cachedOL.cacheOL(e.target.value)}
+              size="sm"
+              className="mr-sm-2"
+            >
               {ols?.map((ol) => (
                 <option key={ol.Title}>{ol.Title}</option>
               ))}
