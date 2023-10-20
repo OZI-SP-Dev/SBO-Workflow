@@ -3,17 +3,26 @@ import { InternalError } from "../api/InternalErrors";
 import { IOL, OLsApiConfig } from "../api/OLsApi";
 import { ErrorsContext } from "./ErrorsContext";
 
+const SBO_CACHED_OL: string = "sboCachedOL";
+
 export interface IOLsContext {
   ols: IOL[];
+  currentOL: string;
   loading: boolean;
+  setOL: (newOL: string) => void;
 }
 
 export const OLsContext = createContext<Partial<IOLsContext>>({
   ols: [],
+  currentOL: "",
   loading: true,
+  setOL: () => {},
 });
 export const OLsProvider: React.FunctionComponent = ({ children }) => {
   const [loading, setLoading] = useState(true);
+  const [currentOL, setCurrentOL] = useState<string>(
+    localStorage.getItem(SBO_CACHED_OL) ?? "WPAFB"
+  );
   const [ols, setOLs] = useState<IOL[]>([]);
 
   const errorsContext = useContext(ErrorsContext);
@@ -31,6 +40,11 @@ export const OLsProvider: React.FunctionComponent = ({ children }) => {
     }
   };
 
+  const setOL = (newOL: string) => {
+    localStorage.setItem(SBO_CACHED_OL, newOL);
+    setCurrentOL(newOL);
+  };
+
   useEffect(() => {
     fetchOLs();
     // eslint-disable-next-line
@@ -38,7 +52,9 @@ export const OLsProvider: React.FunctionComponent = ({ children }) => {
 
   const olsContext: IOLsContext = {
     ols,
+    currentOL,
     loading,
+    setOL,
   };
 
   return (

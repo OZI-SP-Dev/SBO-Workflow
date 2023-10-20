@@ -97,7 +97,8 @@ export interface IProcessesApi {
   fetchFirstPageOfProcesses(
     filters: ProcessFilter[],
     sortBy?: FilterField,
-    ascending?: boolean
+    ascending?: boolean,
+    owner?: boolean
   ): Promise<IProcessesPage>;
 
   /**
@@ -183,7 +184,8 @@ export default class ProcessesApi implements IProcessesApi {
   fetchFirstPageOfProcesses = async (
     filters: ProcessFilter[],
     sortBy: FilterField = "Modified",
-    ascending: boolean = false
+    ascending: boolean = false,
+    owner: boolean = false
   ): Promise<IProcessesPage> => {
     try {
       let query = this.processesList.items
@@ -217,7 +219,8 @@ export default class ProcessesApi implements IProcessesApi {
           "SBAPCR/Id",
           "SBAPCR/Title",
           "SBAPCR/EMail",
-          "CurrentStageStartDate"
+          "CurrentStageStartDate",
+          "OL"
         )
         .expand(
           "Buyer",
@@ -227,6 +230,13 @@ export default class ProcessesApi implements IProcessesApi {
           "SBAPCR"
         );
       let queryString = "ContentType ne 'Document' and IsDeleted ne 1";
+      if (owner) {
+        if ((localStorage.getItem("sboCachedOL") ?? "WPAFB") === "WPAFB") {
+          queryString += " and (OL eq 'WPAFB' or OL eq null)";
+        } else {
+          queryString += ` and OL eq '${localStorage.getItem("sboCachedOL")}'`;
+        }
+      }
       for (let filter of filters) {
         if (isDateRange(filter.filterValue)) {
           if (filter.filterValue.start !== null) {
