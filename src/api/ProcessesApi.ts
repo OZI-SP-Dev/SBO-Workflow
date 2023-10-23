@@ -93,6 +93,7 @@ export interface IProcessesApi {
    * @param filters The filters to be applied to the Processes search, in the form of an array of ProcessFilter
    * @param sortBy The field to sort the results by
    * @param ascending Whether the results should be in ascending order or not
+   * @param owner Is the current user in the owners' group
    */
   fetchFirstPageOfProcesses(
     filters: ProcessFilter[],

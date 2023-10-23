@@ -237,9 +237,10 @@ export const ProcessForm: FunctionComponent<IProcessFormProps> = (props) => {
               onChange={(e) => setProcess({ ...process, OL: e.target.value })}
               className="mr-sm-2"
             >
-              {ols?.map((ol) => (
-                <option key={ol.Title}>{ol.Title}</option>
-              ))}
+              {ols?.map(
+                (ol) =>
+                  !ol.Archived && <option key={ol.Title}>{ol.Title}</option>
+              )}
             </Form.Control>
           </Col>
         </Form.Group>

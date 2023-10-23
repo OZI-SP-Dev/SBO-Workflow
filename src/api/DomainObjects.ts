@@ -148,7 +148,7 @@ export interface IProcess {
   CurrentAssignee: IPerson;
   SBAPCR?: IPerson;
   CurrentStageStartDate: DateTime;
-  OL?: string;
+  OL: string;
   "odata.etag": string;
 }
 
@@ -172,6 +172,7 @@ export function getBlankProcess(type: ProcessTypes): IProcess {
     CurrentStage: Stages.BUYER_REVIEW,
     CurrentAssignee: new Person(),
     CurrentStageStartDate: DateTime.local(),
+    OL: "",
     "odata.etag": "",
   };
 }
