@@ -20,7 +20,10 @@ export const AppHeader: FunctionComponent = () => {
         <LinkContainer isActive={(m) => m !== null && m?.isExact} to="/">
           <Nav.Link className="p-0">
             <img src="./orangeeagle2.png" alt="SBO Logo" height="30px" />
-            <span>{process.env.REACT_APP_TEST_SYS ? " TEST" : ""} Kolab</span>
+            <span>
+              {process.env.REACT_APP_TEST_SYS ? " TEST" : ""} Small Business
+              Agility Tool
+            </span>
           </Nav.Link>
         </LinkContainer>
       </Navbar.Brand>
