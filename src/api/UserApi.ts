@@ -26,10 +26,16 @@ export interface IUserApi {
    * @returns The IPerson of the user with the given email
    */
   getPersonDetails: (email: string) => Promise<IPerson>;
+
+  /**
+   * @returns true/false if the current user is a member of the owners group
+   */
+  isOwner: () => Promise<boolean>;
 }
 
 export class UserApi implements IUserApi {
   private currentUser?: IPerson;
+  private owner?: boolean;
 
   getCurrentUser = async (): Promise<IPerson> => {
     try {
@@ -45,6 +51,24 @@ export class UserApi implements IUserApi {
         );
       }
       return this.currentUser;
+    } catch (e) {
+      throw getAPIError(
+        e,
+        "Error occurred while trying to fetch the current user"
+      );
+    }
+  };
+
+  isOwner = async (): Promise<boolean> => {
+    try {
+      if (!this.owner) {
+        let groups = await spWebContext.currentUser.groups.get();
+        const found = groups.some(
+          (group) => group.Title === "Small Business Process Owners"
+        );
+        this.owner = found;
+      }
+      return this.owner;
     } catch (e) {
       throw getAPIError(
         e,
@@ -87,6 +111,11 @@ export class UserApiDev implements IUserApi {
       EMail: "me@example.com",
       imageUrl: TestImages.personaMale,
     });
+  };
+
+  isOwner = async (): Promise<boolean> => {
+    await this.sleep();
+    return true;
   };
 
   getUserId = async () => {

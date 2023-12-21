@@ -93,11 +93,13 @@ export interface IProcessesApi {
    * @param filters The filters to be applied to the Processes search, in the form of an array of ProcessFilter
    * @param sortBy The field to sort the results by
    * @param ascending Whether the results should be in ascending order or not
+   * @param owner Is the current user in the owners' group
    */
   fetchFirstPageOfProcesses(
     filters: ProcessFilter[],
     sortBy?: FilterField,
-    ascending?: boolean
+    ascending?: boolean,
+    owner?: boolean
   ): Promise<IProcessesPage>;
 
   /**
@@ -159,7 +161,8 @@ export default class ProcessesApi implements IProcessesApi {
           "SBAPCR/Title",
           "SBAPCR/EMail",
           "CurrentStageStartDate",
-          "IsDeleted"
+          "IsDeleted",
+          "OL"
         )
         .expand(
           "Buyer",
@@ -183,7 +186,8 @@ export default class ProcessesApi implements IProcessesApi {
   fetchFirstPageOfProcesses = async (
     filters: ProcessFilter[],
     sortBy: FilterField = "Modified",
-    ascending: boolean = false
+    ascending: boolean = false,
+    owner: boolean = false
   ): Promise<IProcessesPage> => {
     try {
       let query = this.processesList.items
@@ -217,7 +221,8 @@ export default class ProcessesApi implements IProcessesApi {
           "SBAPCR/Id",
           "SBAPCR/Title",
           "SBAPCR/EMail",
-          "CurrentStageStartDate"
+          "CurrentStageStartDate",
+          "OL"
         )
         .expand(
           "Buyer",
@@ -227,6 +232,13 @@ export default class ProcessesApi implements IProcessesApi {
           "SBAPCR"
         );
       let queryString = "ContentType ne 'Document' and IsDeleted ne 1";
+      if (owner) {
+        if ((localStorage.getItem("sboCachedOL") ?? "WPAFB") === "WPAFB") {
+          queryString += " and (OL eq 'WPAFB' or OL eq null)";
+        } else {
+          queryString += ` and OL eq '${localStorage.getItem("sboCachedOL")}'`;
+        }
+      }
       for (let filter of filters) {
         if (isDateRange(filter.filterValue)) {
           if (filter.filterValue.start !== null) {
@@ -441,6 +453,7 @@ interface ISubmitProcess {
   SBAPCRId?: number;
   CurrentStageStartDate: string;
   IsDeleted?: boolean;
+  OL: string;
   __metadata?: {
     etag: string;
   };
@@ -471,6 +484,7 @@ interface SPProcess {
   SBAPCR?: IPerson;
   CurrentStageStartDate: string;
   IsDeleted: boolean;
+  OL?: string;
   __metadata: {
     etag: string;
   };
@@ -506,6 +520,7 @@ const spProcessToIProcess = (process: SPProcess): IProcess => {
         ? new Person(process.SBAPCR)
         : undefined,
     CurrentStageStartDate: DateTime.fromISO(process.CurrentStageStartDate),
+    OL: process.OL ?? "WPAFB",
     "odata.etag": process.__metadata.etag,
   };
 };
@@ -535,6 +550,7 @@ const processToSubmitProcess = (process: IProcess): ISubmitProcess => {
     SBAPCRId: process.SBAPCR ? process.SBAPCR.Id : undefined,
     CurrentStageStartDate: process.CurrentStageStartDate.toISO(),
     IsDeleted: false,
+    OL: process.OL ?? "WPAFB",
   };
 };
 

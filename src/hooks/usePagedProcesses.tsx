@@ -11,6 +11,7 @@ import {
 import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
 import { useEmail } from "./useEmail";
+import { UserContext } from "../providers/UserProvider";
 
 interface IProcessesFilters {
   page: number;
@@ -57,6 +58,7 @@ export function usePagedProcesses(): IPagedProcesses {
     fieldFilters: [],
   });
   const [refresh, setRefresh] = useState<boolean>(true);
+  const { owner } = useContext(UserContext);
 
   const fetchProcessesPage = async (refreshCache?: boolean) => {
     try {
@@ -67,7 +69,8 @@ export function usePagedProcesses(): IPagedProcesses {
           await processesApi.fetchFirstPageOfProcesses(
             filters.fieldFilters,
             filters.sortBy,
-            filters.ascending
+            filters.ascending,
+            owner
           )
         );
       }
@@ -199,6 +202,12 @@ export function usePagedProcesses(): IPagedProcesses {
     fetchProcessesPage(refresh);
     setRefresh(false); // eslint-disable-next-line
   }, [filters.page, filters.fieldFilters, filters.sortBy, filters.ascending]);
+
+  //if owner status changes, refresh the data
+  useEffect(() => {
+    fetchProcessesPage(true);
+    setRefresh(false); // eslint-disable-next-line
+  }, [owner]);
 
   return {
     processes:

@@ -1,26 +1,32 @@
-import React, { FunctionComponent, useEffect } from "react";
+import { FunctionComponent, useContext, useEffect } from "react";
 import { usePagedProcesses } from "../../hooks/usePagedProcesses";
 import { Processes } from "../Processes/Processes";
 import { ProcessView } from "../ProcessView/ProcessView";
+import { OLsContext } from "../../providers/OLsContext";
 
 export interface IProcessesRouteProps {
-    processId?: number
+  processId?: number;
 }
 
-export const ProcessesRoute: FunctionComponent<IProcessesRouteProps> = (props) => {
+export const ProcessesRoute: FunctionComponent<IProcessesRouteProps> = (
+  props
+) => {
+  const pagedProcesses = usePagedProcesses();
+  const { currentOL } = useContext(OLsContext);
 
-    const pagedProcesses = usePagedProcesses();
+  // refreshes the processes page when navigating back to the processes table
+  useEffect(() => {
+    if (!props.processId && !pagedProcesses.loading) {
+      pagedProcesses.refreshPage();
+    } // eslint-disable-next-line
+  }, [props.processId, currentOL]);
 
-    // refreshes the processes page when navigating back to the processes table
-    useEffect(() => {
-        if (!props.processId && !pagedProcesses.loading) {
-            pagedProcesses.refreshPage();
-        } // eslint-disable-next-line
-    }, [props.processId]);
-
-    return (
-        props.processId !== undefined ?
-            <ProcessView processId={props.processId} process={pagedProcesses.fetchCachedProcess(props.processId)} /> :
-            <Processes pagedProcesses={pagedProcesses} />
-    );
-}
+  return props.processId !== undefined ? (
+    <ProcessView
+      processId={props.processId}
+      process={pagedProcesses.fetchCachedProcess(props.processId)}
+    />
+  ) : (
+    <Processes pagedProcesses={pagedProcesses} />
+  );
+};
