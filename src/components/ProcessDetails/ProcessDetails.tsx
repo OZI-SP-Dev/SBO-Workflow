@@ -83,7 +83,7 @@ export const ProcessDetails: FunctionComponent<IProcessDetailsProps> = (
           <strong>SBA PCR</strong>
         </Col>
         <Col md="7" sm="12" xs="12">
-          {props.process.SBAPCR?.Title}
+          {props.process.SBAPCREmail}
         </Col>
       </Row>
       <Row className="mb-2">

@@ -157,9 +157,7 @@ export default class ProcessesApi implements IProcessesApi {
           "CurrentAssignee/Id",
           "CurrentAssignee/Title",
           "CurrentAssignee/EMail",
-          "SBAPCR/Id",
-          "SBAPCR/Title",
-          "SBAPCR/EMail",
+          "SBAPCREmail",
           "CurrentStageStartDate",
           "IsDeleted",
           "OL"
@@ -168,8 +166,7 @@ export default class ProcessesApi implements IProcessesApi {
           "Buyer",
           "ContractingOfficer",
           "SmallBusinessProfessional",
-          "CurrentAssignee",
-          "SBAPCR"
+          "CurrentAssignee"
         )
         .get();
       return process && !process.IsDeleted
@@ -218,9 +215,7 @@ export default class ProcessesApi implements IProcessesApi {
           "CurrentAssignee/Id",
           "CurrentAssignee/Title",
           "CurrentAssignee/EMail",
-          "SBAPCR/Id",
-          "SBAPCR/Title",
-          "SBAPCR/EMail",
+          "SBAPCREmail",
           "CurrentStageStartDate",
           "OL"
         )
@@ -228,8 +223,7 @@ export default class ProcessesApi implements IProcessesApi {
           "Buyer",
           "ContractingOfficer",
           "SmallBusinessProfessional",
-          "CurrentAssignee",
-          "SBAPCR"
+          "CurrentAssignee"
         );
       let queryString = "ContentType ne 'Document' and IsDeleted ne 1";
       if (owner) {
@@ -450,7 +444,7 @@ interface ISubmitProcess {
   Modified?: string;
   CurrentStage: Stages;
   CurrentAssigneeId: number;
-  SBAPCRId?: number;
+  SBAPCREmail?: string;
   CurrentStageStartDate: string;
   IsDeleted?: boolean;
   OL: string;
@@ -481,7 +475,7 @@ interface SPProcess {
   Modified: string;
   CurrentStage: Stages;
   CurrentAssignee: IPerson;
-  SBAPCR?: IPerson;
+  SBAPCREmail?: string;
   CurrentStageStartDate: string;
   IsDeleted: boolean;
   OL?: string;
@@ -515,10 +509,7 @@ const spProcessToIProcess = (process: SPProcess): IProcess => {
     Modified: DateTime.fromISO(process.Modified),
     CurrentStage: process.CurrentStage,
     CurrentAssignee: new Person(process.CurrentAssignee),
-    SBAPCR:
-      process.SBAPCR && process.SBAPCR.EMail
-        ? new Person(process.SBAPCR)
-        : undefined,
+    SBAPCREmail: process.SBAPCREmail,
     CurrentStageStartDate: DateTime.fromISO(process.CurrentStageStartDate),
     OL: process.OL ?? "WPAFB",
     "odata.etag": process.__metadata.etag,
@@ -547,7 +538,7 @@ const processToSubmitProcess = (process: IProcess): ISubmitProcess => {
     MultipleAward: process.MultipleAward,
     CurrentStage: process.CurrentStage,
     CurrentAssigneeId: process.CurrentAssignee.Id,
-    SBAPCRId: process.SBAPCR ? process.SBAPCR.Id : undefined,
+    SBAPCREmail: process.SBAPCREmail,
     CurrentStageStartDate: process.CurrentStageStartDate.toISO(),
     IsDeleted: false,
     OL: process.OL ?? "WPAFB",

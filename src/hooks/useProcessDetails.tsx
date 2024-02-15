@@ -23,7 +23,7 @@ export interface IProcessDetails {
   deleteProcess: () => Promise<void>;
   sendProcess: (
     newStage: Stages,
-    assignee: IPerson,
+    assignee: IPerson | string,
     noteText: string
   ) => Promise<void>;
   reworkProcess: (
@@ -88,13 +88,24 @@ export function useProcessDetails(processId: number): IProcessDetails {
 
   const updateProcessStage = async (
     newStage: Stages,
-    assignee: IPerson
+    /** Pass a string for PCR Email, and an IPerson for all other stages */
+    assignee: IPerson | string
   ): Promise<IProcess> => {
     if (process) {
+      let assigneeObj: IPerson;
+      let pcrEmail: string = "";
+      if (typeof assignee === "string") {
+        //If it is a string, then we got a PCREmail as the value, so set assignee to current user
+        assigneeObj = await userApi.getCurrentUser();
+        pcrEmail = assignee;
+      } else {
+        //If we didn't get a string, then it is an IPerson object
+        assigneeObj = { ...assignee };
+      }
       let submitProcess: IProcess = {
         ...process,
         CurrentStage: newStage,
-        CurrentAssignee: await userApi.getPersonDetails(assignee.EMail),
+        CurrentAssignee: await userApi.getPersonDetails(assigneeObj.EMail),
         CurrentStageStartDate: DateTime.local(),
       };
       if (newStage === Stages.BUYER_REVIEW || newStage === Stages.COMPLETED) {
@@ -107,7 +118,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
       } else if (newStage === Stages.SBP_REVIEW) {
         submitProcess.SmallBusinessProfessional = submitProcess.CurrentAssignee;
       } else if (newStage === Stages.SBA_PCR_REVIEW) {
-        submitProcess.SBAPCR = submitProcess.CurrentAssignee;
+        submitProcess.SBAPCREmail = pcrEmail;
       }
       return await processApi.submitProcess(submitProcess);
     } else {
@@ -146,10 +157,6 @@ export function useProcessDetails(processId: number): IProcessDetails {
                       newProcess.CurrentAssignee.EMail
                     )
                   : newProcess.CurrentAssignee,
-              SBAPCR:
-                newProcess.SBAPCR && newProcess.SBAPCR.Id < 0
-                  ? await userApi.getPersonDetails(newProcess.SBAPCR.EMail)
-                  : newProcess.SBAPCR,
             })
           );
         } else {
@@ -190,7 +197,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
 
   const sendProcess = async (
     newStage: Stages,
-    assignee: IPerson,
+    assignee: IPerson | string,
     noteText: string
   ): Promise<void> => {
     try {

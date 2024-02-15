@@ -74,11 +74,6 @@ export default class ProcessesApiDev implements IProcessesApi {
             Title: "Jeremy Clark",
             EMail: "me@example.com",
           }),
-          SBAPCR: new Person({
-            Id: 1,
-            Title: "Jeremy Clark",
-            EMail: "me@example.com",
-          }),
           CurrentStageStartDate: DateTime.local(),
           OL: "WPAFB",
           "odata.etag": "1",
@@ -113,11 +108,6 @@ export default class ProcessesApiDev implements IProcessesApi {
           Modified: DateTime.local(),
           CurrentStage: Stages.BUYER_REVIEW,
           CurrentAssignee: new Person({
-            Id: 2,
-            Title: "Robert Porterfield",
-            EMail: "rob@example.com",
-          }),
-          SBAPCR: new Person({
             Id: 2,
             Title: "Robert Porterfield",
             EMail: "rob@example.com",
@@ -162,11 +152,6 @@ export default class ProcessesApiDev implements IProcessesApi {
             Title: "Jeremy Clark",
             EMail: "me@example.com",
           }),
-          SBAPCR: new Person({
-            Id: 1,
-            Title: "Jeremy Clark",
-            EMail: "me@example.com",
-          }),
           CurrentStageStartDate: DateTime.local(),
           OL: "Tinker",
           "odata.etag": "1",
@@ -201,11 +186,6 @@ export default class ProcessesApiDev implements IProcessesApi {
           Modified: DateTime.local(),
           CurrentStage: Stages.BUYER_REVIEW,
           CurrentAssignee: new Person({
-            Id: 2,
-            Title: "Robert Porterfield",
-            EMail: "rob@example.com",
-          }),
-          SBAPCR: new Person({
             Id: 2,
             Title: "Robert Porterfield",
             EMail: "rob@example.com",

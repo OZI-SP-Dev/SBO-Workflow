@@ -10,6 +10,7 @@ import {
 } from "../../api/DomainObjects";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
+import { checkSBAPCRValid } from "../../api/PCREmailsApi";
 
 export interface SendFormModalProps {
   process: IProcess;
@@ -19,7 +20,7 @@ export interface SendFormModalProps {
   handleClose: () => void;
   submit: (
     nextStage: Stages,
-    assignee: IPerson,
+    assignee: IPerson | string,
     noteText: string
   ) => Promise<any>;
 }
@@ -27,6 +28,9 @@ export interface SendFormModalProps {
 export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
   const [nextStage, setNextStage] = useState<Stages>();
   const [assignee, setAssignee] = useState<IPerson>();
+  const [pcrEmail, setPCREmail] = useState<string>(
+    props.process.SBAPCREmail ?? ""
+  );
   const [noteText, setNoteText] = useState<string>("");
   const [submitAttempted, setSubmitAttempted] = useState<boolean>(false);
 
@@ -56,7 +60,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
       case Stages.SBP_REVIEW:
         return props.process.SmallBusinessProfessional;
       case Stages.SBA_PCR_REVIEW:
-        return props.process.SBAPCR;
+        return undefined;
       case Stages.CO_FINAL_REVIEW:
         return props.process.ContractingOfficer;
       case Stages.COMPLETED:
@@ -83,9 +87,21 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
 
   const submitForm = async () => {
     setSubmitAttempted(true);
-    if (nextStage !== undefined && assignee !== undefined) {
-      await props.submit(nextStage, assignee, noteText);
-      closeForm();
+    // Only process the submission if all our field validations pass based on next Stage
+    if (nextStage !== undefined) {
+      if (nextStage !== Stages.SBA_PCR_REVIEW && assignee !== undefined) {
+        // All stages other than SBA PCR require the assignee to be defined/selected
+        await props.submit(nextStage, assignee, noteText);
+        closeForm();
+      } else if (
+        nextStage === Stages.SBA_PCR_REVIEW &&
+        pcrEmail &&
+        checkSBAPCRValid(pcrEmail) === undefined
+      ) {
+        //If we are going to SBA PCR, make sure we have a valid PCR Email in order to submit
+        await props.submit(nextStage, pcrEmail, noteText);
+        closeForm();
+      }
     }
   };
 
@@ -115,30 +131,50 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
             </Form.Control>
           </Form.Group>
         )}
-        <Form.Group controlId="personSelect">
-          <Form.Label className="required">
-            <strong>
-              {nextStage === Stages.COMPLETED ? "Buyer:" : "Reviewer:"}
-            </strong>
-          </Form.Label>
-          <Form.Control
-            as={PeoplePicker}
-            defaultValue={assignee ? [assignee] : undefined}
-            updatePeople={(p: IPerson[]) => {
-              let persona = p[0];
-              setAssignee(persona ? new Person(persona) : undefined);
-            }}
-            required
-            isInvalid={submitAttempted && assignee === undefined}
-            id="personSelect"
-          />
-          {submitAttempted && assignee === undefined && (
+        {nextStage !== Stages.SBA_PCR_REVIEW ? (
+          <Form.Group controlId="personSelect">
+            <Form.Label className="required">
+              <strong>
+                {nextStage === Stages.COMPLETED ? "Buyer:" : "Reviewer:"}
+              </strong>
+            </Form.Label>
+            <Form.Control
+              as={PeoplePicker}
+              defaultValue={assignee ? [assignee] : undefined}
+              updatePeople={(p: IPerson[]) => {
+                let persona = p[0];
+                setAssignee(persona ? new Person(persona) : undefined);
+              }}
+              required
+              isInvalid={submitAttempted && assignee === undefined}
+              id="personSelect"
+            />
+            {submitAttempted && assignee === undefined && (
+              <Form.Control.Feedback type="invalid">
+                You must provide a{" "}
+                {nextStage === Stages.CO_FINAL_REVIEW ? "Buyer" : "Reviewer"}
+              </Form.Control.Feedback>
+            )}
+          </Form.Group>
+        ) : (
+          <Form.Group controlId="pcrEmailEntry">
+            <Form.Label className="required">
+              <strong>SBA PCR Email Address</strong>
+            </Form.Label>
+            <Form.Control
+              type="text"
+              value={pcrEmail}
+              onChange={(e) => setPCREmail(e.target.value)}
+              isInvalid={
+                submitAttempted && (checkSBAPCRValid(pcrEmail) ? true : false)
+              }
+              id="pcrEmailEntry"
+            />
             <Form.Control.Feedback type="invalid">
-              You must provide a{" "}
-              {nextStage === Stages.CO_FINAL_REVIEW ? "Buyer" : "Reviewer"}
+              {checkSBAPCRValid(pcrEmail)}
             </Form.Control.Feedback>
-          )}
-        </Form.Group>
+          </Form.Group>
+        )}
         <div className="mt-2 mb-2">
           <Form.Group controlId="formNotes">
             <Form.Label>
