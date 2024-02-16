@@ -1,13 +1,20 @@
 import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { DocumentsApiConfig, IDocument } from "../api/DocumentsApi";
-import { INote, IPerson, IProcess, Stages } from "../api/DomainObjects";
+import {
+  IPCREmail,
+  INote,
+  IPerson,
+  IProcess,
+  Stages,
+} from "../api/DomainObjects";
 import {
   InputError,
   InternalError,
   PrematureActionError,
 } from "../api/InternalErrors";
 import { NotesApiConfig } from "../api/NotesApi";
+import { PCREmailsApiConfig } from "../api/PCREmailsApi";
 import { ProcessesApiConfig } from "../api/ProcessesApi";
 import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
@@ -17,6 +24,7 @@ export interface IProcessDetails {
   process?: IProcess;
   documents: IDocument[];
   notes: INote[];
+  pcrEmail?: IPCREmail;
   loading: boolean;
   getUpdatedProcess: () => Promise<void>;
   updateProcess: (process: IProcess) => Promise<void>;
@@ -43,11 +51,13 @@ export function useProcessDetails(processId: number): IProcessDetails {
   const processApi = ProcessesApiConfig.getApi();
   const documentsApi = DocumentsApiConfig.getApi();
   const notesApi = NotesApiConfig.getApi();
+  const pcrEmailsApi = PCREmailsApiConfig.getApi();
   const userApi = UserApiConfig.getApi();
   const email = useEmail();
   const [process, setProcess] = useState<IProcess>();
   const [documents, setDocuments] = useState<IDocument[]>([]);
   const [notes, setNotes] = useState<INote[]>([]);
+  const [pcrEmail, setPCREmail] = useState<IPCREmail>();
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchProcessDetails = async () => {
@@ -57,6 +67,12 @@ export function useProcessDetails(processId: number): IProcessDetails {
       if (updatedProcess) {
         let documents = documentsApi.fetchDocumentsForProcess(updatedProcess);
         let notes = notesApi.fetchNotesForProcess(updatedProcess);
+        // If we are at the PCR stage, then get most recent email record to display status, otherwise we don't need to fetch it
+        if (updatedProcess.CurrentStage === Stages.SBA_PCR_REVIEW) {
+          setPCREmail(
+            await pcrEmailsApi.fetchPCREmailForProcess(updatedProcess)
+          );
+        }
         setProcess(updatedProcess);
         setDocuments(await documents);
         setNotes(await notes);
@@ -207,12 +223,18 @@ export function useProcessDetails(processId: number): IProcessDetails {
         newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
         setNotes(newNotes);
       }
-      await email.sendAdvanceStageEmail(
-        newProcess,
-        newProcess.CurrentAssignee,
-        noteText,
-        await userApi.getCurrentUser()
-      );
+      // Send an email via the tool if moving to any stage other than PCR
+      if (newStage !== Stages.SBA_PCR_REVIEW) {
+        await email.sendAdvanceStageEmail(
+          newProcess,
+          newProcess.CurrentAssignee,
+          noteText,
+          await userApi.getCurrentUser()
+        );
+      } else {
+        // We are moving to SBA_PCR_REVIEW so send the emails via PowerAutomate by staging a record
+        await sendPCREmail();
+      }
       setProcess(newProcess);
     } catch (e) {
       if (errorsContext.reportError) {
@@ -318,6 +340,21 @@ export function useProcessDetails(processId: number): IProcessDetails {
     }
   };
 
+  const sendPCREmail = async () => {
+    try {
+      if (process) {
+        let newEmail = await pcrEmailsApi.sendPCREmail(process);
+        setPCREmail(newEmail);
+        return newEmail;
+      }
+    } catch (e) {
+      if (errorsContext.reportError) {
+        errorsContext.reportError(e as InternalError);
+      }
+      throw e;
+    }
+  };
+
   useEffect(() => {
     fetchProcessDetails(); // eslint-disable-next-line
   }, [processId]);
@@ -326,6 +363,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
     process,
     documents,
     notes,
+    pcrEmail,
     loading,
     getUpdatedProcess,
     updateProcess,

@@ -21,6 +21,7 @@ import { DuplicateEntryError, getAPIError } from "./InternalErrors";
 import { NotesApiConfig } from "./NotesApi";
 import ProcessesApiDev from "./ProcessesApiDev";
 import { UserApiConfig } from "./UserApi";
+import { PCREmailsApiConfig } from "./PCREmailsApi";
 
 declare var _spPageContextInfo: any;
 
@@ -120,6 +121,7 @@ export interface IProcessesApi {
 export default class ProcessesApi implements IProcessesApi {
   private userApi = UserApiConfig.getApi();
   private notesApi = NotesApiConfig.getApi();
+  private pcrEmailsApi = PCREmailsApiConfig.getApi();
   private processesList = spWebContext.lists.getByTitle("Processes");
   private dd2579ContentTypeId: string | undefined;
   private ispContentTypeId: string | undefined;
@@ -322,6 +324,8 @@ export default class ProcessesApi implements IProcessesApi {
         let deleteNotesPromise = this.notesApi.deleteNotesForProcess(
           duplicateProcesses[0].Id
         );
+        let deletePCREmailsPromise =
+          this.pcrEmailsApi.deletePCREmailsForProcess(duplicateProcesses[0].Id);
         let deleteFilesPromises: Promise<any>[] = [];
         for (let file of await sp.web
           .getFolderByServerRelativePath(
@@ -338,6 +342,7 @@ export default class ProcessesApi implements IProcessesApi {
           );
         }
         await deleteNotesPromise;
+        await deletePCREmailsPromise;
         for (let deleteFilesPromise of deleteFilesPromises) {
           await deleteFilesPromise;
         }

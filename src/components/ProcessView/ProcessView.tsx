@@ -21,6 +21,7 @@ import { SendFormModal } from "../SendFormModal/SendFormModal";
 import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import "./ProcessView.css";
+import { PCREmailView } from "../PCREmailView/PCREmailView";
 
 export interface IProcessViewProps {
   processId: number;
@@ -291,6 +292,16 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
             <ProcessDetails
               process={process ? process : getBlankProcess(ProcessTypes.DD2579)}
             />
+            {
+              /* Only display the PCR Email status if we are at the PCR Review stage and we have a Status */
+              process?.CurrentStage === Stages.SBA_PCR_REVIEW &&
+                processDetails.pcrEmail && (
+                  <PCREmailView
+                    className="mt-5"
+                    email={processDetails.pcrEmail}
+                  />
+                )
+            }
             <NotesView
               className="mt-5"
               notes={processDetails.notes}
