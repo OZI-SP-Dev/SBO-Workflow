@@ -93,6 +93,7 @@ export const ProcessView: FunctionComponent<IProcessViewProps> = (props) => {
             onShow={processDetails.getUpdatedProcess}
             handleClose={() => setShowSendModal(false)}
             submit={processDetails.sendProcess}
+            documents={processDetails.documents}
           />
           <ReworkFormModal
             process={process}

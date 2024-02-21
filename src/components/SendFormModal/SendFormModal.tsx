@@ -11,6 +11,7 @@ import {
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import { checkSBAPCRValid } from "../../api/PCREmailsApi";
+import { IDocument } from "../../api/DocumentsApi";
 
 export interface SendFormModalProps {
   process: IProcess;
@@ -21,8 +22,10 @@ export interface SendFormModalProps {
   submit: (
     nextStage: Stages,
     assignee: IPerson | string,
-    noteText: string
+    noteText: string,
+    manuallySent: boolean
   ) => Promise<any>;
+  documents: IDocument[];
 }
 
 export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
@@ -33,6 +36,14 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
   );
   const [noteText, setNoteText] = useState<string>("");
   const [submitAttempted, setSubmitAttempted] = useState<boolean>(false);
+  const [ackManualSend, setackManualSend] = useState<boolean>(false);
+
+  // If the documents attached are more than 35MB
+  const greaterThan35MB =
+    props.documents.reduce((acc, obj) => {
+      return acc + parseInt(obj.Length);
+    }, 0) >=
+    35 * 1024 * 1024;
 
   const getNextStage = () => {
     switch (props.process.CurrentStage) {
@@ -91,15 +102,16 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
     if (nextStage !== undefined) {
       if (nextStage !== Stages.SBA_PCR_REVIEW && assignee !== undefined) {
         // All stages other than SBA PCR require the assignee to be defined/selected
-        await props.submit(nextStage, assignee, noteText);
+        await props.submit(nextStage, assignee, noteText, false);
         closeForm();
       } else if (
         nextStage === Stages.SBA_PCR_REVIEW &&
         pcrEmail &&
-        checkSBAPCRValid(pcrEmail) === undefined
+        checkSBAPCRValid(pcrEmail) === undefined &&
+        (greaterThan35MB ? ackManualSend : true)
       ) {
         //If we are going to SBA PCR, make sure we have a valid PCR Email in order to submit
-        await props.submit(nextStage, pcrEmail, noteText);
+        await props.submit(nextStage, pcrEmail, noteText, ackManualSend);
         closeForm();
       }
     }
@@ -202,6 +214,21 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
               id="formNotes"
             />
           </Form.Group>
+          {greaterThan35MB && nextStage === Stages.SBA_PCR_REVIEW && (
+            <Form.Group controlId="ackPCRSend">
+              <Form.Label className="required">
+                <strong>Documents manually sent</strong>
+              </Form.Label>
+              <Form.Check
+                checked={ackManualSend}
+                onChange={(e) => setackManualSend(e.target.checked)}
+                isInvalid={submitAttempted && !ackManualSend}
+                label="I have manually sent the documents to the SBA PCR Email specified above, as they exceed 35MB and the system is unable to send them."
+                required
+                id="ackPCRSend"
+              />
+            </Form.Group>
+          )}
         </div>
       </Form>
     </SubmittableModal>

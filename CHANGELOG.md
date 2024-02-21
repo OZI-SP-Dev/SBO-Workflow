@@ -6,7 +6,7 @@ Update the version number in package.json when submitting your PR
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## [1.2.0] 2024-02-16
+## [1.2.0] 2024-02-21
 
 ## Added
 
@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Added PCREmails list, which when a record is added to it, it will kick off a PowerAutomate to send email to PCR
   - Added a status indicator for those "In Queue" or "Errored"
   - Removed the auto email sent from tool on change to SBA PCR and instead send it via PowerAutomate when PCR email succeeds
+  - If the documents total more than 35MB, then the above process is ignored, and they must acknowledge they manually sent outside of the tool
 
 ## [1.1.0] 2023-03-28
 

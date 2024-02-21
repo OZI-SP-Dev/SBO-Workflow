@@ -32,7 +32,8 @@ export interface IProcessDetails {
   sendProcess: (
     newStage: Stages,
     assignee: IPerson | string,
-    noteText: string
+    noteText: string,
+    manuallySent: boolean
   ) => Promise<void>;
   reworkProcess: (
     newStage: Stages,
@@ -214,17 +215,35 @@ export function useProcessDetails(processId: number): IProcessDetails {
   const sendProcess = async (
     newStage: Stages,
     assignee: IPerson | string,
-    noteText: string
+    noteText: string,
+    manuallySent: boolean
   ): Promise<void> => {
     try {
       let newProcess = await updateProcessStage(newStage, assignee);
+      let newNotes = [...notes];
       if (noteText) {
-        let newNotes = [...notes];
         newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
+      }
+
+      // Document in notes that files were manually sent if they were
+      if (manuallySent) {
+        newNotes.unshift(
+          await notesApi.submitNote(
+            "Documents manually sent to " +
+              newProcess.SBAPCREmail +
+              " as they exceeded 35MB.",
+            newProcess
+          )
+        );
+      }
+
+      // If we added any notes, then update state
+      if (noteText || manuallySent) {
         setNotes(newNotes);
       }
-      // Send an email via the tool if moving to any stage other than PCR
-      if (newStage !== Stages.SBA_PCR_REVIEW) {
+
+      // Send an email via the tool if moving to any stage other than PCR -- or if we are moving to SBA PCR and files were manually sent
+      if (newStage !== Stages.SBA_PCR_REVIEW || manuallySent === true) {
         await email.sendAdvanceStageEmail(
           newProcess,
           newProcess.CurrentAssignee,
@@ -232,7 +251,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
           await userApi.getCurrentUser()
         );
       } else {
-        // We are moving to SBA_PCR_REVIEW so send the emails via PowerAutomate by staging a record
+        // We are moving to SBA_PCR_REVIEW so send the emails via PowerAutomate by staging a record -- unless they were manually sent
         await sendPCREmail();
       }
       setProcess(newProcess);
