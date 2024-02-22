@@ -127,6 +127,13 @@ export interface INote {
   Modified: DateTime;
 }
 
+export interface IPCREmail {
+  Id: number;
+  Title: string;
+  Status: string;
+  Modified: DateTime;
+}
+
 export interface IProcess {
   Id: number;
   ProcessType: ProcessTypes;

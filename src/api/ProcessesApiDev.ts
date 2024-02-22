@@ -68,7 +68,7 @@ export default class ProcessesApiDev implements IProcessesApi {
           MultipleAward: true,
           Created: DateTime.local(),
           Modified: DateTime.local(),
-          CurrentStage: Stages.BUYER_REVIEW,
+          CurrentStage: Stages.SBA_PCR_REVIEW,
           CurrentAssignee: new Person({
             Id: 1,
             Title: "Jeremy Clark",
@@ -76,6 +76,7 @@ export default class ProcessesApiDev implements IProcessesApi {
           }),
           CurrentStageStartDate: DateTime.local(),
           OL: "WPAFB",
+          SBAPCREmail: "SBAPCR@example.gov",
           "odata.etag": "1",
         },
         {
@@ -152,6 +153,7 @@ export default class ProcessesApiDev implements IProcessesApi {
             Title: "Jeremy Clark",
             EMail: "me@example.com",
           }),
+          SBAPCREmail: "SBAPCR@example.gov",
           CurrentStageStartDate: DateTime.local(),
           OL: "Tinker",
           "odata.etag": "1",

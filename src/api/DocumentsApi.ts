@@ -14,6 +14,7 @@ export interface IDocument {
   Modified: DateTime;
   LinkUrl: string;
   UniqueId: string;
+  Length: string;
 }
 
 export interface IDocumentsApi {
@@ -54,7 +55,8 @@ export default class DocumentsApi implements IDocumentsApi {
           "TimeLastModified",
           "ServerRelativeUrl",
           "ModifiedBy",
-          "UniqueId"
+          "UniqueId",
+          "Length"
         )
         .expand("ModifiedBy")
         .get();
@@ -66,6 +68,7 @@ export default class DocumentsApi implements IDocumentsApi {
           Modified: DateTime.fromISO(file.TimeLastModified),
           LinkUrl: file.ServerRelativeUrl,
           UniqueId: file.UniqueId,
+          Length: file.Length,
         };
       });
     } catch (e) {
@@ -93,7 +96,8 @@ export default class DocumentsApi implements IDocumentsApi {
           "TimeLastModified",
           "ServerRelativeUrl",
           "ModifiedBy",
-          "UniqueId"
+          "UniqueId",
+          "Length"
         )
         .expand("ModifiedBy")
         .get();
@@ -103,6 +107,7 @@ export default class DocumentsApi implements IDocumentsApi {
         Modified: DateTime.fromISO(spFile.TimeLastModified),
         LinkUrl: spFile.ServerRelativeUrl,
         UniqueId: spFile.UniqueId,
+        Length: spFile.Length,
       };
     } catch (e) {
       throw getAPIError(
@@ -146,6 +151,7 @@ export class DocumentsApiDev implements IDocumentsApi {
       Modified: DateTime.local(),
       LinkUrl: "/dd2579.pdf",
       UniqueId: "ID",
+      Length: "1000",
     },
     {
       Name: "Draft_ISP_Checklist.docx",
@@ -157,6 +163,7 @@ export class DocumentsApiDev implements IDocumentsApi {
       Modified: DateTime.local(),
       LinkUrl: "/Draft_ISP_Checklist.docx",
       UniqueId: "ID",
+      Length: "1000",
     },
   ];
 
@@ -178,6 +185,7 @@ export class DocumentsApiDev implements IDocumentsApi {
       Modified: DateTime.local(),
       LinkUrl: "/" + file.name,
       UniqueId: "ID",
+      Length: "1000",
     };
     this.documents.push(newDoc);
     return newDoc;
