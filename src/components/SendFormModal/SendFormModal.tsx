@@ -38,12 +38,12 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
   const [submitAttempted, setSubmitAttempted] = useState<boolean>(false);
   const [ackManualSend, setackManualSend] = useState<boolean>(false);
 
-  // If the documents attached are more than 35MB
-  const greaterThan35MB =
+  // Currently Emails larger than 35MB sent from Power Automate will bounce from Exchange, but the flow won't fail
+  const sizeLimit = 35 * 1024 * 1024;
+  const isOverSizeLimit =
     props.documents.reduce((acc, obj) => {
       return acc + parseInt(obj.Length);
-    }, 0) >=
-    35 * 1024 * 1024;
+    }, 0) >= sizeLimit;
 
   const getNextStage = () => {
     switch (props.process.CurrentStage) {
@@ -108,7 +108,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
         nextStage === Stages.SBA_PCR_REVIEW &&
         pcrEmail &&
         checkSBAPCRValid(pcrEmail) === undefined &&
-        (greaterThan35MB ? ackManualSend : true)
+        (isOverSizeLimit ? ackManualSend : true)
       ) {
         //If we are going to SBA PCR, make sure we have a valid PCR Email in order to submit
         await props.submit(nextStage, pcrEmail, noteText, ackManualSend);
@@ -214,7 +214,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
               id="formNotes"
             />
           </Form.Group>
-          {greaterThan35MB && nextStage === Stages.SBA_PCR_REVIEW && (
+          {isOverSizeLimit && nextStage === Stages.SBA_PCR_REVIEW && (
             <Form.Group controlId="ackPCRSend">
               <Form.Label className="required">
                 <strong>Documents manually sent</strong>
