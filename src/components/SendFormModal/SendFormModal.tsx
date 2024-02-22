@@ -108,7 +108,7 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
         nextStage === Stages.SBA_PCR_REVIEW &&
         pcrEmail &&
         checkSBAPCRValid(pcrEmail) === undefined &&
-        (isOverSizeLimit ? ackManualSend : true)
+        (!isOverSizeLimit || ackManualSend) // Proceed if it is either not over size limit, or it is, and they have acknowledged they sent manually
       ) {
         //If we are going to SBA PCR, make sure we have a valid PCR Email in order to submit
         await props.submit(nextStage, pcrEmail, noteText, ackManualSend);
