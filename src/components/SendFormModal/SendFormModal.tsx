@@ -198,16 +198,15 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
                 submitAttempted && (checkSBAPCRValid(pcrEmail) ? true : false)
               }
               id="pcrEmailEntry"
-            >
-              <datalist id="PCRlist">
-                {pcrEmailAddresses.map((item) => (
-                  <option value={item.Title} />
-                ))}
-              </datalist>
-            </Form.Control>
+            ></Form.Control>
             <Form.Control.Feedback type="invalid">
               {checkSBAPCRValid(pcrEmail)}
             </Form.Control.Feedback>
+            <datalist id="PCRlist">
+              {pcrEmailAddresses.map((item) => (
+                <option value={item.Title} />
+              ))}
+            </datalist>
           </Form.Group>
         )}
         <div className="mt-2 mb-2">
