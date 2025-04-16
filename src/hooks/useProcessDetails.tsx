@@ -19,6 +19,7 @@ import { ProcessesApiConfig } from "../api/ProcessesApi";
 import { UserApiConfig } from "../api/UserApi";
 import { ErrorsContext } from "../providers/ErrorsContext";
 import { useEmail } from "./useEmail";
+import { MetricsApiConfig } from "../api/MetricsApi";
 
 export interface IProcessDetails {
   process?: IProcess;
@@ -54,6 +55,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
   const notesApi = NotesApiConfig.getApi();
   const pcrEmailsApi = PCREmailsApiConfig.getApi();
   const userApi = UserApiConfig.getApi();
+  const metricsApi = MetricsApiConfig.getApi();
   const email = useEmail();
   const [process, setProcess] = useState<IProcess>();
   const [documents, setDocuments] = useState<IDocument[]>([]);
@@ -220,6 +222,13 @@ export function useProcessDetails(processId: number): IProcessDetails {
   ): Promise<void> => {
     try {
       let newProcess = await updateProcessStage(newStage, assignee);
+      //updateProcessStage successful, save metrics event
+      const matches = noteText.match(/<strong>(.*?)<\/strong>/g);
+      await metricsApi.submitEvent(
+        newProcess.CurrentStage,
+        newProcess.Id,
+        matches?.[0].replace(/<\/?strong>/g, "")
+      );
       let newNotes = [...notes];
       if (noteText) {
         newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
@@ -269,6 +278,13 @@ export function useProcessDetails(processId: number): IProcessDetails {
   ): Promise<void> => {
     try {
       let newProcess = await updateProcessStage(newStage, assignee);
+      //updateProcessStage successful, save metrics event
+      const matches = noteText.match(/<strong>(.*?)<\/strong>/g);
+      await metricsApi.submitEvent(
+        newProcess.CurrentStage,
+        newProcess.Id,
+        matches?.[0].replace(/<\/?strong>/g, "")
+      );
       if (noteText) {
         let newNotes = [...notes];
         newNotes.unshift(await notesApi.submitNote(noteText, newProcess));
