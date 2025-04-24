@@ -1,6 +1,6 @@
 import { sp } from "@pnp/sp";
 import "@pnp/sp/sputilities";
-import { IEmailProperties } from "@pnp/sp/sputilities";
+import { spWebContext } from "../providers/SPWebContext";
 import { IPerson } from "./DomainObjects";
 import { getAPIError } from "./InternalErrors";
 
@@ -12,13 +12,13 @@ export interface IEmailApi {
     to: IPerson[],
     subject: string,
     body: string,
-    cc?: IPerson[],
-    from?: IPerson
+    cc?: IPerson[]
   ) => Promise<void>;
 }
 
 export class EmailApi implements IEmailApi {
   siteUrl: string = _spPageContextInfo.webAbsoluteUrl;
+  private sendEmailList = spWebContext.lists.getByTitle("Emails");
 
   constructor() {
     sp.setup({
@@ -36,21 +36,17 @@ export class EmailApi implements IEmailApi {
     to: IPerson[],
     subject: string,
     body: string,
-    cc?: IPerson[],
-    from?: IPerson
+    cc?: IPerson[]
   ): Promise<void> {
+    const email = {
+      To: this.getEmails(to).join(";"),
+      CC: cc ? this.getEmails(cc).join(";") : undefined,
+      Title: "SBAT-Workflow " + subject,
+      Body: body.replace(/\n/g, "<BR>"),
+    };
+    console.log(email);
     try {
-      let email: IEmailProperties = {
-        To: this.getEmails(to),
-        CC: cc ? this.getEmails(cc) : undefined,
-        Subject: "SBAT-Workflow " + subject,
-        Body: body.replace(/\n/g, "<BR>"),
-        From: from?.EMail,
-        AdditionalHeaders: {
-          "content-type": "text/html",
-        },
-      };
-      await sp.utility.sendEmail(email);
+      await this.sendEmailList.items.add(email);
     } catch (e) {
       throw getAPIError(
         e,

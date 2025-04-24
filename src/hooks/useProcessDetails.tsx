@@ -256,8 +256,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
         await email.sendAdvanceStageEmail(
           newProcess,
           newProcess.CurrentAssignee,
-          noteText,
-          await userApi.getCurrentUser()
+          noteText
         );
       } else {
         // We are moving to SBA_PCR_REVIEW so send the emails via PowerAutomate by staging a record -- unless they were manually sent
@@ -295,8 +294,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
       await email.sendRejectStageEmail(
         newProcess,
         newProcess.CurrentAssignee,
-        noteText,
-        await userApi.getCurrentUser()
+        noteText
       );
       setProcess(newProcess);
     } catch (e) {
