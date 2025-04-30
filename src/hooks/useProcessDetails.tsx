@@ -278,11 +278,11 @@ export function useProcessDetails(processId: number): IProcessDetails {
     try {
       let newProcess = await updateProcessStage(newStage, assignee);
       //updateProcessStage successful, save metrics event
-      const matches = noteText.match(/<strong>(.*?)<\/strong>/g);
+      const matches = noteText.match(/<strong>Rework Reason\s(.*?)<\/strong>/);
       await metricsApi.submitEvent(
         newProcess.CurrentStage,
         newProcess.Id,
-        matches?.[0].replace(/<\/?strong>/g, "")
+        matches?.[1]
       );
       if (noteText) {
         let newNotes = [...notes];
