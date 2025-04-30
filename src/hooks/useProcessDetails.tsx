@@ -223,12 +223,7 @@ export function useProcessDetails(processId: number): IProcessDetails {
     try {
       let newProcess = await updateProcessStage(newStage, assignee);
       //updateProcessStage successful, save metrics event
-      const matches = noteText.match(/<strong>(.*?)<\/strong>/g);
-      await metricsApi.submitEvent(
-        newProcess.CurrentStage,
-        newProcess.Id,
-        matches?.[0].replace(/<\/?strong>/g, "")
-      );
+      await metricsApi.submitEvent(newProcess.CurrentStage, newProcess.Id);
       let newNotes = [...notes];
       if (noteText) {
         newNotes.unshift(await notesApi.submitNote(noteText, newProcess));

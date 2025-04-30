@@ -44,7 +44,7 @@ export class EmailApi implements IEmailApi {
       Title: "SBAT-Workflow " + subject,
       Body: body.replace(/\n/g, "<BR>"),
     };
-    console.log(email);
+
     try {
       await this.sendEmailList.items.add(email);
     } catch (e) {

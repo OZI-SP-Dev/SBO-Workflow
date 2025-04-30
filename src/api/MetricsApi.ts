@@ -33,7 +33,6 @@ interface IMetricEvent {
 
 export default class MetricsApi implements IMetricsApi {
   private metricsList = spWebContext.lists.getByTitle("Metrics");
-  private userApi = UserApiConfig.getApi();
 
   submitEvent = async (
     Title: string,
