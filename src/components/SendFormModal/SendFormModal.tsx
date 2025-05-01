@@ -1,5 +1,5 @@
 import { Editor } from "@tinymce/tinymce-react";
-import React, { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import {
   IPerson,
@@ -12,6 +12,10 @@ import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { SubmittableModal } from "../SubmittableModal/SubmittableModal";
 import { checkSBAPCRValid } from "../../api/PCREmailsApi";
 import { IDocument } from "../../api/DocumentsApi";
+import {
+  PCREmailAddressesApiConfig,
+  IPCREmailAddress,
+} from "../../api/PCREmailAddressesApi";
 
 export interface SendFormModalProps {
   process: IProcess;
@@ -37,6 +41,9 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
   const [noteText, setNoteText] = useState<string>("");
   const [submitAttempted, setSubmitAttempted] = useState<boolean>(false);
   const [ackManualSend, setackManualSend] = useState<boolean>(false);
+  const [pcrEmailAddresses, setPcrEmailAddresses] = useState<
+    IPCREmailAddress[]
+  >([]);
 
   // Currently Emails larger than 35MB sent from Power Automate will bounce from Exchange, but the flow won't fail
   const sizeLimit = 35 * 1024 * 1024;
@@ -79,6 +86,11 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
     }
   };
 
+  const PCREmailAddressesApi = PCREmailAddressesApiConfig.getApi();
+  const fetchPCREmailAddresses = useCallback(async () => {
+    setPcrEmailAddresses(await PCREmailAddressesApi.fetchAddresses());
+  }, [PCREmailAddressesApi]);
+
   useEffect(() => {
     setNextStage(getNextStage()); // eslint-disable-next-line
   }, [props.process]);
@@ -88,6 +100,10 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
       setAssignee(getAssignee());
     } // eslint-disable-next-line
   }, [nextStage, props.showModal]);
+
+  useEffect(() => {
+    fetchPCREmailAddresses();
+  }, [fetchPCREmailAddresses]);
 
   const closeForm = () => {
     setAssignee(undefined);
@@ -175,16 +191,22 @@ export const SendFormModal: FunctionComponent<SendFormModalProps> = (props) => {
             </Form.Label>
             <Form.Control
               type="text"
+              list="PCRlist"
               value={pcrEmail}
               onChange={(e) => setPCREmail(e.target.value)}
               isInvalid={
                 submitAttempted && (checkSBAPCRValid(pcrEmail) ? true : false)
               }
               id="pcrEmailEntry"
-            />
+            ></Form.Control>
             <Form.Control.Feedback type="invalid">
               {checkSBAPCRValid(pcrEmail)}
             </Form.Control.Feedback>
+            <datalist id="PCRlist">
+              {pcrEmailAddresses.map((item) => (
+                <option value={item.Title} />
+              ))}
+            </datalist>
           </Form.Group>
         )}
         <div className="mt-2 mb-2">

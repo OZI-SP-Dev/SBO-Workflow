@@ -11,21 +11,18 @@ export interface IEmailSender {
     to: IPerson[],
     subject: string,
     body: string,
-    cc?: IPerson[],
-    from?: IPerson
+    cc?: IPerson[]
   ) => Promise<void>;
   sendSubmitEmail: (process: IProcess) => Promise<void>;
   sendAdvanceStageEmail: (
     process: IProcess,
     assignee: IPerson,
-    noteText: string,
-    from?: IPerson
+    noteText: string
   ) => Promise<void>;
   sendRejectStageEmail: (
     process: IProcess,
     assignee: IPerson,
-    noteText: string,
-    from?: IPerson
+    noteText: string
   ) => Promise<void>;
 }
 
@@ -40,13 +37,12 @@ export function useEmail(): IEmailSender {
     to: IPerson[],
     subject: string,
     body: string,
-    cc?: IPerson[],
-    from?: IPerson
+    cc?: IPerson[]
   ): Promise<void> => {
     try {
       setSending(true);
       if (to.length) {
-        await emailApi.sendEmail(to, subject, body, cc, from);
+        await emailApi.sendEmail(to, subject, body, cc);
       }
     } catch (e) {
       if (errorsContext.reportError) {
@@ -81,8 +77,7 @@ export function useEmail(): IEmailSender {
   const sendAdvanceStageEmail = async (
     process: IProcess,
     assignee: IPerson,
-    noteText: string,
-    from?: IPerson
+    noteText: string
   ): Promise<void> => {
     let to = [assignee];
     let cc = [process.Buyer];
@@ -102,14 +97,13 @@ export function useEmail(): IEmailSender {
         
         Record will only be available for 90 days.`;
 
-    return sendEmail(to, subject, body, cc, from);
+    return sendEmail(to, subject, body, cc);
   };
 
   const sendRejectStageEmail = async (
     process: IProcess,
     assignee: IPerson,
-    noteText: string,
-    from?: IPerson
+    noteText: string
   ): Promise<void> => {
     let to = [assignee];
     let cc = [process.Buyer];
@@ -129,7 +123,7 @@ export function useEmail(): IEmailSender {
         
         Record will only be available for 90 days.`;
 
-    return sendEmail(to, subject, body, cc, from);
+    return sendEmail(to, subject, body, cc);
   };
 
   return {
