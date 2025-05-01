@@ -58,9 +58,8 @@ export default class MetricsApi implements IMetricsApi {
 }
 
 export class MetricsApiDev implements IMetricsApi {
-  userApi = UserApiConfig.getApi();
-
-  maxId = 0;
+  private userApi = UserApiConfig.getApi();
+  private maxId = 0;
 
   submitEvent = async (
     Title: string,
