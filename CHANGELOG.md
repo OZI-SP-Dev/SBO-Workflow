@@ -6,9 +6,15 @@ Update the version number in package.json when submitting your PR
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [1.2.1] 2026-04-29
+
+### Changed
+
+- Removed the Report Bug modal, and replaced it with a link to a form hosted in MS Forms
+
 ## [1.2.0] 2024-02-21
 
-## Added
+### Added
 
 - Added SBA PCR email capability
   - Added the SBAPCREmail as a plain text field that supports .mil and .gov email addresses (Will remove SBAPCR field from SP after burn in)

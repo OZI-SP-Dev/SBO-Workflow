@@ -46,7 +46,6 @@ import "tinymce/skins/ui/oxide/content.min.css";
 import "tinymce/skins/content/default/content.min.css";
 import { ErrorsProvider } from "./providers/ErrorsContext";
 import { UserProvider } from "./providers/UserProvider";
-import { ContactUsProvider } from "./providers/ContactUsContext";
 
 initializeIcons();
 initializeFileTypeIcons();
@@ -57,15 +56,13 @@ ReactDOM.render(
       <UserProvider>
         <OLsProvider>
           <OrgsProvider>
-            <ContactUsProvider>
-              <App />
-            </ContactUsProvider>
+            <App />
           </OrgsProvider>
         </OLsProvider>
       </UserProvider>
     </ErrorsProvider>
   </React.StrictMode>,
-  document.getElementById("root")
+  document.getElementById("root"),
 );
 
 // If you want to start measuring performance in your app, pass a function
