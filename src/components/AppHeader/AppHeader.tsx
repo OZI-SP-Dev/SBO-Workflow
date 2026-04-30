@@ -1,7 +1,7 @@
 import { FunctionComponent, useContext } from "react";
 import { Form, Nav, Navbar } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import { ReportBugs } from "../ReportBugs/ReportBugs";
+import { useLocation } from "react-router-dom";
 import { OLsContext } from "../../providers/OLsContext";
 import { UserContext } from "../../providers/UserProvider";
 import "./AppHeader.css";
@@ -9,6 +9,7 @@ import "./AppHeader.css";
 export const AppHeader: FunctionComponent = () => {
   const { ols, currentOL, loading, setOL } = useContext(OLsContext);
   const { owner } = useContext(UserContext);
+  const location = useLocation();
 
   return (
     <Navbar
@@ -62,7 +63,14 @@ export const AppHeader: FunctionComponent = () => {
         </LinkContainer>
       </Nav>
       <Nav>
-        <ReportBugs />
+        <Nav.Link
+          className="bordered"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`https://forms.osi.apps.mil/Pages/ResponsePage.aspx?id=jbExg4ct70ijX6yIGOv5tA9QpBlprYdDhci7mCPTM5BUN1c2MzJUVVNPNzg5MEVWMVJINEkzU1YxRiQlQCN0PWcu&r5a32baccb51a4671852783b3f67af1aa=%22Small%20Business%20Agility%20Tool%20(SBAT)%22&r856aef04119e4bca88c21e8ecb76bbd4=Current%20Route%3A%20${location.pathname}`}
+        >
+          <span>Report Bug</span>
+        </Nav.Link>
       </Nav>
     </Navbar>
   );
