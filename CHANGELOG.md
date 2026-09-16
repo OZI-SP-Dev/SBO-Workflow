@@ -6,6 +6,12 @@ Update the version number in package.json when submitting your PR
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [1.2.2] 2026-09-16
+
+### Changed
+
+- Updated Help links
+
 ## [1.2.1] 2026-04-29
 
 ### Changed
