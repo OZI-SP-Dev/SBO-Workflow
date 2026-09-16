@@ -151,19 +151,19 @@ export const Help: FunctionComponent = () => {
                   </a>
                   <br />
                   <br />
-                  <a href="https://www.sba.gov/contracting/getting-started-contractor/make-sure-you-meet-sba-size-standards/table-small-business-size-standards">
+                  <a href="https://legacy.sba.gov/document/support-table-size-standards">
                     Small Business Administration Size Standards (Size
                     Standards)
                   </a>
                   <br />
                   <br />
-                  <a href="https://www.fpds.gov/fpdsng_cms/index.php/en/worksite.html">
+                  <a href="https://www.acquisition.gov/psc-manual">
                     Product and Service Codes (PSC)
                   </a>
                   <br />
                   <br />
-                  <a href="http://dsbs.sba.gov/dsbs/search/dsp_dsbs.cfm">
-                    SBA Small Business Dynamic Search Tool
+                  <a href="https://search.certifications.sba.gov/">
+                    SBA Small Business Search
                   </a>
                   <br />
                   <br />
